@@ -1,0 +1,10 @@
+From this baseline onward:
+NO breaking changes allowed
+NO schema changes without version bump
+NO modification of audit/evidence logic
+
+Allowed:
+UI improvements
+demo tooling
+documentation
+positioning assets

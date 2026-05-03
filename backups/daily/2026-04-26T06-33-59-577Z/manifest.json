@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-04-26T06:33:59.577Z",
+  "backupType": "daily",
+  "components": [
+    "postgres-export",
+    "object-storage-snapshot",
+    "evidence-artifacts"
+  ],
+  "files": [
+    {
+      "file": ".snapshots__screenshots__01-login.png",
+      "sha256": "17dbba8b054c7a25277d420c79080d5b4920a4f66acea5f75b1f7b4683decb7c",
+      "bytes": 258811
+    },
+    {
+      "file": ".snapshots__screenshots__02-admin-data-sources.png",
+      "sha256": "8cae3d5cc1e8a3e832f90114d7529e7e2d5de297ac803feaa3633afb5d5a9cc2",
+      "bytes": 245219
+    },
+    {
+      "file": ".snapshots__screenshots__03-document-extraction.png",
+      "sha256": "9de6010e392b8851b55db3371f7610bc15042da6989808a8454d41caf16ec692",
+      "bytes": 197395
+    },
+    {
+      "file": "Case_A_FALSE_POSITIVE_CLEAR__ofac-sample-inserted-rows.json",
+      "sha256": "2c9ae22f06fc4fea52c4fdbee05b1666f730bf7a80957f74f83d81585cf98a58",
+      "bytes": 1774
+    },
+    {
+      "file": "Case_A_FALSE_POSITIVE_CLEAR__verification-result.txt",
+      "sha256": "4ab8465b5b100ae0a2fafecbd0b64bf11a7b0ad86375c0d0e50890552d79ec1f",
+      "bytes": 1873
+    }
+  ]
+}

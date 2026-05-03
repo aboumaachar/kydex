@@ -1,0 +1,47 @@
+{
+  "certificateVersion": "v1",
+  "certificateId": "kydex-prod-2026-04-26T08-15-04-265Z",
+  "workspace": "C:\\kydex",
+  "nodeEnv": "unknown",
+  "signingMode": "STRICT",
+  "signingKeySource": "DEPLOYMENT_CERT_SIGNING_KEY",
+  "productionValid": false,
+  "startedAt": "2026-04-26T08:15:04.265Z",
+  "completedAt": "2026-04-26T08:15:43.345Z",
+  "durationMs": 39080,
+  "command": "npm run production:certify",
+  "overallStatus": "FAIL",
+  "failedCount": 1,
+  "gates": [
+    {
+      "name": "api_build",
+      "command": "npm run build -w @kydex/api",
+      "timeoutMs": 180000,
+      "startedAt": "2026-04-26T08:15:04.267Z",
+      "completedAt": "2026-04-26T08:15:16.922Z",
+      "durationMs": 12655,
+      "exitCode": 0,
+      "ok": true,
+      "attempts": 1,
+      "timedOut": false,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-15-04-265Z\\api_build.stdout.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-15-04-265Z\\api_build.stderr.log",
+      "notes": []
+    },
+    {
+      "name": "web_build",
+      "command": "npm run build -w @kydex/web",
+      "timeoutMs": 300000,
+      "startedAt": "2026-04-26T08:15:16.928Z",
+      "completedAt": "2026-04-26T08:15:43.343Z",
+      "durationMs": 26415,
+      "exitCode": 134,
+      "ok": false,
+      "attempts": 1,
+      "timedOut": false,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-15-04-265Z\\web_build.stdout.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-15-04-265Z\\web_build.stderr.log",
+      "notes": []
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: kydex-api-health
+    metrics_path: /api/v1/health
+    static_configs:
+      - targets: ["api:4000"]
+
+  - job_name: redis
+    static_configs:
+      - targets: ["redis:6379"]
+
+  - job_name: minio
+    metrics_path: /minio/health/live
+    static_configs:
+      - targets: ["minio:9000"]

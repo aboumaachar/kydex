@@ -1,0 +1,40 @@
+name: KYDEX CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Prisma Generate
+        run: npm run prisma:generate
+
+      - name: Build API
+        run: npm run build -w @kydex/api
+
+      - name: Build Web
+        run: npm run build -w @kydex/web
+
+      - name: Architecture Hard-Lock Verify
+        run: npm run architecture:verify
+
+      - name: Architecture Local Screening Tests
+        run: npm run test:e2e -w @kydex/api -- --runInBand test/architecture-local-screening.e2e-spec.ts
+
+      - name: API E2E Tests
+        run: npm run test:e2e -w @kydex/api

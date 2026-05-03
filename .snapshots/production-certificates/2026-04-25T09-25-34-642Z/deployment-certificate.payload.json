@@ -1,0 +1,32 @@
+{
+  "certificateVersion": "v1",
+  "certificateId": "kydex-prod-2026-04-25T09-25-34-642Z",
+  "workspace": "C:\\kydex",
+  "nodeEnv": "unknown",
+  "signingMode": "STRICT",
+  "signingKeySource": "DEPLOYMENT_CERT_SIGNING_KEY",
+  "productionValid": false,
+  "startedAt": "2026-04-25T09:25:34.642Z",
+  "completedAt": "2026-04-25T09:25:34.645Z",
+  "durationMs": 3,
+  "command": "npm run production:certify",
+  "overallStatus": "FAIL",
+  "failedCount": 1,
+  "gates": [
+    {
+      "name": "signing_precheck",
+      "command": "pre-gate signing policy validation",
+      "startedAt": "2026-04-25T09:25:34.642Z",
+      "completedAt": "2026-04-25T09:25:34.645Z",
+      "durationMs": 0,
+      "exitCode": 1,
+      "ok": false,
+      "attempts": 1,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-25T09-25-34-642Z\\signing-precheck.stderr.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-25T09-25-34-642Z\\signing-precheck.stderr.log",
+      "notes": [
+        "Strict signing enabled: DEPLOYMENT_CERT_SIGNING_KEY is required and must be at least 32 characters."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,929 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TenantType {
+  COUNCIL
+  LEGAL_FIRM
+  FINTECH
+  BANK
+  GOVERNMENT
+  INTERNAL
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  COUNCIL_ADMIN
+  COMPLIANCE_OFFICER
+  REVIEW_COMMITTEE_MEMBER
+  NOTARY
+  AUDITOR
+  API_CLIENT
+}
+
+enum DataSourceType {
+  OFAC
+  UN
+  LOCAL
+  CUSTOM_CSV
+  PRIVATE_CLIENT_LIST
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum CaseStatus {
+  DRAFT
+  SCREENED
+  NEEDS_REVIEW
+  ESCALATED_INTERNALLY
+  PENDING_ADDITIONAL_INFORMATION
+  CLEARED
+  SIC_PACKAGE_PREPARED
+  REPORTED_TO_SIC
+  REJECTED_BLOCKED
+  CLOSED
+}
+
+enum CommitteeDecision {
+  CLEAR
+  REQUEST_MORE_INFORMATION
+  ESCALATE_AS_SUSPICIOUS
+  REJECT_OR_BLOCK
+}
+
+enum CasePriority {
+  STANDARD
+  HIGH
+  CRITICAL
+}
+
+enum MatchClassification {
+  EXACT_MATCH
+  STRONG_PROBABLE_MATCH
+  POSSIBLE_MATCH
+  WEAK_SIMILARITY
+  NO_MATCH
+}
+
+enum MatchDecision {
+  TRUE_MATCH
+  POSSIBLE_MATCH
+  FALSE_MATCH
+  NO_MATCH
+  INSUFFICIENT_DATA
+}
+
+enum MatchRecommendedAction {
+  BLOCK_OR_ESCALATE
+  ESCALATE_FOR_REVIEW
+  ALLOW_WITH_NOTE
+  ALLOW
+  REQUEST_MORE_INFORMATION
+}
+
+enum MembershipStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  SUSPENDED
+  CANCELLED
+  EXPIRED
+}
+
+enum NotaryApiKeyStatus {
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+model Tenant {
+  id        String     @id @default(cuid())
+  name      String
+  country   String?
+  type      TenantType
+  status    String     @default("ACTIVE")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  users      User[]
+  apiKeys    ApiKey[]
+  screenings ScreeningQuery[]
+  cases      ComplianceCase[]
+}
+
+model User {
+  id               String   @id @default(cuid())
+  tenantId         String
+  tenant           Tenant   @relation(fields: [tenantId], references: [id])
+  fullName         String
+  email            String   @unique
+  passwordHash     String
+  role             UserRole
+  twoFactorEnabled Boolean  @default(false)
+  status           String   @default("ACTIVE")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  screenings    ScreeningQuery[]
+  auditLogs     AuditLog[]
+  reviewedCases ComplianceCase[] @relation("CaseReviewer")
+  refreshTokens RefreshToken[]
+  extractedDocuments DocumentExtraction[] @relation("DocumentExtractedBy")
+  confirmedDocumentExtractions DocumentExtraction[] @relation("DocumentConfirmedBy")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+}
+
+model ApiKey {
+  id         String   @id @default(cuid())
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  name       String
+  keyHash    String
+  scopes     String[]
+  status     String   @default("ACTIVE")
+  lastUsedAt DateTime?
+  createdAt  DateTime @default(now())
+}
+
+model DataSource {
+  id              String         @id @default(cuid())
+  code            String         @unique
+  name            String
+  type            DataSourceType
+  country         String?
+  updateFrequency String?
+  status          String         @default("ACTIVE")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  versions         DataSourceVersion[]
+  records          WatchlistRecord[]
+  ingestionReports IngestionRunReport[]
+}
+
+model DataSourceVersion {
+  id           String     @id @default(cuid())
+  dataSourceId String
+  dataSource   DataSource @relation(fields: [dataSourceId], references: [id])
+  versionLabel String
+  fileHash     String?
+  importedAt   DateTime   @default(now())
+  importedBy   String?
+  recordCount  Int        @default(0)
+  status       String     @default("IMPORTED")
+
+  records          WatchlistRecord[]
+  ingestionReports IngestionRunReport[]
+}
+
+model WatchlistRecord {
+  id               String            @id @default(cuid())
+  dataSourceId     String
+  dataSource       DataSource        @relation(fields: [dataSourceId], references: [id])
+  versionId        String
+  version          DataSourceVersion @relation(fields: [versionId], references: [id])
+
+  externalReference String?
+  entityType        String
+  primaryName       String
+  normalizedName    String
+  arabicNormalizedName String?
+  latinTransliteratedName String?
+  aliases           String[]
+  normalizedAliases String[] @default([])
+  arabicNormalizedAliases String[] @default([])
+  dateOfBirth       String?
+  nationality       String?
+  country           String?
+  documentNumbers   String[]
+  rawPayload        Json
+
+  createdAt DateTime @default(now())
+
+  matches ScreeningMatch[]
+}
+
+model ScreeningQuery {
+  id             String  @id @default(cuid())
+  tenantId       String
+  tenant         Tenant  @relation(fields: [tenantId], references: [id])
+  userId         String?
+  user           User?   @relation(fields: [userId], references: [id])
+
+  fullName        String
+  normalizedName  String
+  dateOfBirth     String?
+  nationality     String?
+  documentNumber  String?
+  transactionType String?
+  sourcesUsed     String[]
+  highestScore    Float     @default(0)
+  riskLevel       RiskLevel
+  matchDecision   MatchDecision?
+  decisionConfidence Float?
+  reasonSummary   String?
+  recommendedAction MatchRecommendedAction?
+  supportingFactors Json?
+  weakeningFactors Json?
+  clientReference String?
+
+  createdAt DateTime @default(now())
+  ipAddress String?
+
+  matches        ScreeningMatch[]
+  complianceCase ComplianceCase?
+}
+
+model ScreeningMatch {
+  id                String           @id @default(cuid())
+  queryId           String
+  query             ScreeningQuery   @relation(fields: [queryId], references: [id])
+  watchlistRecordId String?
+  watchlistRecord   WatchlistRecord? @relation(fields: [watchlistRecordId], references: [id])
+
+  sourceCode         String
+  matchedName        String
+  score              Float
+  riskLevel          RiskLevel
+  classification     MatchClassification
+  matchReason        String
+  sourceVersionLabel String?
+  createdAt          DateTime @default(now())
+}
+
+model ComplianceCase {
+  id               String         @id @default(cuid())
+  tenantId         String
+  tenant           Tenant         @relation(fields: [tenantId], references: [id])
+  screeningQueryId String         @unique
+  screeningQuery   ScreeningQuery @relation(fields: [screeningQueryId], references: [id])
+
+  status              CaseStatus @default(NEEDS_REVIEW)
+  riskLevel           RiskLevel
+  priority            CasePriority @default(STANDARD)
+  priorityRaisedAt    DateTime?
+  slaTargetAt         DateTime?
+  slaBreachedAt       DateTime?
+  slaAlertedAt        DateTime?
+  lockVersion         Int        @default(0)
+  assignedReviewerId  String?
+  assignedReviewer    User?      @relation("CaseReviewer", fields: [assignedReviewerId], references: [id])
+  reviewerLockedById  String?
+  reviewerLockAcquiredAt DateTime?
+  reviewerLockExpiresAt DateTime?
+  committeeDecision   CommitteeDecision?
+  decisionNotes       String?
+  originalDecision    MatchDecision?
+  reviewerDecision    MatchDecision?
+  reviewerJustification String?
+  reviewedAt          DateTime?
+  sicSubmissionStatus String?
+  finalAuthorityUserId String?
+  finalAuthorityRole  UserRole?
+  finalAuthoritySignedAt DateTime?
+  finalAuthoritySignatureHash String?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  closedAt            DateTime?
+
+  actions          CaseAction[]
+  evidencePackages EvidencePackage[]
+
+  @@index([priority, slaTargetAt])
+  @@index([reviewerLockExpiresAt])
+  @@index([slaTargetAt, slaBreachedAt])
+}
+
+model IngestionRunReport {
+  id              String   @id @default(cuid())
+  tenantId        String?
+  dataSourceId    String
+  dataSource      DataSource @relation(fields: [dataSourceId], references: [id])
+  versionId       String
+  version         DataSourceVersion @relation(fields: [versionId], references: [id])
+  sourceCode      String
+  totalRows       Int
+  insertedRecords Int
+  rejectedRows    Int
+  duplicateRows   Int
+  validationErrors Json
+  rejectedReport   Json
+  createdBy       String?
+  createdAt       DateTime @default(now())
+}
+
+model DocumentExtraction {
+  id                 String   @id @default(cuid())
+  tenantId           String
+  extractedById      String?
+  extractedBy        User?    @relation("DocumentExtractedBy", fields: [extractedById], references: [id])
+  confirmedById      String?
+  confirmedBy        User?    @relation("DocumentConfirmedBy", fields: [confirmedById], references: [id])
+  documentType       String
+  sourceFileName     String
+  sourceMimeType     String
+  sourceHash         String
+  extractionProvider String
+  extractionConfidence Float
+  extractedFields    Json
+  confirmedFields    Json?
+  status             String   @default("EXTRACTED")
+  redactRequested    Boolean  @default(false)
+  redactedAt         DateTime?
+  extractedAt        DateTime @default(now())
+  confirmedAt        DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([tenantId, createdAt])
+  @@index([status, confirmedAt])
+}
+
+model EvidencePackage {
+  id          String   @id @default(cuid())
+  caseId      String
+  complianceCase ComplianceCase @relation(fields: [caseId], references: [id])
+  packageHash String
+  payload     Json
+  generatedBy String?
+  createdAt   DateTime @default(now())
+
+  @@index([caseId, createdAt])
+}
+
+model CaseAction {
+  id        String         @id @default(cuid())
+  caseId    String
+  case      ComplianceCase @relation(fields: [caseId], references: [id])
+  actorId   String?
+  action    String
+  notes     String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  tenantId   String?
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  chainScope String   @default("GLOBAL")
+  previousHash String?
+  entryHash  String?
+  action     String
+  entityType String
+  entityId   String?
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([chainScope, createdAt])
+}
+
+model OfacEntity {
+  id                    String   @id @default(cuid())
+  ofacEntityId          String   @unique
+  identityId            String?
+  entityType            String?
+  primaryName           String?
+  normalizedPrimaryName String?
+  listName              String?
+  programs              String[]
+  sanctionsTypes        String[]
+  legalAuthorities      String[]
+  rawJson               Json?
+  lastSyncedAt          DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  names            OfacName[]
+  addresses        OfacAddress[]
+  features         OfacFeature[]
+  screeningMatches OfacScreeningMatch[] @relation("OfacEntityRecordMatches")
+
+  @@index([normalizedPrimaryName])
+  @@index([listName])
+}
+
+model OfacName {
+  id             String   @id @default(cuid())
+  entityId       String
+  fullName       String
+  normalizedName String
+  firstName      String?
+  middleName     String?
+  lastName       String?
+  isPrimary      Boolean  @default(false)
+  isLowQuality   Boolean  @default(false)
+  aliasType      String?
+  createdAt      DateTime @default(now())
+
+  entity           OfacEntity            @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  screeningMatches OfacScreeningMatch[]  @relation("OfacMatchedNameMatches")
+
+  @@index([normalizedName])
+  @@index([fullName])
+}
+
+model OfacAddress {
+  id        String   @id @default(cuid())
+  entityId  String
+  country   String?
+  rawJson   Json?
+  createdAt DateTime @default(now())
+
+  entity OfacEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model OfacFeature {
+  id        String   @id @default(cuid())
+  entityId  String
+  type      String?
+  value     String?
+  rawJson   Json?
+  createdAt DateTime @default(now())
+
+  entity OfacEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+}
+
+model OfacSyncRun {
+  id               String   @id @default(cuid())
+  mode             String
+  source           String
+  status           String
+  files            String[]
+  importedEntities Int      @default(0)
+  importedNames    Int      @default(0)
+  errorMessage     String?
+  startedAt        DateTime @default(now())
+  finishedAt       DateTime?
+}
+
+model NotaryProfile {
+  id                 String   @id @default(cuid())
+  slug               String   @unique
+  displayName        String
+  isScreeningEnabled Boolean  @default(false)
+  membershipStatus   MembershipStatus @default(ACTIVE)
+  planName           String   @default("BASIC")
+  planLimitManualSearches Int @default(300)
+  planLimitImageSearches  Int @default(100)
+  monthlyUsageManual Int      @default(0)
+  monthlyUsageImage  Int      @default(0)
+  billingPeriodStart DateTime?
+  billingPeriodEnd   DateTime?
+  trialEndsAt        DateTime?
+  suspendedAt        DateTime?
+  cancelledAt        DateTime?
+  allowedWordPressSites String[] @default([])
+
+  // Feature flags — controls what the plugin is allowed to call
+  featureManualScreening  Boolean @default(true)
+  featureImageScreening   Boolean @default(false)
+  featureAuditLookup      Boolean @default(false)
+  featureAdminStatusTools Boolean @default(false)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  apiKeys           NotaryApiKey[]
+  screeningSearches OfacScreeningSearch[]
+  screeningUsage    NotaryScreeningUsage[]
+  authAttempts      NotaryAuthAttempt[]
+
+  @@index([membershipStatus])
+  @@index([planName])
+}
+
+model NotaryApiKey {
+  id          String   @id @default(cuid())
+  notarySlug  String
+  keyHash     String   @unique
+  label       String?
+  isActive    Boolean  @default(true)
+  status      NotaryApiKeyStatus @default(ACTIVE)
+  suspendedAt DateTime?
+  revokedAt   DateTime?
+  rotatedAt   DateTime?
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime?
+  failedAuthCount Int   @default(0)
+  lastFailedAuthAt DateTime?
+
+  notary        NotaryProfile          @relation(fields: [notarySlug], references: [slug], onDelete: Cascade)
+  screeningUsage NotaryScreeningUsage[]
+  authAttempts   NotaryAuthAttempt[]
+
+  @@index([notarySlug])
+  @@index([status])
+}
+
+model OfacScreeningSearch {
+  id              String   @id @default(cuid())
+  notarySlug      String?
+  userId          String?
+  apiKeyId        String?
+  query           String
+  normalizedQuery String
+  source          String
+  screeningType   String
+  clientReference String?
+  wordpressSite   String?
+  wpUserId        String?
+  resultStatus    String
+  highestScore    Int      @default(0)
+  // Phase 8E — source mode and fallback tracking
+  sourceMode      String?
+  usedFallback    Boolean  @default(false)
+  queryVariants   String[] @default([])
+  ipAddress       String?
+  userAgent       String?
+  responseTimeMs  Int?
+  createdAt       DateTime @default(now())
+
+  notary        NotaryProfile?         @relation(fields: [notarySlug], references: [slug], onDelete: SetNull)
+  matches       OfacScreeningMatch[]
+  notaryUsage   NotaryScreeningUsage[]
+
+  @@index([notarySlug])
+  @@index([createdAt])
+  @@index([resultStatus])
+}
+
+model OfacScreeningMatch {
+  id             String   @id @default(cuid())
+  searchId       String
+  ofacEntityId   String
+  ofacEntityDbId String?
+  matchedNameId  String?
+  primaryName    String?
+  matchedName    String?
+  listName       String?
+  programs       String[]
+  score          Int
+  riskLevel      String
+  matchReason    String
+  rawMatch       Json?
+  createdAt      DateTime @default(now())
+
+  search           OfacScreeningSearch @relation(fields: [searchId], references: [id], onDelete: Cascade)
+  ofacEntityRecord OfacEntity?         @relation("OfacEntityRecordMatches", fields: [ofacEntityDbId], references: [id], onDelete: SetNull)
+  matchedNameRecord OfacName?          @relation("OfacMatchedNameMatches", fields: [matchedNameId], references: [id], onDelete: SetNull)
+
+  @@index([searchId])
+  @@index([ofacEntityId])
+  @@index([riskLevel])
+}
+
+model NotaryScreeningUsage {
+  id                String   @id @default(cuid())
+  notarySlug        String
+  apiKeyId          String?
+  screeningSearchId String
+  createdAt         DateTime @default(now())
+
+  notary          NotaryProfile       @relation(fields: [notarySlug], references: [slug], onDelete: Cascade)
+  apiKey          NotaryApiKey?       @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+  screeningSearch OfacScreeningSearch @relation(fields: [screeningSearchId], references: [id], onDelete: Cascade)
+
+  @@index([notarySlug])
+  @@index([apiKeyId])
+  @@index([createdAt])
+}
+
+model NotaryAuthAttempt {
+  id            String   @id @default(cuid())
+  notarySlug    String?
+  apiKeyId      String?
+  keyHash       String?
+  success       Boolean  @default(false)
+  reason        String
+  ipAddress     String?
+  userAgent     String?
+  wordpressSite String?
+  apiClient     String?
+  createdAt     DateTime @default(now())
+
+  notary        NotaryProfile? @relation(fields: [notarySlug], references: [slug], onDelete: SetNull)
+  apiKey        NotaryApiKey?  @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+
+  @@index([notarySlug, createdAt])
+  @@index([apiKeyId, createdAt])
+  @@index([ipAddress, createdAt])
+  @@index([success, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Phase 8 — Source Library, Local Import, Fallback Screening
+// ─────────────────────────────────────────────────────────────
+
+enum SourceStatus {
+  connected
+  degraded
+  offline
+  sync_required
+  fallback_available
+  fallback_unavailable
+  unknown
+}
+
+enum SourceSyncStatus {
+  pending
+  running
+  completed
+  failed
+}
+
+enum SourceFileStatus {
+  pending
+  downloaded
+  imported
+  failed
+}
+
+enum NameVariantType {
+  original
+  normalized_latin
+  normalized_arabic
+  arabic_to_latin
+  latin_to_arabic
+  phonetic
+  alias
+  token
+  single_name
+}
+
+/// Central registry of external and internal data sources.
+model KydexDataSource {
+  id                   String        @id @default(cuid())
+  code                 String        @unique
+  name                 String
+  baseUrl              String?
+  status               SourceStatus  @default(unknown)
+  fallbackEnabled      Boolean       @default(true)
+  localCopyAvailable   Boolean       @default(false)
+  lastSuccessfulSyncAt DateTime?
+  lastAttemptedSyncAt  DateTime?
+  lastHealthCheckAt    DateTime?
+  lastError            String?
+  lastLatencyMs        Int?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  connectionLogs       SourceConnectionLog[]
+  syncRuns             SourceSyncRun[]
+  sourceFiles          SourceFile[]
+  importedLists        SourceImportedList[]
+  sourceEntities       SourceEntity[]
+}
+
+/// Per-check health/connection snapshot for a source.
+model SourceConnectionLog {
+  id           String       @id @default(cuid())
+  sourceId     String
+  status       SourceStatus
+  endpoint     String?
+  latencyMs    Int?
+  httpStatus   Int?
+  error        String?
+  checkedAt    DateTime     @default(now())
+
+  source       KydexDataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId, checkedAt])
+}
+
+/// One sync run per source (download + import cycle).
+model SourceSyncRun {
+  id               String           @id @default(cuid())
+  sourceId         String
+  status           SourceSyncStatus @default(pending)
+  syncType         String           @default("manual")
+  startedAt        DateTime         @default(now())
+  finishedAt       DateTime?
+  recordsImported  Int              @default(0)
+  recordsUpdated   Int              @default(0)
+  recordsFailed    Int              @default(0)
+  sourceFileName   String?
+  publicationId    String?
+  error            String?
+
+  source           KydexDataSource  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  files            SourceFile[]
+  importedLists    SourceImportedList[]
+
+  @@index([sourceId, startedAt])
+}
+
+/// Downloaded source file metadata.
+model SourceFile {
+  id              String           @id @default(cuid())
+  sourceId        String
+  syncRunId       String?
+  fileName        String
+  fileType        String
+  downloadUrl     String?
+  sha256          String?
+  sizeBytes       Int?
+  downloadedAt    DateTime?
+  importedAt      DateTime?
+  status          SourceFileStatus @default(pending)
+  rawStoragePath  String?
+  createdAt       DateTime         @default(now())
+
+  source          KydexDataSource    @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  syncRun         SourceSyncRun?     @relation(fields: [syncRunId], references: [id], onDelete: SetNull)
+  importedLists   SourceImportedList[]
+  entities        SourceEntity[]
+
+  @@index([sourceId, fileName])
+}
+
+/// Per-list import summary (e.g. "SDN List" from OFAC).
+model SourceImportedList {
+  id              String    @id @default(cuid())
+  sourceId        String
+  syncRunId       String?
+  sourceFileId    String?
+  listName        String
+  programName     String?
+  recordCount     Int       @default(0)
+  languageCoverage String[] @default([])
+  localAvailable  Boolean   @default(false)
+  lastImportedAt  DateTime  @default(now())
+
+  source          KydexDataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  syncRun         SourceSyncRun?  @relation(fields: [syncRunId], references: [id], onDelete: SetNull)
+  sourceFile      SourceFile?     @relation(fields: [sourceFileId], references: [id], onDelete: SetNull)
+
+  @@index([sourceId, listName])
+}
+
+/// Normalized entity record imported from a source.
+model SourceEntity {
+  id               String    @id @default(cuid())
+  sourceId         String
+  sourceFileId     String?
+  externalEntityId String
+  entityType       String
+  primaryName      String
+  normalizedLatin  String?
+  normalizedArabic String?
+  listName         String
+  programs         String[]  @default([])
+  countries        String[]  @default([])
+  rawRecord        Json?
+  datePublished    DateTime?
+  importedAt       DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  source           KydexDataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  sourceFile       SourceFile?     @relation(fields: [sourceFileId], references: [id], onDelete: SetNull)
+  names            SourceName[]
+
+  @@unique([sourceId, externalEntityId])
+  @@index([normalizedLatin])
+  @@index([listName])
+}
+
+/// Primary and alias names for a SourceEntity.
+model SourceName {
+  id               String    @id @default(cuid())
+  entityId         String
+  sourceId         String
+  originalName     String
+  isPrimary        Boolean   @default(false)
+  isAlias          Boolean   @default(false)
+  aliasType        String?
+  language         String?
+  script           String?
+  normalizedLatin  String?
+  normalizedArabic String?
+  tokens           String[]  @default([])
+  createdAt        DateTime  @default(now())
+
+  entity           SourceEntity       @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  variants         SourceNameVariant[]
+
+  @@index([entityId])
+  @@index([normalizedLatin])
+}
+
+/// Bilingual and phonetic variant index for a SourceName.
+model SourceNameVariant {
+  id           String          @id @default(cuid())
+  sourceNameId String
+  entityId     String
+  variant      String
+  variantType  NameVariantType
+  language     String?
+  phoneticKey  String?
+  tokens       String[]        @default([])
+  quality      Float           @default(1.0)
+  createdAt    DateTime        @default(now())
+
+  sourceName   SourceName @relation(fields: [sourceNameId], references: [id], onDelete: Cascade)
+
+  @@index([sourceNameId])
+  @@index([variant])
+  @@index([variantType])
+}
+
+/// Full transaction log for every screening request (Phase 8 extended).
+model ScreeningTransaction {
+  id                  String    @id @default(cuid())
+  query               String
+  normalizedQuery     String?
+  queryVariants       String[]  @default([])
+  requesterType       String?
+  requesterSlug       String?
+  sourceMode          String?
+  usedFallback        Boolean   @default(false)
+  liveSourceChecked   Boolean   @default(false)
+  sourceStatus        Json?
+  warning             String?
+  ipAddress           String?
+  userAgent           String?
+  apiClient           String?
+  apiKeyId            String?
+  wordpressSite       String?
+  wpUserId            String?
+  clientReference     String?
+  status              String    @default("pending")
+  highestScore        Float     @default(0)
+  matchCount          Int       @default(0)
+  responseTimeMs      Int?
+  createdAt           DateTime  @default(now())
+
+  inquiry             IncomingInquiry?
+
+  @@index([requesterSlug, createdAt])
+  @@index([status])
+  @@index([sourceMode])
+}
+
+/// Incoming inquiry from an external client (WordPress, notary, API).
+model IncomingInquiry {
+  id              String    @id @default(cuid())
+  transactionId   String?   @unique
+  clientType      String?
+  clientId        String?
+  notarySlug      String?
+  wordpressSite   String?
+  originalPayload Json?
+  responsePayload Json?
+  status          String    @default("pending")
+  createdAt       DateTime  @default(now())
+
+  transaction     ScreeningTransaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@index([notarySlug, createdAt])
+  @@index([clientType, createdAt])
+}
+
+/// Per-request API access log.
+model ApiAccessLog {
+  id             String   @id @default(cuid())
+  apiKeyId       String?
+  notarySlug     String?
+  ipAddress      String?
+  userAgent      String?
+  path           String?
+  method         String?
+  statusCode     Int?
+  responseTimeMs Int?
+  createdAt      DateTime @default(now())
+
+  @@index([apiKeyId, createdAt])
+  @@index([notarySlug, createdAt])
+  @@index([createdAt])
+}

@@ -1,0 +1,113 @@
+{
+  "kydexExportVersion": "demo-v1",
+  "exportedAt": "2026-04-25T11:02:00Z",
+  "exportHash": "b73224e19ec6360b273338d316262dacaa76bf211c107a64b5e7033f185f264a",
+  "exportSignature": "7589353a9d35adf5ff0f37be669490ffe7e76faeaa0e238d3ec5a82d059ecf4e",
+  "signatureAlgorithm": "HMAC-SHA256",
+  "keyId": "demo-key-001",
+  "data": {
+    "case": {
+      "caseId": "KYD-DEMO-D-0004",
+      "title": "High-Risk Transaction Blocked",
+      "purpose": "No confirmed sanctions hit, but risk signals justify blocking the transaction.",
+      "status": "REJECT_OR_BLOCK",
+      "createdAt": "2026-04-25T10:00:00Z"
+    },
+    "screeningInput": {
+      "fullNameArabic": "رامي فؤاد مراد",
+      "fullNameLatin": "Rami Fouad Mourad",
+      "dob": "1990-07-21",
+      "nationality": "LB",
+      "documentNumber": "LB-DEMO-4004",
+      "transactionType": "Company Share Transfer"
+    },
+    "screeningResult": {
+      "riskLevel": "HIGH",
+      "highestScore": 0.81,
+      "classification": "High risk due to local watchlist and ownership-control indicators",
+      "sources": [
+        "LOCAL_LB_DEMO",
+        "CUSTOM_CLIENT_DEMO"
+      ],
+      "listVersions": {
+        "LOCAL_LB_DEMO": "2026-04-25T09:30:00Z",
+        "CUSTOM_CLIENT_DEMO": "2026-04-20T00:00:00Z"
+      },
+      "matches": [
+        {
+          "source": "CUSTOM_CLIENT_DEMO",
+          "matchedName": "Rami F. Mourad",
+          "score": 0.81,
+          "reason": "Beneficial ownership control flag and alias similarity",
+          "reference": "DEMO-CUSTOM-FAKE-021"
+        }
+      ]
+    },
+    "decision": {
+      "committeeDecision": "REJECT_OR_BLOCK",
+      "finalAuthorityUserId": "usr-council-admin-demo",
+      "finalAuthorityRole": "COUNCIL_ADMIN",
+      "finalAuthoritySignedAt": "2026-04-25T11:01:00Z",
+      "justification": "Transaction blocked pending independent legal clarification due to unresolved control-risk indicators."
+    },
+    "caseActions": [
+      {
+        "type": "SCREEN_QUERY",
+        "actorId": "notary-demo-4",
+        "timestamp": "2026-04-25T10:00:00Z"
+      },
+      {
+        "type": "CASE_CREATED",
+        "actorId": "system",
+        "timestamp": "2026-04-25T10:01:00Z"
+      },
+      {
+        "type": "REVIEWER_ASSIGNED",
+        "actorId": "compliance-demo-3",
+        "timestamp": "2026-04-25T10:07:00Z"
+      },
+      {
+        "type": "COMMITTEE_DECISION",
+        "actorId": "compliance-demo-3",
+        "timestamp": "2026-04-25T10:39:00Z"
+      },
+      {
+        "type": "FINAL_AUTHORITY_SIGNED",
+        "actorId": "usr-council-admin-demo",
+        "timestamp": "2026-04-25T11:01:00Z"
+      }
+    ],
+    "auditTrail": [
+      {
+        "action": "SCREEN_QUERY",
+        "actorId": "notary-demo-4",
+        "timestamp": "2026-04-25T10:00:00Z",
+        "entryHash": "a87aa298399f66ccb0bfe4290a987abded33845851dc4dc58fc2991ea7d65572"
+      },
+      {
+        "action": "CASE_CREATED",
+        "actorId": "system",
+        "timestamp": "2026-04-25T10:01:00Z",
+        "entryHash": "f5fc756201a0d98c348795764de12a0f7bfe1b9379a9782d9a24709929e349bb"
+      },
+      {
+        "action": "REVIEWER_ASSIGNED",
+        "actorId": "compliance-demo-3",
+        "timestamp": "2026-04-25T10:07:00Z",
+        "entryHash": "d3ac7f880cfcd698b42a96d1bea03798b3aa4aafb84d533a5abbe8508fc07a20"
+      },
+      {
+        "action": "COMMITTEE_DECISION",
+        "actorId": "compliance-demo-3",
+        "timestamp": "2026-04-25T10:39:00Z",
+        "entryHash": "eb6503439fb2688a658cc32a640536e22d3ee7c64c8ec02ccf42f36572c9ab2c"
+      },
+      {
+        "action": "FINAL_AUTHORITY_SIGNED",
+        "actorId": "usr-council-admin-demo",
+        "timestamp": "2026-04-25T11:01:00Z",
+        "entryHash": "382883ffa3d529d6368ff9260a37f072f4cdd9008805a7ac565989781a64fda9"
+      }
+    ]
+  }
+}

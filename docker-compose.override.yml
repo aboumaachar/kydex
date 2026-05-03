@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  postgres:
+    profiles: ["dev-infra"]
+    container_name: kydex-dev-postgres
+    ports:
+      - "55433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kydex -d kydex"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - kydex_dev_postgres_data:/var/lib/postgresql/data
+
+  redis:
+    profiles: ["dev-infra"]
+    container_name: kydex-dev-redis
+    image: redis:7.2
+    ports:
+      - "6380:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  minio:
+    profiles: ["dev-infra"]
+    container_name: kydex-dev-minio
+    ports:
+      - "9002:9000"
+      - "9003:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - kydex_dev_minio_data:/data
+
+volumes:
+  kydex_dev_postgres_data:
+  kydex_dev_minio_data:

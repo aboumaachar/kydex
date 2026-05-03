@@ -1,0 +1,22 @@
+{
+  "riskLevel": "HIGH",
+  "highestScore": 0.78,
+  "classification": "Strong name similarity, identity mismatch",
+  "sources": [
+    "OFAC_DEMO",
+    "UN_DEMO"
+  ],
+  "listVersions": {
+    "OFAC_DEMO": "2026-04-25T08:00:00Z",
+    "UN_DEMO": "2026-04-24T22:00:00Z"
+  },
+  "matches": [
+    {
+      "source": "OFAC_DEMO",
+      "matchedName": "Muhammad Ali Hasan",
+      "score": 0.78,
+      "reason": "Arabic/Latin name similarity; DOB mismatch; no document match",
+      "reference": "DEMO-OFAC-FAKE-001"
+    }
+  ]
+}

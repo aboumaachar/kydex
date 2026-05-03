@@ -1,0 +1,161 @@
+// Merge these models into your real schema.prisma.
+
+model OfacEntity {
+  id                    String        @id @default(cuid())
+  ofacEntityId          String        @unique
+  identityId            String?
+  entityType            String?
+  primaryName           String?
+  normalizedPrimaryName String?
+  listName              String?
+  programs              String[]
+  sanctionsTypes        String[]
+  legalAuthorities      String[]
+  rawJson               Json?
+  lastSyncedAt          DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  names                 OfacName[]
+  addresses             OfacAddress[]
+  features              OfacFeature[]
+
+  @@index([normalizedPrimaryName])
+  @@index([listName])
+}
+
+model OfacName {
+  id             String      @id @default(cuid())
+  entityId       String
+  fullName       String
+  normalizedName String
+  firstName      String?
+  middleName     String?
+  lastName       String?
+  isPrimary      Boolean     @default(false)
+  isLowQuality   Boolean     @default(false)
+  aliasType      String?
+  createdAt      DateTime    @default(now())
+
+  entity         OfacEntity  @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([normalizedName])
+  @@index([fullName])
+}
+
+model OfacAddress {
+  id        String     @id @default(cuid())
+  entityId  String
+  country   String?
+  rawJson   Json?
+  createdAt DateTime   @default(now())
+
+  entity    OfacEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model OfacFeature {
+  id        String     @id @default(cuid())
+  entityId  String
+  type      String?
+  value     String?
+  rawJson   Json?
+  createdAt DateTime   @default(now())
+
+  entity    OfacEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+}
+
+model OfacSyncRun {
+  id               String    @id @default(cuid())
+  mode             String
+  source           String
+  status           String
+  files            String[]
+  importedEntities Int       @default(0)
+  importedNames    Int       @default(0)
+  errorMessage     String?
+  startedAt        DateTime  @default(now())
+  finishedAt       DateTime?
+}
+
+model ScreeningSearch {
+  id              String            @id @default(cuid())
+  notarySlug      String?
+  userId          String?
+  apiKeyId        String?
+  query           String
+  normalizedQuery String
+  source          String
+  screeningType   String
+  clientReference String?
+  resultStatus    String
+  highestScore    Int               @default(0)
+  createdAt       DateTime          @default(now())
+
+  matches         ScreeningMatch[]
+
+  @@index([notarySlug])
+  @@index([createdAt])
+  @@index([resultStatus])
+}
+
+model ScreeningMatch {
+  id             String          @id @default(cuid())
+  searchId       String
+  ofacEntityId   String
+  ofacEntityDbId String?
+  matchedNameId  String?
+  primaryName    String?
+  matchedName    String?
+  listName       String?
+  programs       String[]
+  score          Int
+  riskLevel      String
+  matchReason    String
+  rawMatch       Json?
+  createdAt      DateTime        @default(now())
+
+  search         ScreeningSearch @relation(fields: [searchId], references: [id], onDelete: Cascade)
+
+  @@index([searchId])
+  @@index([ofacEntityId])
+  @@index([riskLevel])
+}
+
+model NotaryProfile {
+  id                 String   @id @default(cuid())
+  slug               String   @unique
+  displayName        String
+  isScreeningEnabled Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  apiKeys            NotaryApiKey[]
+}
+
+model NotaryApiKey {
+  id          String        @id @default(cuid())
+  notarySlug  String
+  keyHash     String        @unique
+  label       String?
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  lastUsedAt  DateTime?
+
+  notary      NotaryProfile @relation(fields: [notarySlug], references: [slug], onDelete: Cascade)
+
+  @@index([notarySlug])
+}
+
+model NotaryScreeningUsage {
+  id                String   @id @default(cuid())
+  notarySlug        String
+  apiKeyId          String?
+  screeningSearchId String
+  createdAt         DateTime @default(now())
+
+  @@index([notarySlug])
+  @@index([apiKeyId])
+  @@index([createdAt])
+}

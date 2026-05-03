@@ -1,0 +1,113 @@
+{
+  "kydexExportVersion": "demo-v1",
+  "exportedAt": "2026-04-25T10:39:00Z",
+  "exportHash": "469bb2459c4babdea429a0ffb778a3e0bf3f56df6e671cbe21f0ac62f4c3ea8c",
+  "exportSignature": "fb5b3efd8ab95b8453b10ce822c6e3090f3f06192dfba90f287db5437b27df39",
+  "signatureAlgorithm": "HMAC-SHA256",
+  "keyId": "demo-key-001",
+  "data": {
+    "case": {
+      "caseId": "KYD-DEMO-A-0001",
+      "title": "False Positive Cleared",
+      "purpose": "Common Arabic name creates a weak similarity hit; reviewer clears after identity mismatch.",
+      "status": "CLEAR",
+      "createdAt": "2026-04-25T10:00:00Z"
+    },
+    "screeningInput": {
+      "fullNameArabic": "محمد علي حسن",
+      "fullNameLatin": "Mohamad Ali Hassan",
+      "dob": "1985-02-10",
+      "nationality": "LB",
+      "documentNumber": "LB-DEMO-1001",
+      "transactionType": "Power of Attorney"
+    },
+    "screeningResult": {
+      "riskLevel": "HIGH",
+      "highestScore": 0.78,
+      "classification": "Strong name similarity, identity mismatch",
+      "sources": [
+        "OFAC_DEMO",
+        "UN_DEMO"
+      ],
+      "listVersions": {
+        "OFAC_DEMO": "2026-04-25T08:00:00Z",
+        "UN_DEMO": "2026-04-24T22:00:00Z"
+      },
+      "matches": [
+        {
+          "source": "OFAC_DEMO",
+          "matchedName": "Muhammad Ali Hasan",
+          "score": 0.78,
+          "reason": "Arabic/Latin name similarity; DOB mismatch; no document match",
+          "reference": "DEMO-OFAC-FAKE-001"
+        }
+      ]
+    },
+    "decision": {
+      "committeeDecision": "CLEAR",
+      "finalAuthorityUserId": "usr-council-admin-demo",
+      "finalAuthorityRole": "COUNCIL_ADMIN",
+      "finalAuthoritySignedAt": "2026-04-25T10:38:00Z",
+      "justification": "False positive: DOB, document number, and address do not match listed person."
+    },
+    "caseActions": [
+      {
+        "type": "SCREEN_QUERY",
+        "actorId": "notary-demo-1",
+        "timestamp": "2026-04-25T10:00:00Z"
+      },
+      {
+        "type": "CASE_CREATED",
+        "actorId": "system",
+        "timestamp": "2026-04-25T10:01:00Z"
+      },
+      {
+        "type": "REVIEWER_ASSIGNED",
+        "actorId": "compliance-demo-1",
+        "timestamp": "2026-04-25T10:05:00Z"
+      },
+      {
+        "type": "COMMITTEE_DECISION",
+        "actorId": "compliance-demo-1",
+        "timestamp": "2026-04-25T10:25:00Z"
+      },
+      {
+        "type": "FINAL_AUTHORITY_SIGNED",
+        "actorId": "usr-council-admin-demo",
+        "timestamp": "2026-04-25T10:38:00Z"
+      }
+    ],
+    "auditTrail": [
+      {
+        "action": "SCREEN_QUERY",
+        "actorId": "notary-demo-1",
+        "timestamp": "2026-04-25T10:00:00Z",
+        "entryHash": "cc0addbc32956b19f72a1a41ecd875aba0d5ce9bfd40c22440708f78d5f59937"
+      },
+      {
+        "action": "CASE_CREATED",
+        "actorId": "system",
+        "timestamp": "2026-04-25T10:01:00Z",
+        "entryHash": "1cfbc1a431c42fd8af78007e04ba1516947591b9548ff895e6abd3564228dd61"
+      },
+      {
+        "action": "REVIEWER_ASSIGNED",
+        "actorId": "compliance-demo-1",
+        "timestamp": "2026-04-25T10:05:00Z",
+        "entryHash": "40a67a7a1deeca7e6ae8ca300094dbb2ece5db96a39a7fea85aac4a2432a88df"
+      },
+      {
+        "action": "COMMITTEE_DECISION",
+        "actorId": "compliance-demo-1",
+        "timestamp": "2026-04-25T10:25:00Z",
+        "entryHash": "e8f8cdba2d411e52ebdbb85bf32c6abf22c5c37042c3d2900599d4b1660515db"
+      },
+      {
+        "action": "FINAL_AUTHORITY_SIGNED",
+        "actorId": "usr-council-admin-demo",
+        "timestamp": "2026-04-25T10:38:00Z",
+        "entryHash": "5e788c90f721e588125a468d83ddf4b1b91dee89ee1130d87df91c6e4770a5ed"
+      }
+    ]
+  }
+}

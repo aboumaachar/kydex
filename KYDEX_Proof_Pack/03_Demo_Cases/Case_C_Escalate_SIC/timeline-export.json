@@ -1,0 +1,131 @@
+{
+  "kydexExportVersion": "demo-v1",
+  "exportedAt": "2026-04-25T10:45:00Z",
+  "exportHash": "896c9ecb99ade60608350a4634732f320d0fe681334d2cfceaf9bea1ff81e660",
+  "exportSignature": "a658cb4efe0bea62733dd38d0657e2113791c088b19f5421c4aefe108d013c7d",
+  "signatureAlgorithm": "HMAC-SHA256",
+  "keyId": "demo-key-001",
+  "data": {
+    "case": {
+      "caseId": "KYD-DEMO-C-0003",
+      "title": "Critical Match Escalated as SIC-Ready Package",
+      "purpose": "High-confidence match is escalated internally and prepared for official reporting path.",
+      "status": "ESCALATE_AS_SUSPICIOUS",
+      "createdAt": "2026-04-25T10:00:00Z"
+    },
+    "screeningInput": {
+      "fullNameArabic": "كريم يوسف الخطيب",
+      "fullNameLatin": "Karim Youssef Al-Khatib",
+      "dob": "1978-11-03",
+      "nationality": "LB",
+      "documentNumber": "LB-DEMO-3003",
+      "transactionType": "Irrevocable Agency"
+    },
+    "screeningResult": {
+      "riskLevel": "CRITICAL",
+      "highestScore": 0.94,
+      "classification": "Near-confirmed match",
+      "sources": [
+        "OFAC_DEMO",
+        "LOCAL_LB_DEMO"
+      ],
+      "listVersions": {
+        "OFAC_DEMO": "2026-04-25T08:00:00Z",
+        "LOCAL_LB_DEMO": "2026-04-25T09:30:00Z"
+      },
+      "matches": [
+        {
+          "source": "OFAC_DEMO",
+          "matchedName": "Karim Y. Al Khatib",
+          "score": 0.94,
+          "reason": "Name, DOB, nationality, and alias alignment",
+          "reference": "DEMO-OFAC-FAKE-077"
+        },
+        {
+          "source": "LOCAL_LB_DEMO",
+          "matchedName": "كريم يوسف الخطيب",
+          "score": 0.97,
+          "reason": "Arabic exact name plus local reference indicator",
+          "reference": "DEMO-LB-FAKE-009"
+        }
+      ]
+    },
+    "decision": {
+      "committeeDecision": "ESCALATE_AS_SUSPICIOUS",
+      "finalAuthorityUserId": "usr-council-admin-demo",
+      "finalAuthorityRole": "COUNCIL_ADMIN",
+      "finalAuthoritySignedAt": "2026-04-25T10:44:00Z",
+      "justification": "Critical match across international and local demo sources; package prepared for official SIC channel review."
+    },
+    "caseActions": [
+      {
+        "type": "SCREEN_QUERY",
+        "actorId": "notary-demo-3",
+        "timestamp": "2026-04-25T10:00:00Z"
+      },
+      {
+        "type": "CASE_CREATED",
+        "actorId": "system",
+        "timestamp": "2026-04-25T10:01:00Z"
+      },
+      {
+        "type": "REVIEWER_ASSIGNED",
+        "actorId": "compliance-demo-1",
+        "timestamp": "2026-04-25T10:04:00Z"
+      },
+      {
+        "type": "ESCALATED_INTERNALLY",
+        "actorId": "compliance-demo-1",
+        "timestamp": "2026-04-25T10:18:00Z"
+      },
+      {
+        "type": "SIC_PACKAGE_PREPARED",
+        "actorId": "compliance-demo-1",
+        "timestamp": "2026-04-25T10:31:00Z"
+      },
+      {
+        "type": "FINAL_AUTHORITY_SIGNED",
+        "actorId": "usr-council-admin-demo",
+        "timestamp": "2026-04-25T10:44:00Z"
+      }
+    ],
+    "auditTrail": [
+      {
+        "action": "SCREEN_QUERY",
+        "actorId": "notary-demo-3",
+        "timestamp": "2026-04-25T10:00:00Z",
+        "entryHash": "b348cb8b6ff7fdd8c4c6d1434d73bd3911f613d7ac0acf84ffc9ddb55af3173f"
+      },
+      {
+        "action": "CASE_CREATED",
+        "actorId": "system",
+        "timestamp": "2026-04-25T10:01:00Z",
+        "entryHash": "a040b1d88cae3cd30a327fba3cd1218e5c0a40abce2e5c7628122eae5a2e4962"
+      },
+      {
+        "action": "REVIEWER_ASSIGNED",
+        "actorId": "compliance-demo-1",
+        "timestamp": "2026-04-25T10:04:00Z",
+        "entryHash": "70239aacb8cb7f407dad20e978ef26f9580906f8666d3bcb50d826732b807260"
+      },
+      {
+        "action": "ESCALATED_INTERNALLY",
+        "actorId": "compliance-demo-1",
+        "timestamp": "2026-04-25T10:18:00Z",
+        "entryHash": "f340fdb92ca978b058876e3c6253955053127ecb96a54f35d9e2cfe26270f769"
+      },
+      {
+        "action": "SIC_PACKAGE_PREPARED",
+        "actorId": "compliance-demo-1",
+        "timestamp": "2026-04-25T10:31:00Z",
+        "entryHash": "c0216041898b95475669919f15412d64a62332e490300e6e6d82e4cc66e9fbe7"
+      },
+      {
+        "action": "FINAL_AUTHORITY_SIGNED",
+        "actorId": "usr-council-admin-demo",
+        "timestamp": "2026-04-25T10:44:00Z",
+        "entryHash": "1b6a53e42d658d32cccb8f8e0c7b6147897346b964d06a42c9b2a44efaa3576b"
+      }
+    ]
+  }
+}

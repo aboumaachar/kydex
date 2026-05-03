@@ -1,0 +1,2119 @@
+{
+  "generatedAt": "2026-04-27T05:25:41.193Z",
+  "summary": {
+    "totalCases": 50,
+    "passedCases": 50,
+    "failedCases": 0,
+    "truePositives": 39,
+    "trueNegatives": 11,
+    "falsePositives": 0,
+    "falseNegatives": 0,
+    "precisionProxy": 1,
+    "recallProxy": 1,
+    "falsePositiveRate": 0,
+    "passRate": 1,
+    "decisionAccuracy": 1,
+    "decisionCoverage": {
+      "reasonSummaryOk": true,
+      "supportingFactorsOk": true
+    },
+    "decisionGate": {
+      "classificationAccuracyOk": true,
+      "trueMatchFalseNegativesOk": true,
+      "falseMatchFalsePositivesOk": true,
+      "reasonSummaryCoverageOk": true,
+      "supportingFactorsCoverageOk": true,
+      "passed": true
+    },
+    "averageScoreByCategory": {
+      "exact_name_match": 0.67,
+      "alias_match": 0.625,
+      "spelling_variation": 0.609,
+      "arabic_to_english_transliteration": 0.74,
+      "english_to_arabic_transliteration": 0.67,
+      "partial_name_match": 0.536,
+      "dob_match_boost": 0.87,
+      "dob_mismatch_penalty": 0.77,
+      "nationality_match_boost": 0.77,
+      "document_number_match": 0.92,
+      "false_positive_common_name": 0.468,
+      "no_match_clean_person": 0.348,
+      "scoring_threshold_calibration": 0.725,
+      "insufficient_data_common_name": 0.49,
+      "false_match_identifier_conflict": 0.67
+    },
+    "failuresByCategory": {},
+    "thresholdGate": {
+      "overallPassRateOk": true,
+      "exactMatchFalseNegativesOk": true,
+      "documentNumberFalseNegativesOk": true,
+      "falsePositiveRateOk": true,
+      "passed": true
+    },
+    "scoreReview": {
+      "scoredTooLow": [],
+      "scoredTooHigh": [],
+      "categoryRecommendations": [
+        "Current thresholds are meeting the seeded validation categories."
+      ]
+    },
+    "reportPath": "C:\\kydex\\match-validation\\MATCH_VALIDATION_REPORT.md"
+  },
+  "results": [
+    {
+      "caseId": "MV-001",
+      "category": "exact_name_match",
+      "description": "Exact public watchlist name from OFAC consolidated.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5,
+        "expectedDecision": "POSSIBLE_MATCH",
+        "expectedConfidenceRange": [
+          0.7,
+          0.8
+        ],
+        "expectedRecommendedAction": "ESCALATE_FOR_REVIEW",
+        "requiredFactors": [
+          "NAME_SIMILARITY",
+          "MISSING_DOB"
+        ]
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-002",
+      "category": "exact_name_match",
+      "description": "Exact public watchlist name with long surname chain.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Fathi Ahmad Mohammad HAMMAD",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-003",
+      "category": "exact_name_match",
+      "description": "Exact UN consolidated person name.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "RAHMATULLAH SHAH NAWAZ",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-004",
+      "category": "exact_name_match",
+      "description": "Exact UN consolidated person with common transliterated first name.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "MUHAMMAD OMAR ZADRAN",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-005",
+      "category": "exact_name_match",
+      "description": "Exact UN consolidated entity name.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "ROSHAN MONEY EXCHANGE",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-006",
+      "category": "exact_name_match",
+      "description": "Exact SDN entity name.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_SDN",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_SDN",
+        "topMatchedName": "AEROCARIBBEAN AIRLINES",
+        "searchedSources": [
+          "OFAC_SDN"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_SDN | Version: OFAC-SDN-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-007",
+      "category": "alias_match",
+      "description": "Alias-only input taken from OFAC consolidated alias payload.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "ALIAS_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Fathi Ahmad Mohammad HAMMAD",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-008",
+      "category": "alias_match",
+      "description": "Shorter alias variant from the same OFAC consolidated record.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "ALIAS_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Fathi Ahmad Mohammad HAMMAD",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 26.7% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-009",
+      "category": "alias_match",
+      "description": "Parenthetical alias for a UN entity.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.536,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.716,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "HAQQANI NETWORK (HQN)",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-010",
+      "category": "spelling_variation",
+      "description": "Minor English spelling variation of BADER record.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.6305882352941177,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.734,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 94.1% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-011",
+      "category": "spelling_variation",
+      "description": "Minor spelling variation of UN exact name.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.6030000000000001,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.729,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "RAHMATULLAH SHAH NAWAZ",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 90.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-012",
+      "category": "spelling_variation",
+      "description": "Common vowel shift in Daraghmeh surname.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.592093023255814,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.727,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Ayman Hussein DARAGHMEH",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 88.4% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-013",
+      "category": "arabic_to_english_transliteration",
+      "description": "Arabic-script variant of UN public name.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.7200000000000001,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.75,
+        "reasonSummary": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "ARABIC_TRANSLITERATION_MATCH",
+          "ARABIC_TOKEN_OVERLAP",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "MUHAMMAD OMAR ZADRAN",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 88.9% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 77.8% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-014",
+      "category": "arabic_to_english_transliteration",
+      "description": "Arabic-script variant of OFAC consolidated public name.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.7200000000000001,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.75,
+        "reasonSummary": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "ARABIC_TRANSLITERATION_MATCH",
+          "ARABIC_TOKEN_OVERLAP",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-015",
+      "category": "english_to_arabic_transliteration",
+      "description": "English transliteration drift for Muhammad/Omar tokens.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "MUHAMMAD OMAR ZADRAN",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-016",
+      "category": "english_to_arabic_transliteration",
+      "description": "English transliteration drift for Mohammad/Yousef tokens.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-017",
+      "category": "partial_name_match",
+      "description": "Surname and middle token subset of OFAC record.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.536,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.716,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-018",
+      "category": "partial_name_match",
+      "description": "UN person queried with partial tokens only.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.536,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.716,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "RAHMATULLAH SHAH NAWAZ",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-019",
+      "category": "partial_name_match",
+      "description": "Entity queried by core token only.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.536,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.716,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "ROSHAN MONEY EXCHANGE",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 80.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-020",
+      "category": "dob_match_boost",
+      "description": "Exact name plus DOB and nationality should lift BADER to HIGH.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedRiskLevel": "CRITICAL",
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.75,
+        "expectedDecision": "TRUE_MATCH",
+        "expectedConfidenceRange": [
+          0.95,
+          1
+        ],
+        "expectedRecommendedAction": "BLOCK_OR_ESCALATE",
+        "requiredFactors": [
+          "NAME_SIMILARITY",
+          "DOB_MATCH",
+          "NATIONALITY_MATCH"
+        ]
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.87,
+        "riskLevel": "CRITICAL",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "TRUE_MATCH",
+        "decisionConfidence": 1,
+        "reasonSummary": "Very high name similarity supported by corroborating identifiers strengthens this result to a true match.",
+        "recommendedAction": "BLOCK_OR_ESCALATE",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "DOB_MATCH",
+          "NATIONALITY_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE",
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: yes | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: HIGH"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-021",
+      "category": "dob_match_boost",
+      "description": "Exact name plus DOB and nationality should lift HAMMAD to HIGH.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedRiskLevel": "CRITICAL",
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.75
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.87,
+        "riskLevel": "CRITICAL",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "TRUE_MATCH",
+        "decisionConfidence": 1,
+        "reasonSummary": "Very high name similarity supported by corroborating identifiers strengthens this result to a true match.",
+        "recommendedAction": "BLOCK_OR_ESCALATE",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "DOB_MATCH",
+          "NATIONALITY_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE",
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Fathi Ahmad Mohammad HAMMAD",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: yes | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: HIGH"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-022",
+      "category": "dob_mismatch_penalty",
+      "description": "Wrong DOB should prevent HIGH for BADER even when nationality still matches.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedRiskLevel": "HIGH",
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.75,
+        "expectedDecision": "POSSIBLE_MATCH",
+        "expectedConfidenceRange": [
+          0.7,
+          0.85
+        ],
+        "expectedRecommendedAction": "ESCALATE_FOR_REVIEW",
+        "requiredFactors": [
+          "NAME_SIMILARITY",
+          "DOB_MISMATCH"
+        ]
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.77,
+        "riskLevel": "HIGH",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.759,
+        "reasonSummary": "Name similarity is high, but conflicting identifiers prevent a true-match conclusion and require governed review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "NATIONALITY_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE",
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [
+          "DOB_MISMATCH"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: HIGH"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-023",
+      "category": "nationality_match_boost",
+      "description": "UN exact name with nationality match should outrank plain name-only result.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedRiskLevel": "CRITICAL",
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.75
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.77,
+        "riskLevel": "CRITICAL",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "TRUE_MATCH",
+        "decisionConfidence": 0.982,
+        "reasonSummary": "Very high name similarity supported by corroborating identifiers strengthens this result to a true match.",
+        "recommendedAction": "BLOCK_OR_ESCALATE",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "NATIONALITY_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "RAHMATULLAH SHAH NAWAZ",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: HIGH",
+          "Name similarity: 60.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-024",
+      "category": "nationality_match_boost",
+      "description": "OFAC SDN exact name with nationality should clear the match threshold comfortably.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedRiskLevel": "CRITICAL",
+        "expectedSource": "OFAC_SDN",
+        "expectedMinimumScore": 0.75
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.77,
+        "riskLevel": "CRITICAL",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "TRUE_MATCH",
+        "decisionConfidence": 0.982,
+        "reasonSummary": "Very high name similarity supported by corroborating identifiers strengthens this result to a true match.",
+        "recommendedAction": "BLOCK_OR_ESCALATE",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "NATIONALITY_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_SDN",
+        "topMatchedName": "ATIA, Hachim K.",
+        "searchedSources": [
+          "OFAC_SDN"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: OFAC_SDN | Version: OFAC-SDN-2026-04-26 | Risk: HIGH",
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: OFAC_SDN | Version: OFAC-SDN-2026-04-26 | Risk: HIGH",
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: OFAC_SDN | Version: OFAC-SDN-2026-04-26 | Risk: HIGH"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-025",
+      "category": "document_number_match",
+      "description": "OFAC consolidated document number exact hit should become CRITICAL.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedRiskLevel": "CRITICAL",
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.75,
+        "expectedDecision": "TRUE_MATCH",
+        "expectedConfidenceRange": [
+          0.95,
+          1
+        ],
+        "expectedRecommendedAction": "BLOCK_OR_ESCALATE",
+        "requiredFactors": [
+          "DOCUMENT_NUMBER_MATCH"
+        ]
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.92,
+        "riskLevel": "CRITICAL",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "TRUE_MATCH",
+        "decisionConfidence": 1,
+        "reasonSummary": "Exact document-number evidence supports a true match and requires regulator-facing escalation.",
+        "recommendedAction": "BLOCK_OR_ESCALATE",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "DOCUMENT_NUMBER_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Fathi Ahmad Mohammad HAMMAD",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: yes | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: CRITICAL"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-026",
+      "category": "document_number_match",
+      "description": "Long-form document number exact hit should also become CRITICAL.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedRiskLevel": "CRITICAL",
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.75,
+        "expectedDecision": "TRUE_MATCH",
+        "expectedConfidenceRange": [
+          0.95,
+          1
+        ],
+        "expectedRecommendedAction": "BLOCK_OR_ESCALATE",
+        "requiredFactors": [
+          "DOCUMENT_NUMBER_MATCH"
+        ]
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.92,
+        "riskLevel": "CRITICAL",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "TRUE_MATCH",
+        "decisionConfidence": 1,
+        "reasonSummary": "Exact document-number evidence supports a true match and requires regulator-facing escalation.",
+        "recommendedAction": "BLOCK_OR_ESCALATE",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "DOCUMENT_NUMBER_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Fathi Ahmad Mohammad HAMMAD",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: yes | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: CRITICAL"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-027",
+      "category": "false_positive_common_name",
+      "description": "Common-name style query without supporting identifiers should not create a match.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.49,
+        "riskLevel": "LOW",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "NO_MATCH",
+        "decisionConfidence": 0.9,
+        "reasonSummary": "No meaningful sanctioned-list candidate was found for the submitted identifiers.",
+        "recommendedAction": "ALLOW",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_CONSOLIDATED",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-028",
+      "category": "false_positive_common_name",
+      "description": "Generic western common name should remain clean.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.44666666666666666,
+        "riskLevel": "MEDIUM",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "INSUFFICIENT_DATA",
+        "decisionConfidence": 0.42,
+        "reasonSummary": "Input is too weak to classify confidently because only limited identifiers were provided.",
+        "recommendedAction": "REQUEST_MORE_INFORMATION",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_SDN",
+          "OFAC_CONSOLIDATED",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-029",
+      "category": "no_match_clean_person",
+      "description": "Synthetic clean person should stay unmatched.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49,
+        "expectedDecision": "NO_MATCH",
+        "expectedConfidenceRange": [
+          0.8,
+          0.95
+        ],
+        "expectedRecommendedAction": "ALLOW"
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.28714285714285714,
+        "riskLevel": "LOW",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "NO_MATCH",
+        "decisionConfidence": 0.9,
+        "reasonSummary": "No meaningful sanctioned-list candidate was found for the submitted identifiers.",
+        "recommendedAction": "ALLOW",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_CONSOLIDATED",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-030",
+      "category": "no_match_clean_person",
+      "description": "Synthetic clean western name should stay unmatched.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.335,
+        "riskLevel": "LOW",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "NO_MATCH",
+        "decisionConfidence": 0.9,
+        "reasonSummary": "No meaningful sanctioned-list candidate was found for the submitted identifiers.",
+        "recommendedAction": "ALLOW",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_SDN",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-031",
+      "category": "scoring_threshold_calibration",
+      "description": "Near-threshold UN query missing one token should still surface a match.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.6794594594594595,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.742,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "NATIONALITY_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "RAHMATULLAH SHAH NAWAZ",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 86.5% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 68.6% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-032",
+      "category": "scoring_threshold_calibration",
+      "description": "Near-threshold SDN punctuation-normalized query should still surface a match.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_SDN",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.77,
+        "riskLevel": "CRITICAL",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "TRUE_MATCH",
+        "decisionConfidence": 0.982,
+        "reasonSummary": "Very high name similarity supported by corroborating identifiers strengthens this result to a true match.",
+        "recommendedAction": "BLOCK_OR_ESCALATE",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "NATIONALITY_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_SDN",
+        "topMatchedName": "ATIA, Hachim K.",
+        "searchedSources": [
+          "OFAC_SDN"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: OFAC_SDN | Version: OFAC-SDN-2026-04-26 | Risk: HIGH",
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: OFAC_SDN | Version: OFAC-SDN-2026-04-26 | Risk: HIGH",
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: OFAC_SDN | Version: OFAC-SDN-2026-04-26 | Risk: HIGH"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-033",
+      "category": "insufficient_data_common_name",
+      "description": "Common name only without supporting identifiers should request more information.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49,
+        "expectedDecision": "INSUFFICIENT_DATA",
+        "expectedConfidenceRange": [
+          0.4,
+          0.5
+        ],
+        "expectedRecommendedAction": "REQUEST_MORE_INFORMATION",
+        "requiredFactors": [
+          "DATA_COMPLETENESS"
+        ]
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.49,
+        "riskLevel": "MEDIUM",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "INSUFFICIENT_DATA",
+        "decisionConfidence": 0.42,
+        "reasonSummary": "Input is too weak to classify confidently because only limited identifiers were provided.",
+        "recommendedAction": "REQUEST_MORE_INFORMATION",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_CONSOLIDATED",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-034",
+      "category": "false_match_identifier_conflict",
+      "description": "Exact listed name with conflicting DOB, nationality, and document number should be marked false match.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5,
+        "expectedDecision": "FALSE_MATCH",
+        "expectedConfidenceRange": [
+          0.8,
+          0.9
+        ],
+        "expectedRecommendedAction": "ALLOW_WITH_NOTE",
+        "requiredFactors": [
+          "NAME_SIMILARITY",
+          "DOB_MISMATCH",
+          "DOCUMENT_NUMBER_MISMATCH"
+        ]
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "LOW",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "FALSE_MATCH",
+        "decisionConfidence": 0.84,
+        "reasonSummary": "Name similarity exists, but strong identifiers conflict and materially weaken the match hypothesis.",
+        "recommendedAction": "ALLOW_WITH_NOTE",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE",
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [
+          "DOB_MISMATCH",
+          "NATIONALITY_MISMATCH",
+          "DOCUMENT_NUMBER_MISMATCH"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Fathi Ahmad Mohammad HAMMAD",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-035",
+      "category": "arabic_to_english_transliteration",
+      "description": "Arabic-script variant of UN public name with nationality.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.7200000000000001,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.75,
+        "reasonSummary": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "ARABIC_TRANSLITERATION_MATCH",
+          "ARABIC_TOKEN_OVERLAP",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "MUHAMMAD OMAR ZADRAN",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 88.9% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 66.7% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 66.7% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 66.7% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 66.7% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 77.8% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 60.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-036",
+      "category": "arabic_to_english_transliteration",
+      "description": "Arabic-script variant of OFAC public name with nationality.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.8200000000000001,
+        "riskLevel": "CRITICAL",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "TRUE_MATCH",
+        "decisionConfidence": 0.988,
+        "reasonSummary": "تشابه الاسم المرتفع جدا والمدعوم بمؤشرات هوية مؤيدة يعزز هذه النتيجة كتطابق حقيقي.",
+        "recommendedAction": "BLOCK_OR_ESCALATE",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "ARABIC_TRANSLITERATION_MATCH",
+          "ARABIC_TOKEN_OVERLAP",
+          "TRANSLITERATION_MATCH",
+          "NATIONALITY_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: yes | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: HIGH"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-037",
+      "category": "english_to_arabic_transliteration",
+      "description": "English transliteration variant for Zadran record.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "MUHAMMAD OMAR ZADRAN",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-038",
+      "category": "english_to_arabic_transliteration",
+      "description": "English transliteration variant for Bader record.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-039",
+      "category": "arabic_to_english_transliteration",
+      "description": "Arabic-script Zadran query with repeated whitespace.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.7200000000000001,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.75,
+        "reasonSummary": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "ARABIC_TRANSLITERATION_MATCH",
+          "ARABIC_TOKEN_OVERLAP",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "MUHAMMAD OMAR ZADRAN",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 88.9% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 77.8% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-040",
+      "category": "arabic_to_english_transliteration",
+      "description": "Arabic-script Bader query with punctuation drift.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.7200000000000001,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.75,
+        "reasonSummary": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "ARABIC_TRANSLITERATION_MATCH",
+          "ARABIC_TOKEN_OVERLAP",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-041",
+      "category": "arabic_to_english_transliteration",
+      "description": "Mixed Arabic and English query for Zadran.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.7500000000000001,
+        "riskLevel": "HIGH",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.755,
+        "reasonSummary": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "ARABIC_TRANSLITERATION_MATCH",
+          "ARABIC_TOKEN_OVERLAP",
+          "ARABIC_FATHER_NAME_MATCH",
+          "ARABIC_FAMILY_NAME_MATCH",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "MUHAMMAD OMAR ZADRAN",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: HIGH",
+          "Name similarity: 88.9% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM",
+          "Name similarity: 77.8% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-042",
+      "category": "arabic_to_english_transliteration",
+      "description": "Mixed Arabic and English query for Bader.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.7500000000000001,
+        "riskLevel": "HIGH",
+        "classification": "STRONG_PROBABLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.755,
+        "reasonSummary": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "ARABIC_TRANSLITERATION_MATCH",
+          "ARABIC_TOKEN_OVERLAP",
+          "ARABIC_FAMILY_NAME_MATCH",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: HIGH"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-043",
+      "category": "english_to_arabic_transliteration",
+      "description": "English transliteration variant with doubled consonant for Zadran.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "UNSEC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "UNSEC_CONSOLIDATED",
+        "topMatchedName": "MUHAMMAD OMAR ZADRAN",
+        "searchedSources": [
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: UNSEC_CONSOLIDATED | Version: UNSEC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-044",
+      "category": "english_to_arabic_transliteration",
+      "description": "English transliteration variant with Yousif spelling for Bader.",
+      "expected": {
+        "shouldMatch": true,
+        "expectedSource": "OFAC_CONSOLIDATED",
+        "expectedMinimumScore": 0.5
+      },
+      "actual": {
+        "shouldMatch": true,
+        "highestScore": 0.67,
+        "riskLevel": "HIGH",
+        "classification": "POSSIBLE_MATCH",
+        "decision": "POSSIBLE_MATCH",
+        "decisionConfidence": 0.741,
+        "reasonSummary": "High name similarity exists, but missing date of birth and document number keep the result in possible-match review.",
+        "recommendedAction": "ESCALATE_FOR_REVIEW",
+        "supportingFactors": [
+          "NAME_SIMILARITY",
+          "TRANSLITERATION_MATCH",
+          "SOURCE_SEVERITY",
+          "PROGRAM_CATEGORY",
+          "LIST_TYPE"
+        ],
+        "weakeningFactors": [
+          "MISSING_DOB",
+          "DATA_COMPLETENESS"
+        ],
+        "topSource": "OFAC_CONSOLIDATED",
+        "topMatchedName": "Mohammed Maher Yousef BADER",
+        "searchedSources": [
+          "OFAC_CONSOLIDATED"
+        ],
+        "reasons": [
+          "Name similarity: 100.0% | Nationality match: no | Date of birth match: no | Document number match: no | Source: OFAC_CONSOLIDATED | Version: OFAC-CONSOLIDATED-2026-04-26 | Risk: MEDIUM"
+        ]
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-045",
+      "category": "no_match_clean_person",
+      "description": "Synthetic Arabic clean person should stay unmatched.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.268,
+        "riskLevel": "LOW",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "NO_MATCH",
+        "decisionConfidence": 0.9,
+        "reasonSummary": "لم يتم العثور على مرشح ذي دلالة على قوائم العقوبات استنادا إلى مؤشرات الهوية المقدمة.",
+        "recommendedAction": "ALLOW",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_CONSOLIDATED",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-046",
+      "category": "no_match_clean_person",
+      "description": "Synthetic Arabic clean person with three tokens should stay unmatched.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.34956521739130436,
+        "riskLevel": "LOW",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "NO_MATCH",
+        "decisionConfidence": 0.9,
+        "reasonSummary": "لم يتم العثور على مرشح ذي دلالة على قوائم العقوبات استنادا إلى مؤشرات الهوية المقدمة.",
+        "recommendedAction": "ALLOW",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_SDN",
+          "OFAC_CONSOLIDATED",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-047",
+      "category": "no_match_clean_person",
+      "description": "Synthetic Arabic entity should stay unmatched.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.32861904761904764,
+        "riskLevel": "LOW",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "NO_MATCH",
+        "decisionConfidence": 0.9,
+        "reasonSummary": "لم يتم العثور على مرشح ذي دلالة على قوائم العقوبات استنادا إلى مؤشرات الهوية المقدمة.",
+        "recommendedAction": "ALLOW",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_SDN",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-048",
+      "category": "no_match_clean_person",
+      "description": "Synthetic Arabic clean person with common surname should stay unmatched.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.436031746031746,
+        "riskLevel": "LOW",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "NO_MATCH",
+        "decisionConfidence": 0.9,
+        "reasonSummary": "لم يتم العثور على مرشح ذي دلالة على قوائم العقوبات استنادا إلى مؤشرات الهوية المقدمة.",
+        "recommendedAction": "ALLOW",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_CONSOLIDATED",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-049",
+      "category": "no_match_clean_person",
+      "description": "Synthetic Arabic clean female name should stay unmatched.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.335,
+        "riskLevel": "LOW",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "NO_MATCH",
+        "decisionConfidence": 0.9,
+        "reasonSummary": "لم يتم العثور على مرشح ذي دلالة على قوائم العقوبات استنادا إلى مؤشرات الهوية المقدمة.",
+        "recommendedAction": "ALLOW",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_CONSOLIDATED",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    },
+    {
+      "caseId": "MV-050",
+      "category": "no_match_clean_person",
+      "description": "Synthetic Arabic clean male name should stay unmatched.",
+      "expected": {
+        "shouldMatch": false,
+        "expectedMaximumScore": 0.49
+      },
+      "actual": {
+        "shouldMatch": false,
+        "highestScore": 0.44666666666666666,
+        "riskLevel": "LOW",
+        "classification": "WEAK_SIMILARITY",
+        "decision": "NO_MATCH",
+        "decisionConfidence": 0.9,
+        "reasonSummary": "لم يتم العثور على مرشح ذي دلالة على قوائم العقوبات استنادا إلى مؤشرات الهوية المقدمة.",
+        "recommendedAction": "ALLOW",
+        "supportingFactors": [
+          "DATA_COMPLETENESS"
+        ],
+        "weakeningFactors": [],
+        "topSource": null,
+        "topMatchedName": null,
+        "searchedSources": [
+          "OFAC_SDN",
+          "OFAC_CONSOLIDATED",
+          "UNSEC_CONSOLIDATED"
+        ],
+        "reasons": []
+      },
+      "pass": true,
+      "failureReasons": []
+    }
+  ]
+}

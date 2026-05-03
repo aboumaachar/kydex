@@ -1,0 +1,2 @@
+This workspace represents KYDEX v0.7.0-proof-complete.
+Do not modify core logic without versioning.

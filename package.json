@@ -1,0 +1,48 @@
+{
+  "name": "kydex",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @kydex/api",
+    "dev:api": "npm run dev -w @kydex/api",
+    "dev:web": "npm run dev -w @kydex/web",
+    "build": "npm run build -w @kydex/api && npm run build -w @kydex/web",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "infra:up": "docker compose -f 10_DOCKER_COMPOSE_STARTER.yml -f docker-compose.override.yml --profile dev-infra up -d postgres redis minio",
+    "infra:down": "docker compose -f 10_DOCKER_COMPOSE_STARTER.yml -f docker-compose.override.yml --profile dev-infra down",
+    "infra:status": "docker compose -f 10_DOCKER_COMPOSE_STARTER.yml -f docker-compose.override.yml --profile dev-infra ps",
+    "preflight:cli": "npm run preflight:cli -w @kydex/api",
+    "preflight": "npm run preflight:cli",
+    "smoke": "npm run smoke:test",
+    "smoke:test": "npm run smoke:test -w @kydex/api",
+    "architecture:verify": "tsx scripts/architecture-verify.ts",
+    "source:verify": "tsx scripts/source-verify.ts",
+    "match:validate": "tsx --tsconfig apps/api/tsconfig.json scripts/match-validate.ts",
+    "i18n:verify": "tsx scripts/i18n-verify.ts",
+    "arabic:validate": "tsx --tsconfig apps/api/tsconfig.json scripts/arabic-validate.ts",
+    "test:live-screening": "node scripts/test-live-notary-screening.js",
+    "production:certify": "tsx scripts/production-certify.ts",
+    "security:check": "tsx scripts/security-check.ts",
+    "backup:test": "tsx scripts/backup-test.ts",
+    "db:migrate:prod": "prisma migrate deploy",
+    "db:seed:prod": "tsx prisma/seed.ts",
+    "ssh:prod": "ssh root",
+    "sync:prod": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-prod-sync.ps1",
+    "deploy:prod:up": "docker compose -f docker-compose.production.yml --env-file .env.production up -d --build",
+    "deploy:prod:down": "docker compose -f docker-compose.production.yml --env-file .env.production down",
+    "deploy:prod:logs": "docker compose -f docker-compose.production.yml --env-file .env.production logs -f",
+    "release:gate": "npm run build -w @kydex/api && npm run build -w @kydex/web && npm run prisma:migrate -- --name release_gate && npm run preflight && npm run test:e2e -w @kydex/api && npm run smoke:test"
+  },
+  "devDependencies": {
+    "playwright": "^1.41.2",
+    "prisma": "^5.20.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

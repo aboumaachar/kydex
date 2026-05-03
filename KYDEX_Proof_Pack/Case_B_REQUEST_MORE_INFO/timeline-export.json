@@ -1,0 +1,111 @@
+{
+  "kydexExportVersion": "demo-v1",
+  "exportedAt": "2026-04-25T10:53:00Z",
+  "exportHash": "693f6fc93be8f7e7e08e2df678ea5a2a8bfb5d320b512ca68f3222e6439e9775",
+  "exportSignature": "cc0c1640db3e4475f0b3900d4ec4fafdffc7aa61d644f9724f2e62ba64312db8",
+  "signatureAlgorithm": "HMAC-SHA256",
+  "keyId": "demo-key-001",
+  "data": {
+    "case": {
+      "caseId": "KYD-DEMO-B-0002",
+      "title": "Partial Match Requires More Information",
+      "purpose": "Name and nationality partially match; committee requests enhanced due diligence before clearance.",
+      "status": "REQUEST_MORE_INFORMATION",
+      "createdAt": "2026-04-25T10:00:00Z"
+    },
+    "screeningInput": {
+      "fullNameArabic": "حسين كمال ناصر",
+      "fullNameLatin": "Hussein Kamal Nasser",
+      "dob": null,
+      "nationality": "LB",
+      "documentNumber": "LB-DEMO-2002",
+      "transactionType": "Property Lease"
+    },
+    "screeningResult": {
+      "riskLevel": "MEDIUM",
+      "highestScore": 0.66,
+      "classification": "Possible match; insufficient identifiers",
+      "sources": [
+        "UN_DEMO"
+      ],
+      "listVersions": {
+        "UN_DEMO": "2026-04-24T22:00:00Z"
+      },
+      "matches": [
+        {
+          "source": "UN_DEMO",
+          "matchedName": "Husayn K. Nasir",
+          "score": 0.66,
+          "reason": "Phonetic similarity; missing DOB prevents disambiguation",
+          "reference": "DEMO-UN-FAKE-014"
+        }
+      ]
+    },
+    "decision": {
+      "committeeDecision": "REQUEST_MORE_INFORMATION",
+      "finalAuthorityUserId": "usr-compliance-lead-demo",
+      "finalAuthorityRole": "COMPLIANCE_OFFICER",
+      "finalAuthoritySignedAt": "2026-04-25T10:52:00Z",
+      "justification": "Additional ID copy, address proof, and beneficial-owner declaration required before final handling."
+    },
+    "caseActions": [
+      {
+        "type": "SCREEN_QUERY",
+        "actorId": "notary-demo-2",
+        "timestamp": "2026-04-25T10:00:00Z"
+      },
+      {
+        "type": "CASE_CREATED",
+        "actorId": "system",
+        "timestamp": "2026-04-25T10:01:00Z"
+      },
+      {
+        "type": "REVIEWER_ASSIGNED",
+        "actorId": "compliance-demo-2",
+        "timestamp": "2026-04-25T10:06:00Z"
+      },
+      {
+        "type": "REQUEST_ADDITIONAL_INFORMATION",
+        "actorId": "compliance-demo-2",
+        "timestamp": "2026-04-25T10:32:00Z"
+      },
+      {
+        "type": "FINAL_AUTHORITY_SIGNED",
+        "actorId": "usr-compliance-lead-demo",
+        "timestamp": "2026-04-25T10:52:00Z"
+      }
+    ],
+    "auditTrail": [
+      {
+        "action": "SCREEN_QUERY",
+        "actorId": "notary-demo-2",
+        "timestamp": "2026-04-25T10:00:00Z",
+        "entryHash": "3e57dabcd795a62cbfc65410c1e46b5eb0e9729f8b2c5d0029a7050404dbacca"
+      },
+      {
+        "action": "CASE_CREATED",
+        "actorId": "system",
+        "timestamp": "2026-04-25T10:01:00Z",
+        "entryHash": "825f53217763ba57955d0cd82b140f6adfff44bb9cd230cc04386b521a9a1a5f"
+      },
+      {
+        "action": "REVIEWER_ASSIGNED",
+        "actorId": "compliance-demo-2",
+        "timestamp": "2026-04-25T10:06:00Z",
+        "entryHash": "a70c8da6c8c2923c6e5e9911531c09e82a085b0493dd8391a6ff5250f94a3a0b"
+      },
+      {
+        "action": "REQUEST_ADDITIONAL_INFORMATION",
+        "actorId": "compliance-demo-2",
+        "timestamp": "2026-04-25T10:32:00Z",
+        "entryHash": "66a101acd82659d39608c7cac4f100598952b94e7e2ccbcc3ed179e0936ea968"
+      },
+      {
+        "action": "FINAL_AUTHORITY_SIGNED",
+        "actorId": "usr-compliance-lead-demo",
+        "timestamp": "2026-04-25T10:52:00Z",
+        "entryHash": "0186f48545e3a82eca91d085f8d83eb4e71c66e729404e4f7b091b5254a01feb"
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Launch KYDEX API",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev:api"
+			],
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "Launch KYDEX Web",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev:web"
+			],
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "Launch KYDEX App",
+			"dependsOn": [
+				"Launch KYDEX API",
+				"Launch KYDEX Web"
+			],
+			"dependsOrder": "parallel",
+			"group": "build"
+		},
+		{
+			"label": "Launch KYDEX Web 3100",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev",
+				"-w",
+				"@kydex/web",
+				"--",
+				"-p",
+				"3100"
+			],
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "Kill Node Processes",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "Launch KYDEX Web Stable 3000",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$env:NODE_OPTIONS='--max-old-space-size=4096'; npm run dev -w @kydex/web -- -p 3000"
+			],
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "Launch KYDEX Web Stable 3000",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"set NODE_OPTIONS=--max-old-space-size=4096&& npm run dev -w @kydex/web -- -p 3000"
+			],
+			"isBackground": true,
+			"group": "build"
+		}
+	]
+}

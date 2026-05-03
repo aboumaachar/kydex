@@ -1,0 +1,122 @@
+{
+  "kydexExportVersion": "demo-v1",
+  "exportedAt": "2026-04-26T11:01:00Z",
+  "exportHash": "d743216f7f7d9c204d4292240531e79fdadf4ddd931cecd39de71cdc6924de88",
+  "exportSignature": "98c6f5dd6fd15fe00a1ed88716ffb8bdedcff0261a03fb1f46bf26fa451ee31a",
+  "signatureAlgorithm": "HMAC-SHA256",
+  "keyId": "demo-key-001",
+  "data": {
+    "case": {
+      "caseId": "KYD-DEMO-E-0005",
+      "title": "SLA Breach Detected and Resolved",
+      "purpose": "High-risk case sits idle past SLA; KYDEX generates breach alert and forces resolution trail.",
+      "status": "REQUEST_MORE_INFORMATION",
+      "createdAt": "2026-04-25T10:00:00Z"
+    },
+    "screeningInput": {
+      "fullNameArabic": "ناديا سمير حمدان",
+      "fullNameLatin": "Nadia Samir Hamdan",
+      "dob": "1982-04-16",
+      "nationality": "LB",
+      "documentNumber": "LB-DEMO-5005",
+      "transactionType": "Sale Agreement"
+    },
+    "screeningResult": {
+      "riskLevel": "HIGH",
+      "highestScore": 0.76,
+      "classification": "High-risk possible match requiring review",
+      "sources": [
+        "UN_DEMO"
+      ],
+      "listVersions": {
+        "UN_DEMO": "2026-04-24T22:00:00Z"
+      },
+      "matches": [
+        {
+          "source": "UN_DEMO",
+          "matchedName": "N. S. Hamdan",
+          "score": 0.76,
+          "reason": "Alias similarity; insufficient address data",
+          "reference": "DEMO-UN-FAKE-099"
+        }
+      ]
+    },
+    "decision": {
+      "committeeDecision": "REQUEST_MORE_INFORMATION",
+      "finalAuthorityUserId": "usr-compliance-lead-demo",
+      "finalAuthorityRole": "COMPLIANCE_OFFICER",
+      "finalAuthoritySignedAt": "2026-04-26T11:00:00Z",
+      "justification": "SLA breach acknowledged; additional information requested and case remains under controlled review."
+    },
+    "caseActions": [
+      {
+        "type": "SCREEN_QUERY",
+        "actorId": "notary-demo-5",
+        "timestamp": "2026-04-25T10:00:00Z"
+      },
+      {
+        "type": "CASE_CREATED",
+        "actorId": "system",
+        "timestamp": "2026-04-25T10:01:00Z"
+      },
+      {
+        "type": "SLA_BREACH_ALERTED",
+        "actorId": "system",
+        "timestamp": "2026-04-26T10:05:00Z"
+      },
+      {
+        "type": "REVIEWER_ASSIGNED",
+        "actorId": "compliance-demo-2",
+        "timestamp": "2026-04-26T10:10:00Z"
+      },
+      {
+        "type": "REQUEST_ADDITIONAL_INFORMATION",
+        "actorId": "compliance-demo-2",
+        "timestamp": "2026-04-26T10:40:00Z"
+      },
+      {
+        "type": "FINAL_AUTHORITY_SIGNED",
+        "actorId": "usr-compliance-lead-demo",
+        "timestamp": "2026-04-26T11:00:00Z"
+      }
+    ],
+    "auditTrail": [
+      {
+        "action": "SCREEN_QUERY",
+        "actorId": "notary-demo-5",
+        "timestamp": "2026-04-25T10:00:00Z",
+        "entryHash": "9fea9de2d9cf34e13a6e8248d150631e72bddbd1cb18006a3082f3f9530f2085"
+      },
+      {
+        "action": "CASE_CREATED",
+        "actorId": "system",
+        "timestamp": "2026-04-25T10:01:00Z",
+        "entryHash": "be93299408f14255e6b4e91f037d499cbb709648c2c4dc003add36533cd5c557"
+      },
+      {
+        "action": "SLA_BREACH_ALERTED",
+        "actorId": "system",
+        "timestamp": "2026-04-26T10:05:00Z",
+        "entryHash": "c42c515eefc9e29245a1713e7d660525ba701211d0ed352c4be916fb064899c4"
+      },
+      {
+        "action": "REVIEWER_ASSIGNED",
+        "actorId": "compliance-demo-2",
+        "timestamp": "2026-04-26T10:10:00Z",
+        "entryHash": "91ec6aa0cca7620de5a68a2548a512495b052e71f7062f0c6936e7b340db3739"
+      },
+      {
+        "action": "REQUEST_ADDITIONAL_INFORMATION",
+        "actorId": "compliance-demo-2",
+        "timestamp": "2026-04-26T10:40:00Z",
+        "entryHash": "e6c8de06d0c0d4e054356608f7f887c6685f0e6f3acaa08d1a44f0e60fb00139"
+      },
+      {
+        "action": "FINAL_AUTHORITY_SIGNED",
+        "actorId": "usr-compliance-lead-demo",
+        "timestamp": "2026-04-26T11:00:00Z",
+        "entryHash": "034b0162ecf940bfd40b8ff02f569245ac45c032d809284c61a94ba0d098d5ec"
+      }
+    ]
+  }
+}

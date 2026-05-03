@@ -1,0 +1,34 @@
+{
+  "certificateVersion": "v1",
+  "certificateId": "kydex-prod-2026-04-26T07-01-51-774Z",
+  "workspace": "C:\\kydex",
+  "nodeEnv": "unknown",
+  "signingMode": "NON_STRICT",
+  "signingKeySource": "FALLBACK",
+  "productionValid": false,
+  "startedAt": "2026-04-26T07:01:51.774Z",
+  "completedAt": "2026-04-26T07:01:57.297Z",
+  "durationMs": 5523,
+  "command": "npm run production:certify",
+  "overallStatus": "FAIL",
+  "failedCount": 1,
+  "gates": [
+    {
+      "name": "api_build",
+      "command": "npm run build -w @kydex/api",
+      "timeoutMs": 1,
+      "startedAt": "2026-04-26T07:01:51.777Z",
+      "completedAt": "2026-04-26T07:01:57.294Z",
+      "durationMs": 5517,
+      "exitCode": 1,
+      "ok": false,
+      "attempts": 1,
+      "timedOut": true,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T07-01-51-774Z\\api_build.stdout.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T07-01-51-774Z\\api_build.stderr.log",
+      "notes": [
+        "Command timed out after 1ms and was terminated."
+      ]
+    }
+  ]
+}

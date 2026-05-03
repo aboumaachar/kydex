@@ -1,0 +1,29 @@
+{
+  "riskLevel": "CRITICAL",
+  "highestScore": 0.94,
+  "classification": "Near-confirmed match",
+  "sources": [
+    "OFAC_DEMO",
+    "LOCAL_LB_DEMO"
+  ],
+  "listVersions": {
+    "OFAC_DEMO": "2026-04-25T08:00:00Z",
+    "LOCAL_LB_DEMO": "2026-04-25T09:30:00Z"
+  },
+  "matches": [
+    {
+      "source": "OFAC_DEMO",
+      "matchedName": "Karim Y. Al Khatib",
+      "score": 0.94,
+      "reason": "Name, DOB, nationality, and alias alignment",
+      "reference": "DEMO-OFAC-FAKE-077"
+    },
+    {
+      "source": "LOCAL_LB_DEMO",
+      "matchedName": "كريم يوسف الخطيب",
+      "score": 0.97,
+      "reason": "Arabic exact name plus local reference indicator",
+      "reference": "DEMO-LB-FAKE-009"
+    }
+  ]
+}

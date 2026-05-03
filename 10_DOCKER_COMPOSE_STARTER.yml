@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: kydex-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kydex
+      POSTGRES_PASSWORD: kydex_dev_password
+      POSTGRES_DB: kydex
+    ports:
+      - "5432:5432"
+    volumes:
+      - kydex_postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: kydex-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  minio:
+    image: minio/minio:latest
+    container_name: kydex-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: kydex_minio
+      MINIO_ROOT_PASSWORD: kydex_minio_password
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - kydex_minio_data:/data
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: kydex-api
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: kydex-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+
+volumes:
+  kydex_postgres_data:
+  kydex_minio_data:

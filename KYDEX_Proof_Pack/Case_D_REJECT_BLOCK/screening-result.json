@@ -1,0 +1,22 @@
+{
+  "riskLevel": "HIGH",
+  "highestScore": 0.81,
+  "classification": "High risk due to local watchlist and ownership-control indicators",
+  "sources": [
+    "LOCAL_LB_DEMO",
+    "CUSTOM_CLIENT_DEMO"
+  ],
+  "listVersions": {
+    "LOCAL_LB_DEMO": "2026-04-25T09:30:00Z",
+    "CUSTOM_CLIENT_DEMO": "2026-04-20T00:00:00Z"
+  },
+  "matches": [
+    {
+      "source": "CUSTOM_CLIENT_DEMO",
+      "matchedName": "Rami F. Mourad",
+      "score": 0.81,
+      "reason": "Beneficial ownership control flag and alias similarity",
+      "reference": "DEMO-CUSTOM-FAKE-021"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+KYDEX PROOF CLOSURE PASS
+Date: 2026-04-25
+Environment: local Windows, API http://localhost:4000, Web http://localhost:3000
+
+1) OFAC ingestion fix
+- insertedRecords: 18863
+- rejectedRecords: 0
+- ingestionRunReportId: cmoe1r4m31qa6zhyyjjoeqaop
+- mapping/parsing validation: PASS (official OFAC sync inserted > 0)
+
+UNSEC companion proof
+- insertedRecords: 1712
+- rejectedRecords: 36
+- ingestionRunReportId: cmoe1ramw1rlxzhyyzzxphszh
+
+Stored sample inserted rows
+- file: C:\kydex\Case_A_FALSE_POSITIVE_CLEAR\ofac-sample-inserted-rows.json
+- sampleCount: 5
+- versionId: cmoe1o5vf001mzhyyudgulev1
+- versionLabel: OFAC-2026-04-25
+
+2) Worker runtime
+- preflight status: ok
+- bullmqWorker.ok: true
+- bullmqWorker.details.workers: 2
+- preflight timestamp: 2026-04-25T07:53:30.444Z
+
+3) Screenshot capture
+- playwright chromium install executed
+- screenshot capture executed
+- screenshots generated:
+	- C:\kydex\.snapshots\screenshots\01-login.png (258811 bytes)
+	- C:\kydex\.snapshots\screenshots\02-admin-data-sources.png (245219 bytes)
+	- C:\kydex\.snapshots\screenshots\03-document-extraction.png (197395 bytes)
+- latest write times: 2026-04-25 10:55:58 to 10:56:09 local
+
+4) Document no-match fix
+- structured response: PASS
+- query summary fields present: queryId, classification, noMatch, matchCount, riskLevel
+- classification: NO_MATCH
+- noMatch: true
+- matchCount: 0
+- audit event present: true
+- auditAction: SCREEN_QUERY_FROM_DOCUMENT
+- entityType: DOCUMENT_EXTRACTION
+- extractionId: cmoe1q1xw0fxxzhyya9gu15jp
+- queryId: cmoe1q21z0fy3zhyyl0db5sil
+- auditId: cmoe1q22r0fy7zhyy3md1p9us
+
+Gate validation
+- build(api): PASS
+- build(web): PASS
+- e2e(api): PASS (4 suites, 28 tests)
+- preflight: PASS (status ok, not degraded)
+- smoke: PASS (status ok)
+
+Final status: ALL REQUIRED CLOSURE CRITERIA VERIFIED WITH EVIDENCE

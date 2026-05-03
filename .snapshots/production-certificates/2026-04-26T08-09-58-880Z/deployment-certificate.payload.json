@@ -1,0 +1,62 @@
+{
+  "certificateVersion": "v1",
+  "certificateId": "kydex-prod-2026-04-26T08-09-58-880Z",
+  "workspace": "C:\\kydex",
+  "nodeEnv": "unknown",
+  "signingMode": "NON_STRICT",
+  "signingKeySource": "FALLBACK",
+  "productionValid": false,
+  "startedAt": "2026-04-26T08:09:58.880Z",
+  "completedAt": "2026-04-26T08:11:03.806Z",
+  "durationMs": 64927,
+  "command": "npm run production:certify",
+  "overallStatus": "FAIL",
+  "failedCount": 1,
+  "gates": [
+    {
+      "name": "api_build",
+      "command": "npm run build -w @kydex/api",
+      "timeoutMs": 180000,
+      "startedAt": "2026-04-26T08:09:58.883Z",
+      "completedAt": "2026-04-26T08:10:07.979Z",
+      "durationMs": 9096,
+      "exitCode": 0,
+      "ok": true,
+      "attempts": 1,
+      "timedOut": false,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-09-58-880Z\\api_build.stdout.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-09-58-880Z\\api_build.stderr.log",
+      "notes": []
+    },
+    {
+      "name": "web_build",
+      "command": "npm run build -w @kydex/web",
+      "timeoutMs": 300000,
+      "startedAt": "2026-04-26T08:10:07.981Z",
+      "completedAt": "2026-04-26T08:10:32.780Z",
+      "durationMs": 24799,
+      "exitCode": 0,
+      "ok": true,
+      "attempts": 1,
+      "timedOut": false,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-09-58-880Z\\web_build.stdout.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-09-58-880Z\\web_build.stderr.log",
+      "notes": []
+    },
+    {
+      "name": "api_e2e",
+      "command": "npm run test:e2e -w @kydex/api",
+      "timeoutMs": 600000,
+      "startedAt": "2026-04-26T08:10:32.781Z",
+      "completedAt": "2026-04-26T08:11:03.800Z",
+      "durationMs": 31019,
+      "exitCode": 1,
+      "ok": false,
+      "attempts": 1,
+      "timedOut": false,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-09-58-880Z\\api_e2e.stdout.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-09-58-880Z\\api_e2e.stderr.log",
+      "notes": []
+    }
+  ]
+}

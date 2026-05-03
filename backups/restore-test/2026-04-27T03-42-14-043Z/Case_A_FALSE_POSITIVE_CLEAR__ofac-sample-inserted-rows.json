@@ -1,0 +1,64 @@
+{
+  "capturedAt": "2026-04-25T07:56:28.385Z",
+  "dataSourceCode": "OFAC",
+  "versionId": "cmoe1o5vf001mzhyyudgulev1",
+  "versionLabel": "OFAC-2026-04-25",
+  "sampleCount": 5,
+  "rows": [
+    {
+      "id": "cmoe1o86a001ozhyyokgmr19s",
+      "externalReference": "173",
+      "entityType": "PERSON",
+      "primaryName": "ANGLO-CARIBBEAN CO., LTD.",
+      "nationality": "CUBA",
+      "country": null,
+      "dateOfBirth": null,
+      "documentNumbers": [],
+      "createdAt": "2026-04-25T07:55:22.005Z"
+    },
+    {
+      "id": "cmoe1o86a001pzhyyqmmgtjuz",
+      "externalReference": "306",
+      "entityType": "PERSON",
+      "primaryName": "BANCO NACIONAL DE CUBA",
+      "nationality": "CUBA",
+      "country": null,
+      "dateOfBirth": null,
+      "documentNumbers": [],
+      "createdAt": "2026-04-25T07:55:22.005Z"
+    },
+    {
+      "id": "cmoe1o86a001qzhyy9xzozwma",
+      "externalReference": "424",
+      "entityType": "PERSON",
+      "primaryName": "BOUTIQUE LA MAISON",
+      "nationality": "CUBA",
+      "country": null,
+      "dateOfBirth": null,
+      "documentNumbers": [],
+      "createdAt": "2026-04-25T07:55:22.005Z"
+    },
+    {
+      "id": "cmoe1o86a001rzhyyusjs2oy3",
+      "externalReference": "475",
+      "entityType": "PERSON",
+      "primaryName": "CASA DE CUBA",
+      "nationality": "CUBA",
+      "country": null,
+      "dateOfBirth": null,
+      "documentNumbers": [],
+      "createdAt": "2026-04-25T07:55:22.005Z"
+    },
+    {
+      "id": "cmoe1o86a001nzhyynjeuktae",
+      "externalReference": "36",
+      "entityType": "PERSON",
+      "primaryName": "AEROCARIBBEAN AIRLINES",
+      "nationality": "CUBA",
+      "country": null,
+      "dateOfBirth": null,
+      "documentNumbers": [],
+      "createdAt": "2026-04-25T07:55:22.005Z"
+    }
+  ]
+}

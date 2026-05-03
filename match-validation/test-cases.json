@@ -1,0 +1,357 @@
+[
+  {
+    "caseId": "MV-001",
+    "category": "exact_name_match",
+    "description": "Exact public watchlist name from OFAC consolidated.",
+    "input": { "fullName": "Mohammed Maher Yousef BADER" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-002",
+    "category": "exact_name_match",
+    "description": "Exact public watchlist name with long surname chain.",
+    "input": { "fullName": "Fathi Ahmad Mohammad HAMMAD" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-003",
+    "category": "exact_name_match",
+    "description": "Exact UN consolidated person name.",
+    "input": { "fullName": "RAHMATULLAH SHAH NAWAZ" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-004",
+    "category": "exact_name_match",
+    "description": "Exact UN consolidated person with common transliterated first name.",
+    "input": { "fullName": "MUHAMMAD OMAR ZADRAN" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-005",
+    "category": "exact_name_match",
+    "description": "Exact UN consolidated entity name.",
+    "input": { "fullName": "ROSHAN MONEY EXCHANGE" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-006",
+    "category": "exact_name_match",
+    "description": "Exact SDN entity name.",
+    "input": { "fullName": "AEROCARIBBEAN AIRLINES" },
+    "sources": ["OFAC_SDN"]
+  },
+  {
+    "caseId": "MV-007",
+    "category": "alias_match",
+    "description": "Alias-only input taken from OFAC consolidated alias payload.",
+    "input": { "fullName": "HAMMAD" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-008",
+    "category": "alias_match",
+    "description": "Shorter alias variant from the same OFAC consolidated record.",
+    "input": { "fullName": "HAMAD" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-009",
+    "category": "alias_match",
+    "description": "Parenthetical alias for a UN entity.",
+    "input": { "fullName": "HQN" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-010",
+    "category": "spelling_variation",
+    "description": "Minor English spelling variation of BADER record.",
+    "input": { "fullName": "Mohamad Maher Yusef Bader" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-011",
+    "category": "spelling_variation",
+    "description": "Minor spelling variation of UN exact name.",
+    "input": { "fullName": "Rahmatula Shah Nawaz" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-012",
+    "category": "spelling_variation",
+    "description": "Common vowel shift in Daraghmeh surname.",
+    "input": { "fullName": "Ayman Husain Daraghmeh" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-013",
+    "category": "arabic_to_english_transliteration",
+    "description": "Arabic-script variant of UN public name.",
+    "input": { "fullName": "محمد عمر زدران" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-014",
+    "category": "arabic_to_english_transliteration",
+    "description": "Arabic-script variant of OFAC consolidated public name.",
+    "input": { "fullName": "محمد ماهر يوسف بدر" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-015",
+    "category": "english_to_arabic_transliteration",
+    "description": "English transliteration drift for Muhammad/Omar tokens.",
+    "input": { "fullName": "Muhamad Omar Zadran" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-016",
+    "category": "english_to_arabic_transliteration",
+    "description": "English transliteration drift for Mohammad/Yousef tokens.",
+    "input": { "fullName": "Mohamad Maher Yusuf Bader" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-017",
+    "category": "partial_name_match",
+    "description": "Surname and middle token subset of OFAC record.",
+    "input": { "fullName": "Maher BADER" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-018",
+    "category": "partial_name_match",
+    "description": "UN person queried with partial tokens only.",
+    "input": { "fullName": "Shah Nawaz" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-019",
+    "category": "partial_name_match",
+    "description": "Entity queried by core token only.",
+    "input": { "fullName": "Roshan" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-020",
+    "category": "dob_match_boost",
+    "description": "Exact name plus DOB and nationality should lift BADER to HIGH.",
+    "input": { "fullName": "Mohammed Maher Yousef BADER", "dateOfBirth": "1956", "nationality": "Palestinian" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-021",
+    "category": "dob_match_boost",
+    "description": "Exact name plus DOB and nationality should lift HAMMAD to HIGH.",
+    "input": { "fullName": "Fathi Ahmad Mohammad HAMMAD", "dateOfBirth": "1961", "nationality": "Region: Gaza" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-022",
+    "category": "dob_mismatch_penalty",
+    "description": "Wrong DOB should prevent HIGH for BADER even when nationality still matches.",
+    "input": { "fullName": "Mohammed Maher Yousef BADER", "dateOfBirth": "1960", "nationality": "Palestinian" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-023",
+    "category": "nationality_match_boost",
+    "description": "UN exact name with nationality match should outrank plain name-only result.",
+    "input": { "fullName": "RAHMATULLAH SHAH NAWAZ", "nationality": "Afghanistan" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-024",
+    "category": "nationality_match_boost",
+    "description": "OFAC SDN exact name with nationality should clear the match threshold comfortably.",
+    "input": { "fullName": "ATIA, Hachim K.", "nationality": "IRAQ2" },
+    "sources": ["OFAC_SDN"]
+  },
+  {
+    "caseId": "MV-025",
+    "category": "document_number_match",
+    "description": "OFAC consolidated document number exact hit should become CRITICAL.",
+    "input": { "fullName": "Fathi Ahmad Mohammad HAMMAD", "documentNumber": "section 1(b) of Executive Order 13224" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-026",
+    "category": "document_number_match",
+    "description": "Long-form document number exact hit should also become CRITICAL.",
+    "input": { "fullName": "Fathi Ahmad Mohammad HAMMAD", "documentNumber": "as amended by Executive Order 13886" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-027",
+    "category": "false_positive_common_name",
+    "description": "Common-name style query without supporting identifiers should not create a match.",
+    "input": { "fullName": "Mohammed Ali", "nationality": "LB" },
+    "sources": ["OFAC_CONSOLIDATED", "UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-028",
+    "category": "false_positive_common_name",
+    "description": "Generic western common name should remain clean.",
+    "input": { "fullName": "John Smith" },
+    "sources": ["OFAC_SDN", "OFAC_CONSOLIDATED", "UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-029",
+    "category": "no_match_clean_person",
+    "description": "Synthetic clean person should stay unmatched.",
+    "input": { "fullName": "Nadia Kareem Soufi", "nationality": "LB" },
+    "sources": ["OFAC_CONSOLIDATED", "UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-030",
+    "category": "no_match_clean_person",
+    "description": "Synthetic clean western name should stay unmatched.",
+    "input": { "fullName": "Peter Langford" },
+    "sources": ["OFAC_SDN", "UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-031",
+    "category": "scoring_threshold_calibration",
+    "description": "Near-threshold UN query missing one token should still surface a match.",
+    "input": { "fullName": "Rahmatullah Nawaz", "nationality": "Afghanistan" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-032",
+    "category": "scoring_threshold_calibration",
+    "description": "Near-threshold SDN punctuation-normalized query should still surface a match.",
+    "input": { "fullName": "Atia Hachim K", "nationality": "IRAQ2" },
+    "sources": ["OFAC_SDN"]
+  },
+  {
+    "caseId": "MV-033",
+    "category": "insufficient_data_common_name",
+    "description": "Common name only without supporting identifiers should request more information.",
+    "input": { "fullName": "Mohammed Ali" },
+    "sources": ["OFAC_CONSOLIDATED", "UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-034",
+    "category": "false_match_identifier_conflict",
+    "description": "Exact listed name with conflicting DOB, nationality, and document number should be marked false match.",
+    "input": {
+      "fullName": "Fathi Ahmad Mohammad HAMMAD",
+      "dateOfBirth": "1972",
+      "nationality": "Lebanon",
+      "documentNumber": "WRONG-DOC-001"
+    },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-035",
+    "category": "arabic_to_english_transliteration",
+    "description": "Arabic-script variant of UN public name with nationality.",
+    "input": { "fullName": "محمد عمر زدران", "nationality": "Afghanistan" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-036",
+    "category": "arabic_to_english_transliteration",
+    "description": "Arabic-script variant of OFAC public name with nationality.",
+    "input": { "fullName": "محمد ماهر يوسف بدر", "nationality": "Palestinian" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-037",
+    "category": "english_to_arabic_transliteration",
+    "description": "English transliteration variant for Zadran record.",
+    "input": { "fullName": "Muhammad Omar Zadran" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-038",
+    "category": "english_to_arabic_transliteration",
+    "description": "English transliteration variant for Bader record.",
+    "input": { "fullName": "Mohammed Maher Yusuf Bader" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-039",
+    "category": "arabic_to_english_transliteration",
+    "description": "Arabic-script Zadran query with repeated whitespace.",
+    "input": { "fullName": "محمد   عمر   زدران" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-040",
+    "category": "arabic_to_english_transliteration",
+    "description": "Arabic-script Bader query with punctuation drift.",
+    "input": { "fullName": "محمد ماهر يوسف بدر." },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-041",
+    "category": "arabic_to_english_transliteration",
+    "description": "Mixed Arabic and English query for Zadran.",
+    "input": { "fullName": "محمد Omar Zadran" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-042",
+    "category": "arabic_to_english_transliteration",
+    "description": "Mixed Arabic and English query for Bader.",
+    "input": { "fullName": "Mohammed ماهر Yousef BADER" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-043",
+    "category": "english_to_arabic_transliteration",
+    "description": "English transliteration variant with doubled consonant for Zadran.",
+    "input": { "fullName": "Muhammed Omar Zadran" },
+    "sources": ["UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-044",
+    "category": "english_to_arabic_transliteration",
+    "description": "English transliteration variant with Yousif spelling for Bader.",
+    "input": { "fullName": "Mohamed Maher Yousif Bader" },
+    "sources": ["OFAC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-045",
+    "category": "no_match_clean_person",
+    "description": "Synthetic Arabic clean person should stay unmatched.",
+    "input": { "fullName": "ليلى كاظم مراد", "nationality": "LB" },
+    "sources": ["OFAC_CONSOLIDATED", "UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-046",
+    "category": "no_match_clean_person",
+    "description": "Synthetic Arabic clean person with three tokens should stay unmatched.",
+    "input": { "fullName": "سامي نادر خوري" },
+    "sources": ["OFAC_SDN", "OFAC_CONSOLIDATED", "UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-047",
+    "category": "no_match_clean_person",
+    "description": "Synthetic Arabic entity should stay unmatched.",
+    "input": { "fullName": "شركة الأطلس الهندسية" },
+    "sources": ["OFAC_SDN", "UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-048",
+    "category": "no_match_clean_person",
+    "description": "Synthetic Arabic clean person with common surname should stay unmatched.",
+    "input": { "fullName": "حسن بشير عواد" },
+    "sources": ["OFAC_CONSOLIDATED", "UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-049",
+    "category": "no_match_clean_person",
+    "description": "Synthetic Arabic clean female name should stay unmatched.",
+    "input": { "fullName": "مريم خليل نصر" },
+    "sources": ["OFAC_CONSOLIDATED", "UNSEC_CONSOLIDATED"]
+  },
+  {
+    "caseId": "MV-050",
+    "category": "no_match_clean_person",
+    "description": "Synthetic Arabic clean male name should stay unmatched.",
+    "input": { "fullName": "طارق يوسف سلام" },
+    "sources": ["OFAC_SDN", "OFAC_CONSOLIDATED", "UNSEC_CONSOLIDATED"]
+  }
+]

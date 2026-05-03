@@ -1,0 +1,79 @@
+{
+  "certificateVersion": "v1",
+  "certificateId": "kydex-prod-2026-04-26T08-20-07-956Z",
+  "workspace": "C:\\kydex",
+  "nodeEnv": "unknown",
+  "signingMode": "STRICT",
+  "signingKeySource": "DEPLOYMENT_CERT_SIGNING_KEY",
+  "productionValid": false,
+  "startedAt": "2026-04-26T08:20:07.956Z",
+  "completedAt": "2026-04-26T08:25:17.029Z",
+  "durationMs": 309075,
+  "command": "npm run production:certify",
+  "overallStatus": "FAIL",
+  "failedCount": 1,
+  "gates": [
+    {
+      "name": "api_build",
+      "command": "npm run build -w @kydex/api",
+      "timeoutMs": 180000,
+      "startedAt": "2026-04-26T08:20:07.960Z",
+      "completedAt": "2026-04-26T08:20:15.450Z",
+      "durationMs": 7490,
+      "exitCode": 0,
+      "ok": true,
+      "attempts": 1,
+      "timedOut": false,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-20-07-956Z\\api_build.stdout.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-20-07-956Z\\api_build.stderr.log",
+      "notes": []
+    },
+    {
+      "name": "web_build",
+      "command": "set NODE_OPTIONS=--max-old-space-size=4096&& npm run build -w @kydex/web",
+      "timeoutMs": 300000,
+      "startedAt": "2026-04-26T08:20:15.453Z",
+      "completedAt": "2026-04-26T08:20:38.120Z",
+      "durationMs": 22667,
+      "exitCode": 0,
+      "ok": true,
+      "attempts": 1,
+      "timedOut": false,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-20-07-956Z\\web_build.stdout.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-20-07-956Z\\web_build.stderr.log",
+      "notes": []
+    },
+    {
+      "name": "api_e2e",
+      "command": "npm run test:e2e -w @kydex/api",
+      "timeoutMs": 600000,
+      "startedAt": "2026-04-26T08:20:38.123Z",
+      "completedAt": "2026-04-26T08:21:15.569Z",
+      "durationMs": 37446,
+      "exitCode": 0,
+      "ok": true,
+      "attempts": 1,
+      "timedOut": false,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-20-07-956Z\\api_e2e.stdout.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-20-07-956Z\\api_e2e.stderr.log",
+      "notes": []
+    },
+    {
+      "name": "match_validate",
+      "command": "npm run match:validate",
+      "timeoutMs": 240000,
+      "startedAt": "2026-04-26T08:21:15.574Z",
+      "completedAt": "2026-04-26T08:25:17.008Z",
+      "durationMs": 241434,
+      "exitCode": 1,
+      "ok": false,
+      "attempts": 1,
+      "timedOut": true,
+      "stdoutPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-20-07-956Z\\match_validate.stdout.log",
+      "stderrPath": "C:\\kydex\\.snapshots\\production-certificates\\2026-04-26T08-20-07-956Z\\match_validate.stderr.log",
+      "notes": [
+        "Command timed out after 240000ms and was terminated."
+      ]
+    }
+  ]
+}

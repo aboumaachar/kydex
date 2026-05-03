@@ -1,0 +1,5 @@
+KYDEX Demo Verification
+Case: KYD-DEMO-A-0001
+Expected: VERIFIED
+Hash: 469bb2459c4babdea429a0ffb778a3e0bf3f56df6e671cbe21f0ac62f4c3ea8c
+Signature: fb5b3efd8ab95b8453b10ce822c6e3090f3f06192dfba90f287db5437b27df39

@@ -1,0 +1,20 @@
+{
+  "riskLevel": "MEDIUM",
+  "highestScore": 0.66,
+  "classification": "Possible match; insufficient identifiers",
+  "sources": [
+    "UN_DEMO"
+  ],
+  "listVersions": {
+    "UN_DEMO": "2026-04-24T22:00:00Z"
+  },
+  "matches": [
+    {
+      "source": "UN_DEMO",
+      "matchedName": "Husayn K. Nasir",
+      "score": 0.66,
+      "reason": "Phonetic similarity; missing DOB prevents disambiguation",
+      "reference": "DEMO-UN-FAKE-014"
+    }
+  ]
+}

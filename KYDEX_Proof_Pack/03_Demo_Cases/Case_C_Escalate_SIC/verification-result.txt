@@ -1,0 +1,12 @@
+KYDEX EXPORT VERIFICATION
+File: C:\kydex\Case_C_ESCALATE_SIC_READY\timeline-export.json
+Case: KYD-DEMO-C-0003
+Computed Hash: 896c9ecb99ade60608350a4634732f320d0fe681334d2cfceaf9bea1ff81e660
+Export Hash:   896c9ecb99ade60608350a4634732f320d0fe681334d2cfceaf9bea1ff81e660
+Computed Sig:  a658cb4efe0bea62733dd38d0657e2113791c088b19f5421c4aefe108d013c7d
+Export Sig:    a658cb4efe0bea62733dd38d0657e2113791c088b19f5421c4aefe108d013c7d
+
+Γ£ö Hash valid
+Γ£ö Signature valid
+
+STATUS: VERIFIED
