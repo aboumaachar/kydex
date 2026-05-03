@@ -619,10 +619,12 @@ export class ScreeningService {
       .map((entry) => entry.trim().toUpperCase())
       .filter(Boolean);
 
+    const normalizedForScreening = normalized.includes('ALL') ? ['OFAC'] : normalized;
+
     const searchedSources =
-      normalized.length === 0 || normalized.includes('ALL') || normalized.includes('*')
-        ? await this.getAllImportedSourceCodes()
-        : this.expandRequestedSources(normalized);
+      normalizedForScreening.length === 0 || normalizedForScreening.includes('*')
+        ? this.expandRequestedSources(['OFAC'])
+        : this.expandRequestedSources(normalizedForScreening);
 
     const uniqueCodes = [...new Set(searchedSources)];
     const usedLocalVersions = await Promise.all(

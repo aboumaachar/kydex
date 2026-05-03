@@ -356,8 +356,9 @@ export class OfacScreeningService {
     if (!query) {
       throw new BadRequestException({
         status: 'validation_failed',
-        message: 'A screening query is required.',
+        message: 'مصدر الفحص غير صالح أو عبارة البحث مفقودة.',
         acceptedFields: ['query', 'fullName', 'subject', 'name'],
+        acceptedSources: ['ALL', 'OFAC'],
       });
     }
 
@@ -365,11 +366,18 @@ export class OfacScreeningService {
       ? dto.sources.map((value) => value.trim()).filter((value) => value.length > 0)
       : [];
 
+    // Normalize UI placeholder 'ALL' (or wildcard) to OFAC for this endpoint.
+    const normalizedSources = sources.map((s) => s.toUpperCase());
+    const finalSources =
+      normalizedSources.length === 0 || normalizedSources.includes('ALL') || normalizedSources.includes('*')
+        ? ['OFAC']
+        : normalizedSources;
+
     return {
       query,
       screeningType: dto.screeningType?.trim() || 'ofac',
       source: dto.source?.trim() || 'dashboard',
-      sources: sources.length > 0 ? sources : ['OFAC'],
+      sources: finalSources,
       liveVerify: dto.liveVerify === true,
     };
   }

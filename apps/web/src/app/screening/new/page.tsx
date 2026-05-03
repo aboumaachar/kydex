@@ -13,28 +13,40 @@ import {
   runScreening,
 } from '../../../lib/api';
 
+const ACTIVE_SCREENING_SOURCES = ['OFAC'] as const;
+
 export default function NewScreeningPage() {
   const { formatNumber, t, tEnum } = useI18n();
-  const [fullName, setFullName] = useState('Mohammad Ali');
-  const [dateOfBirth, setDateOfBirth] = useState('1985-01-01');
-  const [nationality, setNationality] = useState('LB');
-  const [documentNumber, setDocumentNumber] = useState('123456');
-  const [transactionType, setTransactionType] = useState('POWER_OF_ATTORNEY');
-  const [clientReference, setClientReference] = useState('TX-2026-0001');
+  // Remove demo-prefilled values: start with empty inputs
+  const [fullName, setFullName] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [nationality, setNationality] = useState('');
+  const [documentNumber, setDocumentNumber] = useState('');
+  const [transactionType, setTransactionType] = useState('');
+  const [clientReference, setClientReference] = useState('');
   const [liveVerify, setLiveVerify] = useState(true);
-  const [mode, setMode] = useState<'SELECTED' | 'ALL'>('SELECTED');
-  const [selectedSources, setSelectedSources] = useState<string[]>(['OFAC']);
+  // Default to ALL sources ("جميع المصادر") per requirement
+  const [mode, setMode] = useState<'SELECTED' | 'ALL'>('ALL');
+  const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [sourceSummaries, setSourceSummaries] = useState<DataSourceSummary[]>([]);
   const [error, setError] = useState('');
   const [result, setResult] = useState<ScreeningResponse | null>(null);
   const [sourceCheck, setSourceCheck] = useState<OfacScreeningSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  // Filters and refinement state (appear after results)
+  const [filterSource, setFilterSource] = useState<string | 'ALL'>('ALL');
+  const [filterRiskLevel, setFilterRiskLevel] = useState<string>('');
+  const [minConfidence, setMinConfidence] = useState<number | null>(null);
+  const [matchTypeFilter, setMatchTypeFilter] = useState<string>('');
+  const [searchWithinResults, setSearchWithinResults] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'confidence' | 'risk' | 'source'>('confidence');
 
   useEffect(() => {
     const loadSources = async () => {
       try {
         const sources = await getDataSources();
-        setSourceSummaries(sources.filter((source) => source.status === 'ACTIVE'));
+        // Keep full source list so we can show inactive sources as disabled/not available
+        setSourceSummaries(sources);
       } catch {
         setSourceSummaries([]);
       }
@@ -48,15 +60,63 @@ export default function NewScreeningPage() {
       sourceSummaries.map((source) => ({
         value: source.code,
         label: source.name,
-        health: source.syncStatus.syncHealth,
-        lastSyncAt: source.syncStatus.lastSuccessfulSyncAt ?? source.currentActiveVersion?.importedAt ?? '',
-        activeVersion: source.syncStatus.currentActiveVersion ?? source.currentActiveVersion?.versionLabel ?? '',
-        staleWarning: source.syncStatus.staleWarning ?? null,
+        status: source.status,
+        health: source.syncStatus?.syncHealth ?? 'UNKNOWN',
+        lastSyncAt: source.syncStatus?.lastSuccessfulSyncAt ?? source.currentActiveVersion?.importedAt ?? '',
+        activeVersion: source.syncStatus?.currentActiveVersion ?? source.currentActiveVersion?.versionLabel ?? '',
+        staleWarning: source.syncStatus?.staleWarning ?? null,
       })),
     [sourceSummaries],
   );
 
   const canSubmit = useMemo(() => fullName.trim().length >= 2, [fullName]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const filteredMatches = useMemo(() => {
+    if (!result) return [];
+    const raw = result.matches ?? [];
+    let list = Array.isArray(raw) ? raw.slice() : [];
+
+    if (searchWithinResults && searchWithinResults.trim().length > 0) {
+      const needle = searchWithinResults.trim().toLowerCase();
+      list = list.filter((m) => JSON.stringify(m).toLowerCase().includes(needle));
+    }
+
+    if (filterSource && filterSource !== 'ALL') {
+      list = list.filter((m) => ((m as any).sourceCode || (m as any).source || '').toString() === filterSource);
+    }
+
+    if (filterRiskLevel && filterRiskLevel.length > 0) {
+      list = list.filter((m) => ((m as any).riskLevel || '').toString() === filterRiskLevel);
+    }
+
+    if (minConfidence != null) {
+      list = list.filter((m) => {
+        const c = typeof (m as any).confidence === 'number' ? (m as any).confidence : (m as any).score ?? 0;
+        if (c <= 1) return c * 100 >= minConfidence;
+        return c >= minConfidence;
+      });
+    }
+
+    if (matchTypeFilter && matchTypeFilter.length > 0) {
+      list = list.filter((m) => (((m as any).matchType || (m as any).type || '') as string).toString().toLowerCase().includes(matchTypeFilter.toLowerCase()));
+    }
+
+    if (sortBy === 'confidence') {
+      list.sort((a, b) => ((b as any).confidence ?? (b as any).score ?? 0) - ((a as any).confidence ?? (a as any).score ?? 0));
+    }
+
+    if (sortBy === 'risk') {
+      const rank = (r: any) => (r === 'HIGH' ? 3 : r === 'MEDIUM' ? 2 : r === 'LOW' ? 1 : 0);
+      list.sort((a, b) => rank((b as any).riskLevel) - rank((a as any).riskLevel));
+    }
+
+    if (sortBy === 'source') {
+      list.sort((a, b) => String((a as any).sourceCode || (a as any).source || '').localeCompare(String((b as any).sourceCode || (b as any).source || '')));
+    }
+
+    return list;
+  }, [result, searchWithinResults, filterSource, filterRiskLevel, minConfidence, matchTypeFilter, sortBy]);
 
   const onToggleSource = (source: string) => {
     setSelectedSources((previous) => {
@@ -71,19 +131,24 @@ export default function NewScreeningPage() {
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
+    if (fullName.trim().length < 2) {
+      setError('يرجى إدخال اسم أو جزء من الاسم للبحث.');
+      return;
+    }
     setLoading(true);
     setSourceCheck(null);
 
     try {
       const query = fullName.trim();
-      const normalizedSources = mode === 'ALL' ? ['OFAC'] : selectedSources;
+      // Keep UI label as "ALL", but always send concrete active source codes to the API.
+      const normalizedSources = resolveActiveSourcesForApi(mode, selectedSources);
 
       const liveResponse = await runDashboardScreeningSearch({
         query,
         screeningType: 'ofac',
         source: 'dashboard',
         liveVerify,
-        sources: normalizedSources.length > 0 ? normalizedSources : ['OFAC'],
+        sources: normalizedSources,
         clientReference,
         dateOfBirth,
         nationality,
@@ -116,18 +181,13 @@ export default function NewScreeningPage() {
         clientReference,
       };
 
-      if (mode === 'ALL') {
-        payload.sources = ['OFAC'];
-      }
-
-      if (mode === 'SELECTED') {
-        payload.sources = selectedSources.length > 0 ? selectedSources : ['OFAC'];
-      }
+      // Ensure payload sends real source codes, not UI placeholder 'ALL'
+      payload.sources = normalizedSources;
 
       const response = await runScreening(payload);
       setResult(response);
     } catch (submissionError) {
-      setError(submissionError instanceof Error ? submissionError.message : 'Screening failed');
+      setError(submissionError instanceof Error ? submissionError.message : 'تعذر تنفيذ الفحص. يرجى المحاولة مجدداً.');
     } finally {
       setLoading(false);
     }
@@ -135,108 +195,143 @@ export default function NewScreeningPage() {
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h1 className="text-2xl font-semibold">{t('screening.newTitle')}</h1>
-      <p className="mt-2 text-sm text-slate-600">{t('screening.newDescription')}</p>
+      <h1 className="text-2xl font-semibold">فحص الأسماء</h1>
+      <p className="mt-2 text-sm text-slate-600">أدخل اسماً أو جزءاً من الاسم لبدء الفحص عبر مصادر KYDEX.</p>
       <p className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-        Screening output is decision support only. Final legal and compliance determinations require qualified human review.
+        {t('common.currentFinalDecision')}
       </p>
-      <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={onSubmit}>
-        <input
-          className="rounded-lg border border-slate-300 px-4 py-2"
-          placeholder={t('screening.fullName')}
-          value={fullName}
-          onChange={(event) => setFullName(event.target.value)}
-          required
-        />
-        <input
-          className="rounded-lg border border-slate-300 px-4 py-2"
-          placeholder={t('screening.dateOfBirth')}
-          value={dateOfBirth}
-          onChange={(event) => setDateOfBirth(event.target.value)}
-        />
-        <input
-          className="rounded-lg border border-slate-300 px-4 py-2"
-          placeholder={t('screening.nationality')}
-          value={nationality}
-          onChange={(event) => setNationality(event.target.value)}
-        />
-        <input
-          className="rounded-lg border border-slate-300 px-4 py-2"
-          placeholder={t('screening.documentNumber')}
-          value={documentNumber}
-          onChange={(event) => setDocumentNumber(event.target.value)}
-        />
-        <input
-          className="rounded-lg border border-slate-300 px-4 py-2"
-          placeholder={t('screening.clientReference')}
-          value={clientReference}
-          onChange={(event) => setClientReference(event.target.value)}
-        />
-        <input
-          className="rounded-lg border border-slate-300 px-4 py-2"
-          placeholder={t('screening.transactionType')}
-          value={transactionType}
-          onChange={(event) => setTransactionType(event.target.value)}
-        />
 
-        <label className="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-800 md:col-span-2">
+      <form className="mt-6 grid gap-4" onSubmit={onSubmit}>
+        <div className="flex flex-col gap-2">
           <input
-            type="checkbox"
-            checked={liveVerify}
-            onChange={(event) => setLiveVerify(event.target.checked)}
+            className="rounded-lg border border-slate-300 px-4 py-3 text-right"
+            placeholder="أدخل الاسم الكامل أو جزءاً من الاسم"
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+            aria-label="بحث الاسم"
           />
-          <span>Live verify source before screening</span>
-        </label>
 
-        <fieldset className="rounded-lg border border-slate-300 p-3 md:col-span-2">
-          <legend className="px-2 text-xs font-semibold text-slate-600">{t('screening.sourceMode')}</legend>
-          <div className="mt-2 grid gap-2 md:grid-cols-3">
-            <label className="flex items-center gap-2 text-sm text-slate-700">
-              <input type="radio" name="source-mode" checked={mode === 'SELECTED'} onChange={() => setMode('SELECTED')} />
-              {' '}
-              {t('screening.selectedMode')}
-            </label>
-            <label className="flex items-center gap-2 text-sm text-slate-700">
-              <input type="radio" name="source-mode" checked={mode === 'ALL'} onChange={() => setMode('ALL')} />
-              {' '}
-              {t('screening.allMode')}
-            </label>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">المصادر</label>
+              <select
+                className="rounded border border-slate-300 px-2 py-1 text-sm"
+                value={mode === 'ALL' ? 'ALL' : 'SELECTED'}
+                onChange={(e) => setMode(e.target.value === 'ALL' ? 'ALL' : 'SELECTED')}
+              >
+                <option value="ALL">جميع المصادر</option>
+                {sourceOptions.map((opt) => (
+                  <option key={opt.value} value="SELECTED" disabled={opt.health !== 'OK'}>
+                    {opt.label} {opt.health !== 'OK' ? '— غير مفعّل حالياً' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex gap-2">
+              <button type="submit" disabled={loading || !canSubmit} className="rounded-lg bg-slate-900 px-4 py-2 text-white">
+                {loading ? t('screening.running') : 'تشغيل الفحص'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // Clear/reset behavior per requirements
+                  setFullName('');
+                  setDateOfBirth('');
+                  setNationality('');
+                  setDocumentNumber('');
+                  setTransactionType('');
+                  setClientReference('');
+                  setMode('ALL');
+                  setSelectedSources([]);
+                  setLiveVerify(true);
+                  setResult(null);
+                  setSourceCheck(null);
+                    setError('');
+                    setShowAdvanced(false);
+                    // clear filters/refinements
+                    setFilterSource('ALL');
+                    setFilterRiskLevel('');
+                    setMinConfidence(null);
+                    setMatchTypeFilter('');
+                    setSearchWithinResults('');
+                    setSortBy('confidence');
+                }}
+                className="rounded-lg border border-slate-300 px-4 py-2 bg-white"
+              >
+                مسح البيانات
+              </button>
+            </div>
           </div>
-        </fieldset>
 
-        <fieldset className="rounded-lg border border-slate-300 p-3 md:col-span-2">
-          <legend className="px-2 text-xs font-semibold text-slate-600">{t('screening.searchScope')}</legend>
-          <div className="mt-2 grid gap-2 md:grid-cols-3">
-            {sourceOptions.map((option) => (
-              <div key={option.value} className="rounded-lg border border-slate-200 p-3">
-                <label className="flex items-start gap-2 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    aria-label={option.label}
-                    checked={selectedSources.includes(option.value)}
-                    onChange={() => onToggleSource(option.value)}
-                    disabled={mode !== 'SELECTED'}
-                  />
-                  <span>
-                    <span className="block font-medium">{option.label}</span>
-                    <span className="block text-xs text-slate-500">{t('dataSources.activeVersion')}: {option.activeVersion || t('common.notAvailable')}</span>
-                    <span className="block text-xs text-slate-500">{t('dataSources.lastSuccessfulSync')}: {option.lastSyncAt || t('common.notAvailable')}</span>
-                    <span className="block text-xs text-slate-500">{t('dataSources.health')}: {option.health}</span>
-                  </span>
-                </label>
-                {option.staleWarning ? <p className="mt-2 text-xs text-amber-700">{option.staleWarning}</p> : null}
-              </div>
-            ))}
+          <div className="mt-2 text-sm text-slate-600">
+            <div className="font-medium">أمثلة للبحث</div>
+            <div className="mt-1 flex gap-2">
+              {['محمد علي حسن', 'Hassan Ali', 'Smith'].map((ex) => (
+                <button
+                  key={ex}
+                  type="button"
+                  onClick={() => setFullName(ex)}
+                  className="rounded-full border px-3 py-1 text-sm bg-white"
+                >
+                  {ex}
+                </button>
+              ))}
+            </div>
           </div>
-        </fieldset>
+        </div>
 
-        {error ? <p className="text-sm text-rose-700 md:col-span-2">{error}</p> : null}
-        <button
-          disabled={loading || !canSubmit || (mode === 'SELECTED' && selectedSources.length === 0)}
-          className="rounded-lg bg-slate-900 px-4 py-2 text-white disabled:opacity-70 md:col-span-2"
-        >
-          {loading ? t('screening.running') : t('screening.run')}
-        </button>
+        {/* Advanced options collapsed */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((s) => !s)}
+            className="mt-4 text-sm text-slate-700 underline"
+          >
+            خيارات متقدمة
+          </button>
+
+          {showAdvanced ? (
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <input
+                className="rounded-lg border border-slate-300 px-4 py-2 text-right"
+                placeholder={t('screening.dateOfBirth')}
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+              />
+              <input
+                className="rounded-lg border border-slate-300 px-4 py-2 text-right"
+                placeholder={t('screening.nationality')}
+                value={nationality}
+                onChange={(e) => setNationality(e.target.value)}
+              />
+              <input
+                className="rounded-lg border border-slate-300 px-4 py-2 text-right"
+                placeholder={t('screening.documentNumber')}
+                value={documentNumber}
+                onChange={(e) => setDocumentNumber(e.target.value)}
+              />
+              <input
+                className="rounded-lg border border-slate-300 px-4 py-2 text-right"
+                placeholder={t('screening.transactionType')}
+                value={transactionType}
+                onChange={(e) => setTransactionType(e.target.value)}
+              />
+              <input
+                className="rounded-lg border border-slate-300 px-4 py-2 text-right md:col-span-2"
+                placeholder={t('screening.clientReference')}
+                value={clientReference}
+                onChange={(e) => setClientReference(e.target.value)}
+              />
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={liveVerify} onChange={(e) => setLiveVerify(e.target.checked)} />
+                <span className="text-sm">تم التحقق المباشر من المصدر</span>
+              </label>
+            </div>
+          ) : null}
+        </div>
+
+        {error ? <p className="text-sm text-rose-700">{error}</p> : null}
       </form>
 
       {result ? (
@@ -244,15 +339,15 @@ export default function NewScreeningPage() {
           {sourceCheck ? (
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm font-medium text-slate-700">Source mode:</span>
+                <span className="text-sm font-medium text-slate-700">نمط المصدر:</span>
                 <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
                   {formatSourceMode(sourceCheck.sourceMode)}
                 </span>
                 <span className="text-sm text-slate-700">
-                  Live checked: <span className="font-semibold">{sourceCheck.liveSourceChecked ? 'Yes' : 'No'}</span>
+                  تم التحقق المباشر: <span className="font-semibold">{sourceCheck.liveSourceChecked ? 'نعم' : 'لا'}</span>
                 </span>
                 <span className="text-sm text-slate-700">
-                  Fallback used: <span className="font-semibold">{sourceCheck.usedFallback ? 'Yes' : 'No'}</span>
+                  تم استخدام النسخة المحلية الاحتياطية: <span className="font-semibold">{sourceCheck.usedFallback ? 'نعم' : 'لا'}</span>
                 </span>
               </div>
               {sourceCheck.warning ? (
@@ -271,6 +366,58 @@ export default function NewScreeningPage() {
               </Link>
             </p>
           ) : null}
+
+          {/* Filters / refinement shown after results */}
+          <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+            <h3 className="text-sm font-semibold">تصفية النتائج</h3>
+            <div className="mt-3 grid gap-2 md:grid-cols-3">
+              <input
+                placeholder="بحث داخل النتائج"
+                value={searchWithinResults}
+                onChange={(e) => setSearchWithinResults(e.target.value)}
+                className="rounded-lg border border-slate-300 px-3 py-2 text-right"
+              />
+              <select value={filterSource} onChange={(e) => setFilterSource(e.target.value)} className="rounded border px-2 py-1">
+                <option value="ALL">جميع المصادر</option>
+                {sourceOptions.map((s) => (
+                  <option key={s.value} value={s.value} disabled={s.status !== 'ACTIVE'}>
+                    {s.label} {s.status !== 'ACTIVE' ? '— غير مفعّل حالياً' : ''}
+                  </option>
+                ))}
+              </select>
+              <select value={filterRiskLevel} onChange={(e) => setFilterRiskLevel(e.target.value)} className="rounded border px-2 py-1">
+                <option value="">كل مستويات المخاطر</option>
+                <option value="HIGH">مرتفع</option>
+                <option value="MEDIUM">متوسط</option>
+                <option value="LOW">منخفض</option>
+              </select>
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              <label className="text-sm">درجة الثقة أدنى:</label>
+              <input
+                type="number"
+                min={0}
+                max={100}
+                placeholder="مثال: 70"
+                value={minConfidence ?? ''}
+                onChange={(e) => setMinConfidence(e.target.value === '' ? null : Number(e.target.value))}
+                className="rounded border px-2 py-1 w-24"
+              />
+              <input
+                placeholder="نوع التطابق"
+                value={matchTypeFilter}
+                onChange={(e) => setMatchTypeFilter(e.target.value)}
+                className="rounded border px-2 py-1"
+              />
+              <label className="ml-auto text-sm">ترتيب:</label>
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="rounded border px-2 py-1">
+                <option value="confidence">الأعلى ثقة أولاً</option>
+                <option value="risk">الأعلى خطورة أولاً</option>
+                <option value="source">حسب المصدر</option>
+              </select>
+            </div>
+            <p className="mt-3 text-sm text-slate-700">نتائج مطابقة معروضة: {filteredMatches.length}</p>
+          </div>
 
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
             <div className="flex flex-wrap items-center gap-3">
@@ -325,12 +472,28 @@ export default function NewScreeningPage() {
   );
 }
 
+function resolveActiveSourcesForApi(mode: 'SELECTED' | 'ALL', selectedSources: string[]) {
+  if (mode === 'ALL' || selectedSources.some((value) => value.trim().toUpperCase() === 'ALL')) {
+    return [...ACTIVE_SCREENING_SOURCES];
+  }
+
+  const normalized = selectedSources
+    .map((value) => value.trim().toUpperCase())
+    .filter((value) => value.length > 0 && value !== 'ALL');
+
+  if (normalized.length === 0) {
+    return [...ACTIVE_SCREENING_SOURCES];
+  }
+
+  return normalized;
+}
+
 function formatSourceMode(mode: string) {
-  const normalized = mode.trim().toLowerCase();
-  if (normalized === 'live_verified') return 'Live verified';
-  if (normalized === 'local_only') return 'Local only';
-  if (normalized === 'local_fallback') return 'Local fallback';
-  if (normalized === 'degraded') return 'Degraded';
+  const normalized = mode ? mode.trim().toLowerCase() : '';
+  if (normalized === 'live_verified') return 'تم التحقق المباشر';
+  if (normalized === 'local_only') return 'فحص محلي فقط';
+  if (normalized === 'local_fallback') return 'فحص عبر النسخة المحلية الاحتياطية';
+  if (normalized === 'degraded') return 'منخفض التوافر';
   return mode;
 }
 
@@ -389,5 +552,5 @@ function getDecisionSupportDisclaimer(disclaimer: unknown) {
     return disclaimer;
   }
 
-  return 'KYDEX screening outputs are decision-support signals and must be reviewed by an authorized professional before any legal or compliance action.';
+  return 'نتائج KYDEX هي مخرجات مساعدة لاتخاذ القرار، ولا تُعد حكماً قانونياً نهائياً. يجب إجراء مراجعة مهنية قبل اتخاذ أي قرار قانوني أو امتثالي.';
 }
