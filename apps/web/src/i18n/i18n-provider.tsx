@@ -26,17 +26,15 @@ const MESSAGES: Record<Language, Messages> = { en, ar };
 const I18nContext = createContext<I18nContextValue | null>(null);
 
 export function LanguageProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [language, setLanguage] = useState<Language>('en');
+  // Force Arabic as the default and persisted locale for the entire app.
+  const [language, setLanguage] = useState<Language>('ar');
 
   useEffect(() => {
-    const stored = globalThis.window?.localStorage.getItem(STORAGE_KEY);
-    if (stored === 'ar' || stored === 'en') {
-      setLanguage(stored);
-      return;
+    // Always set Arabic as the app language on mount to enforce requirement.
+    if (globalThis.window !== undefined) {
+      globalThis.window.localStorage.setItem(STORAGE_KEY, 'ar');
     }
-
-    const preferred = globalThis.window?.navigator.language.toLowerCase().startsWith('ar') ? 'ar' : 'en';
-    setLanguage(preferred);
+    setLanguage('ar');
   }, []);
 
   useEffect(() => {
@@ -44,8 +42,9 @@ export function LanguageProvider({ children }: Readonly<{ children: React.ReactN
       return;
     }
 
+    // Persist and apply document attributes for server/client parity
     globalThis.window.localStorage.setItem(STORAGE_KEY, language);
-    document.documentElement.lang = language;
+    document.documentElement.lang = language === 'ar' ? 'ar' : language;
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.dataset.language = language;
   }, [language]);

@@ -61,6 +61,38 @@ html[lang='ar'] body {
   font-family: var(--font-arabic);
 }
 
+/* Force RTL layout and ensure tables/forms are RTL-friendly */
+html[lang='ar'] {
+  direction: rtl;
+}
+
+html[lang='ar'] body {
+  direction: rtl;
+}
+
+/* Tables: ensure horizontal scrolling and Arabic-friendly alignment */
+.kydex-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+html[lang='ar'] .kydex-table thead,
+html[lang='ar'] .kydex-table tbody {
+  direction: rtl;
+}
+
+html[lang='ar'] th,
+html[lang='ar'] td {
+  text-align: right;
+}
+
+/* Ensure long identifiers don't overflow */
+.kydex-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 input,
 textarea,
 select,

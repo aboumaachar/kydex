@@ -22,14 +22,18 @@ export class ZodValidationPipe implements PipeTransform {
     if (hasQueryFieldError) {
       throw new BadRequestException({
         status: 'validation_failed',
-        message: 'A screening query is required.',
+        message: 'مصدر الفحص غير صالح أو عبارة البحث مفقودة.',
         acceptedFields: [...ACCEPTED_QUERY_FIELDS],
+        acceptedSources: ['ALL', 'OFAC'],
         errors: flattened,
       });
     }
 
     throw new BadRequestException({
-      message: 'Request validation failed',
+      status: 'validation_failed',
+      message: 'مصدر الفحص غير صالح أو عبارة البحث مفقودة.',
+      acceptedFields: [...ACCEPTED_QUERY_FIELDS],
+      acceptedSources: ['ALL', 'OFAC'],
       errors: flattened,
     });
   }
