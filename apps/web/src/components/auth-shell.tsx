@@ -4,15 +4,23 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../i18n/i18n-provider';
-import { isAuthenticated, logout } from '../lib/api';
+import { getStoredUser, isAuthenticated, logout } from '../lib/api';
 import LanguageSwitcher from './language-switcher';
 
-const SHELL_LINKS = [
+const PRIMARY_LINKS = [
   { href: '/screening/new', label: 'فحص جديد' },
   { href: '/dashboard/screening/logs', label: 'السجلات' },
   { href: '/dashboard/sources', label: 'المصادر' },
   { href: '/cases', label: 'الحالات' },
-  { href: '/admin/system-health', label: 'الإدارة' },
+] as const;
+
+const ADMIN_LINKS = [
+  { href: '/admin/users', label: 'المستخدمون' },
+  { href: '/dashboard/admin/notaries', label: 'كتاب العدل ومفاتيح API' },
+  { href: '/admin/data-sources', label: 'مصادر البيانات' },
+  { href: '/admin/audit-logs', label: 'سجلات التدقيق' },
+  { href: '/admin/system-health', label: 'صحة النظام' },
+  { href: '/dashboard/admin/monitoring', label: 'مراقبة النظام' },
 ] as const;
 
 const PUBLIC_ROUTES: ReadonlySet<string> = new Set<string>([
@@ -59,12 +67,12 @@ function AuthBrand({ authed }: Readonly<{ authed: boolean }>) {
   );
 }
 
-function AuthNavigation({ dir }: Readonly<{ dir: string }>) {
+function AuthNavigation({ dir, isAdmin }: Readonly<{ dir: string; isAdmin: boolean }>) {
   return (
     <header className="border-b border-slate-200 bg-white/90">
-      <nav className={`mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-4 lg:px-6 ${dir === 'rtl' ? 'lg:flex-row-reverse' : 'lg:flex-row'} lg:items-center lg:justify-between`}>
+      <nav className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-4 lg:px-6">
         <div className={`flex flex-wrap items-center gap-2 ${dir === 'rtl' ? 'justify-end' : ''}`}>
-          {SHELL_LINKS.map((link) => (
+          {PRIMARY_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -73,7 +81,33 @@ function AuthNavigation({ dir }: Readonly<{ dir: string }>) {
               {link.label}
             </Link>
           ))}
+          {isAdmin ? (
+            <Link
+              href="/admin/system-health"
+              className="rounded-full border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-900 transition-colors hover:border-emerald-400 hover:bg-emerald-100"
+            >
+              الإدارة
+            </Link>
+          ) : null}
         </div>
+
+        {isAdmin ? (
+          <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3">
+            <div className={`mb-2 text-xs font-semibold text-emerald-900 ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>الإدارة</div>
+            <div className={`flex flex-wrap items-center gap-2 ${dir === 'rtl' ? 'justify-end' : ''}`}>
+              {ADMIN_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="rounded-full border border-emerald-200 bg-white px-3 py-2 text-xs font-medium text-emerald-900 transition-colors hover:border-emerald-300 hover:bg-emerald-100"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         <div className={`flex flex-wrap items-center gap-2 ${dir === 'rtl' ? 'justify-end' : ''}`}>
           <button
             onClick={logout}
@@ -93,6 +127,7 @@ export default function AuthShell({ children }: AuthShellProps) {
   const { dir, t } = useI18n();
   const [checked, setChecked] = useState(false);
   const [authed, setAuthed] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const isPublicRoute = useMemo(() => PUBLIC_ROUTES.has(pathname), [pathname]);
   const isAuthedRoute = !isPublicRoute && authed;
@@ -100,6 +135,8 @@ export default function AuthShell({ children }: AuthShellProps) {
   useEffect(() => {
     const authenticated = isAuthenticated();
     setAuthed(authenticated);
+    const currentRole = getStoredUser()?.role?.toUpperCase() ?? '';
+    setIsAdmin(['SUPER_ADMIN', 'COUNCIL_ADMIN', 'ADMIN'].includes(currentRole));
 
     const redirectTarget = redirectTargetForShell(isPublicRoute, authenticated);
     if (redirectTarget) {
@@ -135,7 +172,7 @@ export default function AuthShell({ children }: AuthShellProps) {
           </div>
         </div>
       </div>
-      {isAuthedRoute ? <AuthNavigation dir={dir} /> : null}
+      {isAuthedRoute ? <AuthNavigation dir={dir} isAdmin={isAdmin} /> : null}
       <main className={isAuthedRoute ? 'min-h-screen bg-[linear-gradient(180deg,_#f7f7f0_0%,_#f2efe3_100%)]' : 'mx-auto max-w-6xl px-6 py-8'}>
         {isAuthedRoute ? <div className="mx-auto w-full max-w-[1600px] px-4 py-6 lg:px-6">{children}</div> : children}
       </main>
