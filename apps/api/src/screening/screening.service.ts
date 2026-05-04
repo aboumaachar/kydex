@@ -21,6 +21,26 @@ const WEAK_COMMON_NAME_TOKENS = new Set([
   'smith',
 ]);
 
+type CandidateField = 'primaryName' | 'alias';
+
+type CandidateVariant = {
+  field: CandidateField;
+  displayName: string;
+  comparableName: string;
+};
+
+type CandidateEvidence = {
+  field: CandidateField;
+  displayName: string;
+  comparableName: string;
+  similarity: number;
+  matchedToken: string | null;
+  tokenOverlap: number;
+  normalizedExactMatch: boolean;
+  transliterationMatched: boolean;
+  nearTokenMatched: boolean;
+};
+
 @Injectable()
 export class ScreeningService {
   constructor(
@@ -76,26 +96,30 @@ export class ScreeningService {
           record.normalizedAliases,
           record.arabicNormalizedAliases,
         );
+        const primaryCandidateVariants = this.collectPrimaryCandidateVariants(
+          record.primaryName,
+          record.normalizedName,
+          record.arabicNormalizedName,
+          record.latinTransliteratedName,
+        );
+        const aliasCandidateVariants = this.collectAliasCandidateVariants(
+          record.aliases,
+          record.normalizedAliases,
+          record.arabicNormalizedAliases,
+        );
         const candidateNames = [...primaryNameCandidates, ...aliasCandidates];
         const rawScriptCandidates = this.collectCandidateNames(record.primaryName, record.aliases);
-        const primaryNameScore = Math.max(
-          ...primaryNameCandidates.map((candidateName) =>
-            this.matchingService.computeNameSimilarity(screeningName, candidateName),
-          ),
-        );
-        const aliasScore = aliasCandidates.length > 0
-          ? Math.max(
-              ...aliasCandidates.map((candidateName) =>
-                this.matchingService.computeNameSimilarity(screeningName, candidateName),
-              ),
-            )
+        const primaryEvidence = this.findBestEvidence(screeningName, queryTokens, primaryCandidateVariants);
+        const aliasEvidence = this.findBestEvidence(screeningName, queryTokens, aliasCandidateVariants);
+        const bestEvidence = this.chooseBestEvidence(primaryEvidence, aliasEvidence);
+        const aliasEvidenceMatched = Boolean(aliasEvidence && this.hasCandidateLevelEvidence(aliasEvidence));
+        const primaryNameScore = primaryEvidence?.similarity ?? 0;
+        const aliasScore = aliasEvidenceMatched && aliasEvidence
+          ? aliasEvidence.similarity
           : 0;
         const nameScore = Math.max(primaryNameScore, aliasScore);
         const normalizedQueryName = this.matchingService.normalizeName(screeningName);
-        const latinQueryKey = this.matchingService.toLatinSearchKey(screeningName);
-        const exactAliasMatched = aliasCandidates.some(
-          (candidateName) => this.matchingService.normalizeName(candidateName) === normalizedQueryName,
-        );
+        const exactAliasMatched = Boolean(aliasEvidence?.normalizedExactMatch && this.hasCandidateLevelEvidence(aliasEvidence));
         const nationalityMatched =
           !!dto.nationality &&
           !!record.nationality &&
@@ -145,6 +169,27 @@ export class ScreeningService {
           );
         });
         const arabicSignals = this.buildArabicSignals(screeningName, queryTokens, candidateNames, rawScriptCandidates);
+        const tokenOverlap = Math.max(bestEvidence?.tokenOverlap ?? 0, arabicSignals.arabicTokenOverlap);
+        const hasCandidateLevelEvidence = Boolean(bestEvidence && this.hasCandidateLevelEvidence(bestEvidence));
+        const hasStrongPrimaryEvidence = Boolean(
+          primaryEvidence &&
+            (
+              primaryEvidence.normalizedExactMatch ||
+              primaryEvidence.tokenOverlap > 0 ||
+              primaryEvidence.transliterationMatched ||
+              primaryEvidence.nearTokenMatched ||
+              primaryEvidence.similarity >= 0.75
+            ),
+        );
+        const isWeakSingleTokenEntityAliasOnlyMatch =
+          !hasArabicQuery &&
+          this.isWeakCommonNameQuery(queryTokens) &&
+          queryTokens.length === 1 &&
+          bestEvidence?.field === 'alias' &&
+          !hasStrongPrimaryEvidence &&
+          !nationalityMatched &&
+          !dobMatched &&
+          !docMatched;
 
         let score = Math.min(
           1,
@@ -197,6 +242,7 @@ export class ScreeningService {
 
         if (
           this.isWeakCommonNameQuery(queryTokens) &&
+          !hasCandidateLevelEvidence &&
           !exactAliasMatched &&
           nameScore < 0.9 &&
           !nationalityMatched &&
@@ -206,8 +252,18 @@ export class ScreeningService {
           score = Math.min(score, 0.49);
         }
 
+        if (isWeakSingleTokenEntityAliasOnlyMatch) {
+          score = 0;
+        }
+
+        if (!hasCandidateLevelEvidence) {
+          score = 0;
+        }
+
         const riskLevel = this.scoringService.classifyRisk(score, docMatched);
         const classification = this.scoringService.classifyMatch(score);
+        const matchEvidence = this.buildMatchEvidence(bestEvidence, normalizedQueryName);
+        const simpleReasonArabic = this.buildSimpleArabicReason(bestEvidence, normalizedQueryName);
 
         if (score > highestScore) {
           highestScore = score;
@@ -218,18 +274,20 @@ export class ScreeningService {
           watchlistRecordId: record.id,
           sourceCode: record.dataSource.code,
           matchedName: record.primaryName,
+          matchedField: bestEvidence?.field ?? null,
+          matchedAlias: aliasEvidenceMatched && aliasEvidence ? aliasEvidence.displayName : null,
+          matchedAliasScore: aliasScore,
+          matchedToken: bestEvidence?.matchedToken ?? null,
+          tokenOverlap,
+          matchEvidence,
+          simpleReasonArabic,
+          simplifiedArabicReason: simpleReasonArabic,
           score,
           nameScore: primaryNameScore,
           aliasScore,
           aliasMatched: aliasScore >= 0.75,
           exactAliasMatched,
-          transliterationMatched:
-            nameScore >= 0.78 &&
-            candidateNames.some(
-              (candidateName) =>
-                this.matchingService.containsArabicScript(candidateName) !== hasArabicQuery ||
-                this.matchingService.toLatinSearchKey(candidateName) === latinQueryKey,
-            ),
+          transliterationMatched: Boolean(bestEvidence?.transliterationMatched),
           arabicExactMatch: arabicSignals.arabicExactMatch,
           arabicNormalizedMatch: arabicSignals.arabicNormalizedMatch,
           arabicTransliterationMatch: arabicSignals.arabicTransliterationMatch,
@@ -245,19 +303,19 @@ export class ScreeningService {
           programOrCategory: this.extractProgramText(record.rawPayload),
           riskLevel,
           classification,
-          matchReason: this.scoringService.buildExplanation({
-            nameScore: primaryNameScore,
+          matchReason: [matchEvidence, this.scoringService.buildExplanation({
+            nameScore,
             nationalityMatched,
             dobMatched,
             docMatched,
             source: record.dataSource.code,
             version: record.version.versionLabel,
             riskLevel,
-          }),
+          })].filter(Boolean).join(' | '),
           sourceVersionLabel: record.version.versionLabel,
         };
       })
-      .filter((match) => match.score >= 0.5)
+      .filter((match) => match.score >= 0.5 && this.hasVisibleEvidenceForResult(match))
       .sort((a, b) => b.score - a.score)
       .slice(0, 10);
 
@@ -501,6 +559,14 @@ export class ScreeningService {
       matches: computedMatches.map((m) => ({
         source: m.sourceCode,
         matchedName: m.matchedName,
+        matchedField: m.matchedField,
+        matchedAlias: m.matchedAlias,
+        matchedAliasScore: m.matchedAliasScore,
+        matchedToken: m.matchedToken,
+        tokenOverlap: m.tokenOverlap,
+        matchEvidence: m.matchEvidence,
+        simpleReasonArabic: m.simpleReasonArabic,
+        simplifiedArabicReason: m.simplifiedArabicReason,
         score: m.score,
         riskLevel: m.riskLevel,
         classification: m.classification,
@@ -558,6 +624,255 @@ export class ScreeningService {
       .filter(Boolean))];
   }
 
+  private collectPrimaryCandidateVariants(...values: Array<string | null | undefined>) {
+    const displayName = values.find((value) => typeof value === 'string' && value.trim().length > 0)?.trim() ?? '';
+    return this.collectComparableCandidates('primaryName', displayName, values);
+  }
+
+  private collectAliasCandidateVariants(
+    aliases?: string[] | null,
+    normalizedAliases?: string[] | null,
+    arabicNormalizedAliases?: string[] | null,
+  ) {
+    const originalAliases = this.collectCandidateNames(aliases);
+    const normalized = this.collectCandidateNames(normalizedAliases);
+    const arabicNormalized = this.collectCandidateNames(arabicNormalizedAliases);
+    const variants: CandidateVariant[] = [];
+
+    originalAliases.forEach((alias) => {
+      variants.push({
+        field: 'alias',
+        displayName: alias,
+        comparableName: alias,
+      });
+    });
+
+    normalized.forEach((alias, index) => {
+      variants.push({
+        field: 'alias',
+        displayName: originalAliases[index] ?? alias,
+        comparableName: alias,
+      });
+    });
+
+    arabicNormalized.forEach((alias, index) => {
+      variants.push({
+        field: 'alias',
+        displayName: originalAliases[index] ?? alias,
+        comparableName: alias,
+      });
+    });
+
+    return this.deduplicateComparableCandidates(variants);
+  }
+
+  private collectComparableCandidates(
+    field: CandidateField,
+    displayName: string,
+    values: Array<string | null | undefined>,
+  ) {
+    return this.deduplicateComparableCandidates(
+      values
+        .flatMap((value) => String(value ?? '').split('|'))
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .map((comparableName) => ({
+          field,
+          displayName: displayName || comparableName,
+          comparableName,
+        })),
+    );
+  }
+
+  private deduplicateComparableCandidates(candidates: CandidateVariant[]) {
+    const seen = new Set<string>();
+
+    return candidates.filter((candidate) => {
+      const key = `${candidate.field}:${candidate.displayName}:${candidate.comparableName}`;
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    });
+  }
+
+  private findBestEvidence(
+    screeningName: string,
+    queryTokens: string[],
+    candidates: CandidateVariant[],
+  ): CandidateEvidence | null {
+    if (candidates.length === 0) {
+      return null;
+    }
+
+    return candidates
+      .map((candidate) => this.evaluateCandidateEvidence(screeningName, queryTokens, candidate))
+      .sort((left, right) => this.scoreEvidence(right) - this.scoreEvidence(left))[0] ?? null;
+  }
+
+  private evaluateCandidateEvidence(
+    screeningName: string,
+    queryTokens: string[],
+    candidate: CandidateVariant,
+  ): CandidateEvidence {
+    const similarity = this.matchingService.computeNameSimilarity(screeningName, candidate.comparableName);
+    const normalizedCandidate = this.matchingService.normalizeName(candidate.comparableName);
+    const normalizedQuery = this.matchingService.normalizeName(screeningName);
+    const candidateTokens = this.matchingService.getNormalizedTokens(candidate.comparableName);
+    const sharedTokens = [...new Set(queryTokens.filter((token) => candidateTokens.includes(token)))];
+    const normalizedExactMatch = normalizedCandidate === normalizedQuery;
+
+    let matchedToken = sharedTokens[0] ?? null;
+    let transliterationMatched = false;
+    let nearTokenMatched = false;
+
+    if (!matchedToken) {
+      for (const token of queryTokens) {
+        const queryKey = this.matchingService.toLatinSearchKey(token);
+        const transliteratedToken = candidateTokens.find((candidateToken) => {
+          const candidateKey = this.matchingService.toLatinSearchKey(candidateToken);
+          return Boolean(queryKey) && candidateKey === queryKey;
+        });
+
+        if (transliteratedToken) {
+          matchedToken = transliteratedToken;
+          transliterationMatched = true;
+          break;
+        }
+      }
+    }
+
+    if (!matchedToken && queryTokens.length === 1) {
+      const [queryToken] = queryTokens;
+      const nearToken = candidateTokens.find(
+        (candidateToken) => this.matchingService.computeNameSimilarity(queryToken, candidateToken) >= 0.92,
+      );
+
+      if (nearToken) {
+        matchedToken = nearToken;
+        nearTokenMatched = true;
+      }
+    }
+
+    const tokenOverlap = sharedTokens.length > 0 ? sharedTokens.length : 0;
+
+    return {
+      field: candidate.field,
+      displayName: candidate.displayName,
+      comparableName: candidate.comparableName,
+      similarity,
+      matchedToken,
+      tokenOverlap: tokenOverlap || (matchedToken ? 1 : 0),
+      normalizedExactMatch,
+      transliterationMatched,
+      nearTokenMatched,
+    };
+  }
+
+  private chooseBestEvidence(primaryEvidence: CandidateEvidence | null, aliasEvidence: CandidateEvidence | null) {
+    if (!primaryEvidence) {
+      return aliasEvidence;
+    }
+
+    if (!aliasEvidence) {
+      return primaryEvidence;
+    }
+
+    return this.scoreEvidence(aliasEvidence) > this.scoreEvidence(primaryEvidence)
+      ? aliasEvidence
+      : primaryEvidence;
+  }
+
+  private scoreEvidence(evidence: CandidateEvidence) {
+    return (
+      evidence.tokenOverlap * 100 +
+      Number(evidence.normalizedExactMatch) * 40 +
+      Number(evidence.transliterationMatched) * 20 +
+      Number(evidence.nearTokenMatched) * 10 +
+      evidence.similarity
+    );
+  }
+
+  private hasCandidateLevelEvidence(evidence: CandidateEvidence) {
+    return Boolean(
+      evidence.normalizedExactMatch ||
+      evidence.tokenOverlap > 0 ||
+      evidence.transliterationMatched ||
+      evidence.nearTokenMatched,
+    );
+  }
+
+  private hasVisibleEvidenceForResult(match: {
+    matchedField?: string | null;
+    matchedAlias?: string | null;
+    matchedToken?: string | null;
+    tokenOverlap?: number;
+    matchEvidence?: string | null;
+  }) {
+    return Boolean(
+      (match.matchedField && match.matchEvidence) ||
+      match.matchedAlias ||
+      match.matchedToken ||
+      Number(match.tokenOverlap ?? 0) > 0,
+    );
+  }
+
+  private buildMatchEvidence(evidence: CandidateEvidence | null, normalizedQuery: string) {
+    if (!evidence || !this.hasCandidateLevelEvidence(evidence)) {
+      return 'No explainable identity evidence was found for this candidate.';
+    }
+
+    const target = evidence.field === 'alias' ? `Alias "${evidence.displayName}"` : `Primary name "${evidence.displayName}"`;
+
+    if (evidence.normalizedExactMatch) {
+      return `${target} exactly matches the query "${normalizedQuery}" after normalization.`;
+    }
+
+    if (evidence.transliterationMatched && evidence.matchedToken) {
+      return `${target} matched the query through transliteration on token "${evidence.matchedToken}".`;
+    }
+
+    if (evidence.nearTokenMatched && evidence.matchedToken) {
+      return `${target} contains the near-name token "${evidence.matchedToken}" that aligns with the query.`;
+    }
+
+    if (evidence.matchedToken) {
+      return `${target} contains the token "${evidence.matchedToken}" that matches the query.`;
+    }
+
+    return `${target} produced explainable identity evidence for the submitted query.`;
+  }
+
+  private buildSimpleArabicReason(evidence: CandidateEvidence | null, normalizedQuery: string) {
+    if (!evidence || !this.hasCandidateLevelEvidence(evidence)) {
+      return 'لم يتم عرض هذه النتيجة لأن KYDEX لم يجد دليلا اسميا قابلا للتفسير.';
+    }
+
+    const subject = evidence.field === 'alias'
+      ? `ظهر هذا السجل لأن الاسم البديل "${evidence.displayName}"`
+      : `ظهر هذا السجل لأن الاسم المدرج "${evidence.displayName}"`;
+
+    if (evidence.normalizedExactMatch) {
+      return `${subject} يطابق عبارة البحث "${normalizedQuery}" بعد التطبيع.`;
+    }
+
+    if (evidence.transliterationMatched && evidence.matchedToken) {
+      return `${subject} يطابق عبارة البحث عبر التحويل الصوتي في المقطع "${evidence.matchedToken}".`;
+    }
+
+    if (evidence.nearTokenMatched && evidence.matchedToken) {
+      return `${subject} يحتوي على مقطع قريب من عبارة البحث وهو "${evidence.matchedToken}".`;
+    }
+
+    if (evidence.matchedToken) {
+      return `${subject} يحتوي على المقطع "${evidence.matchedToken}" المطابق لعبارة البحث.`;
+    }
+
+    return `${subject} قدم دليلا اسميا مباشرا يبرر ظهوره في النتائج.`;
+  }
+
   private buildArabicSignals(
     queryFullName: string,
     queryTokens: string[],
@@ -597,7 +912,7 @@ export class ScreeningService {
       (tokens) => tokens.length >= 2 && tokens[1] === queryTokens[1],
     );
     const arabicFamilyNameMatch = queryTokens.length >= 2 && candidateTokenSets.some(
-      (tokens) => tokens.length >= 2 && tokens[tokens.length - 1] === queryTokens[queryTokens.length - 1],
+      (tokens) => tokens.length >= 2 && tokens.at(-1) === queryTokens.at(-1),
     );
 
     return {

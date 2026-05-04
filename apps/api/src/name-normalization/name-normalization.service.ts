@@ -127,7 +127,7 @@ const MOHAMMAD_VARIANTS = ['mohammad', 'mohammed', 'mohamed', 'muhammad', 'mehme
 const HASSAN_VARIANTS   = ['hassan', 'hasan', 'hassane'];
 const HUSSEIN_VARIANTS  = ['hussein', 'husain', 'husein', 'hossein'];
 const ALI_VARIANTS      = ['ali', 'aly', 'aley'];
-const AHMAD_VARIANTS    = ['ahmad', 'ahmed', 'ahmet'];
+const AHMAD_VARIANTS    = ['ahmad', 'ahmed', 'ahmet', 'achmad'];
 
 function expandName(token: string): string[] {
   const t = token.toLowerCase();

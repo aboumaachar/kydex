@@ -55,62 +55,62 @@ export default function DashboardOfacPage() {
 
   return (
     <DashboardShell
-      title="OFAC Source Status"
-      description="Inspect OFAC connectivity, local source-library counts, and fallback readiness."
+      title="حالة مصدر OFAC"
+      description="راجع الاتصال بالمصدر، أعداد النسخة المحلية، واستعداد النظام للاستمرار عند تعذر المصدر المباشر."
       actions={
         <>
-          <ActionButton label={runningCheck ? "Running Check" : "Run Health-Check"} onClick={() => void runHealthCheck()} disabled={runningCheck || loading} variant="primary" />
-          <ActionButton label="Refresh" onClick={() => void load()} disabled={loading || runningCheck} />
+          <ActionButton label={runningCheck ? "جار الفحص" : "تشغيل فحص الصحة"} onClick={() => void runHealthCheck()} disabled={runningCheck || loading} variant="primary" />
+          <ActionButton label="تحديث" onClick={() => void load()} disabled={loading || runningCheck} />
         </>
       }
     >
-      {loading ? <StateBox tone="loading" title="Loading OFAC source status" detail="Reading source health and local import counts." /> : null}
-      {error ? <StateBox tone="error" title="OFAC status failed" detail={error} /> : null}
+      {loading ? <StateBox tone="loading" title="جار تحميل حالة المصدر" detail="يتم الآن قراءة حالة المصدر وأعداد النسخة المحلية." /> : null}
+      {error ? <StateBox tone="error" title="تعذر تحميل حالة OFAC" detail={error} /> : null}
 
       {!loading && !error ? (
         <div className="grid gap-5 xl:grid-cols-2">
           <DashboardCard>
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-xl font-semibold text-white">Live Source Health</h2>
+              <h2 className="text-xl font-semibold text-slate-950">صحة المصدر المباشر</h2>
               <StatusPill value={state.status?.status} />
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Metric label="Fallback Enabled" value={String(Boolean(state.status?.fallbackEnabled))} />
-              <Metric label="Local Copy Available" value={String(Boolean(state.status?.localCopyAvailable))} />
-              <Metric label="Last Health Check" value={dateText(state.status?.lastHealthCheckAt ?? null)} />
-              <Metric label="Latency (ms)" value={state.status?.lastLatencyMs !== null && state.status?.lastLatencyMs !== undefined ? String(state.status.lastLatencyMs) : "-"} />
-              <Metric label="Last Successful Sync" value={dateText(state.status?.lastSuccessfulSyncAt ?? null)} />
-              <Metric label="Last Attempted Sync" value={dateText(state.status?.lastAttemptedSyncAt ?? null)} />
+              <Metric label="الوضع الاحتياطي" value={String(Boolean(state.status?.fallbackEnabled))} />
+              <Metric label="النسخة المحلية" value={String(Boolean(state.status?.localCopyAvailable))} />
+              <Metric label="آخر فحص صحة" value={dateText(state.status?.lastHealthCheckAt ?? null)} />
+              <Metric label="زمن الاستجابة (ms)" value={state.status?.lastLatencyMs !== null && state.status?.lastLatencyMs !== undefined ? String(state.status.lastLatencyMs) : "-"} />
+              <Metric label="آخر مزامنة ناجحة" value={dateText(state.status?.lastSuccessfulSyncAt ?? null)} />
+              <Metric label="آخر محاولة مزامنة" value={dateText(state.status?.lastAttemptedSyncAt ?? null)} />
             </div>
 
-            <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Last Error</p>
-              <p className="mt-2 text-sm text-slate-300">{state.status?.lastError || "No recent source error recorded."}</p>
+            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-right">
+              <p className="text-xs text-slate-500">آخر خطأ</p>
+              <p className="mt-2 text-sm text-slate-700">{state.status?.lastError || "لا يوجد خطأ حديث مسجل."}</p>
             </div>
           </DashboardCard>
 
           <DashboardCard>
-            <h2 className="text-xl font-semibold text-white">Local Source Library Counts</h2>
+            <h2 className="text-xl font-semibold text-slate-950">أعداد النسخة المحلية</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Metric label="Imported Lists" value={String(state.importStatus?.importedListCount ?? 0)} />
-              <Metric label="SourceEntity" value={String(state.importStatus?.sourceEntityCount ?? 0)} />
-              <Metric label="SourceName" value={String(state.importStatus?.sourceNameCount ?? 0)} />
-              <Metric label="SourceNameVariant" value={String(state.importStatus?.sourceNameVariantCount ?? 0)} />
+              <Metric label="القوائم المستوردة" value={String(state.importStatus?.importedListCount ?? 0)} />
+              <Metric label="الكيانات" value={String(state.importStatus?.sourceEntityCount ?? 0)} />
+              <Metric label="الأسماء" value={String(state.importStatus?.sourceNameCount ?? 0)} />
+              <Metric label="الأسماء البديلة" value={String(state.importStatus?.sourceNameVariantCount ?? 0)} />
             </div>
 
-            <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Fallback Status</p>
-              <p className="mt-2 text-sm text-slate-300">
+            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-right">
+              <p className="text-xs text-slate-500">حالة الوضع الاحتياطي</p>
+              <p className="mt-2 text-sm leading-7 text-slate-700">
                 {state.status?.fallbackEnabled && state.status?.localCopyAvailable
-                  ? "Fallback can serve local OFAC copy when live source is degraded or offline."
-                  : "Fallback is not currently ready for local-only continuity."}
+                  ? "يمكن للنظام استخدام النسخة المحلية من OFAC إذا كان المصدر المباشر متعطلاً أو بطيئاً."
+                  : "الوضع الاحتياطي غير جاهز حالياً للاستمرار بالاعتماد على النسخة المحلية فقط."}
               </p>
             </div>
 
             {state.latestHealth ? (
-              <div className="mt-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-4">
-                <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-200">Latest Health-Check Result</p>
-                <p className="mt-2 text-sm text-cyan-100">Status: {state.latestHealth.status} | HTTP: {state.latestHealth.httpStatus ?? "-"} | Latency: {state.latestHealth.latencyMs}ms</p>
+              <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50 p-4 text-right">
+                <p className="text-xs text-sky-700">آخر نتيجة لفحص الصحة</p>
+                <p className="mt-2 text-sm text-sky-800">الحالة: {state.latestHealth.status} | HTTP: {state.latestHealth.httpStatus ?? "-"} | الزمن: {state.latestHealth.latencyMs}ms</p>
               </div>
             ) : null}
           </DashboardCard>
@@ -118,16 +118,16 @@ export default function DashboardOfacPage() {
       ) : null}
 
       <DashboardCard>
-        <p className="text-[11px] uppercase tracking-[0.2em] text-teal-300">OFAC Actions</p>
+        <p className="text-sm font-medium text-emerald-800">إجراءات OFAC</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Link href="/dashboard/sources/ofac/local-lists" className="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200 transition-colors hover:border-slate-600 hover:text-white">
-            Open Local Lists
+          <Link href="/dashboard/sources/ofac/local-lists" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+            القوائم المحلية
           </Link>
-          <Link href="/dashboard/sources/ofac/sync" className="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200 transition-colors hover:border-slate-600 hover:text-white">
-            Open Sync
+          <Link href="/dashboard/sources/ofac/sync" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+            المزامنة
           </Link>
-          <Link href="/dashboard/sources/ofac/logs" className="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200 transition-colors hover:border-slate-600 hover:text-white">
-            Open Logs
+          <Link href="/dashboard/sources/ofac/logs" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+            السجلات
           </Link>
         </div>
       </DashboardCard>

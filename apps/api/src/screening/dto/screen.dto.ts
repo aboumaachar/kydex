@@ -26,20 +26,29 @@ const boolInputSchema = z.preprocess((value) => {
   return value;
 }, z.boolean());
 
+const optionalTextInputSchema = z.preprocess((value) => {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}, z.string().min(1).optional());
+
 export const screenSchema = z.object({
-  query: z.string().min(2).optional(),
-  fullName: z.string().min(2).optional(),
-  subject: z.string().min(2).optional(),
-  name: z.string().min(2).optional(),
-  dateOfBirth: z.string().min(2).optional(),
-  nationality: z.string().min(2).optional(),
-  documentNumber: z.string().min(2).optional(),
-  transactionType: z.string().min(2).optional(),
-  screeningType: z.string().min(2).optional(),
-  source: z.string().min(2).optional(),
+  query: z.preprocess((value) => toTrimmedString(value) || undefined, z.string().min(2).optional()),
+  fullName: z.preprocess((value) => toTrimmedString(value) || undefined, z.string().min(2).optional()),
+  subject: z.preprocess((value) => toTrimmedString(value) || undefined, z.string().min(2).optional()),
+  name: z.preprocess((value) => toTrimmedString(value) || undefined, z.string().min(2).optional()),
+  dateOfBirth: optionalTextInputSchema,
+  nationality: optionalTextInputSchema,
+  documentNumber: optionalTextInputSchema,
+  transactionType: optionalTextInputSchema,
+  screeningType: z.preprocess((value) => toTrimmedString(value) || undefined, z.string().min(2).optional()),
+  source: z.preprocess((value) => toTrimmedString(value) || undefined, z.string().min(2).optional()),
   liveVerify: boolInputSchema.optional(),
   sources: z.array(z.string().min(1)).optional(),
-  clientReference: z.string().min(1).optional(),
+  clientReference: optionalTextInputSchema,
 }).superRefine((value, context) => {
   if (resolveQueryAlias(value).length > 0) {
     return;

@@ -117,38 +117,34 @@ export default function DashboardOfacDownloadsPage() {
 
   return (
     <DashboardShell
-      title="OFAC Downloads"
-      description="Download local list previews of OFAC sanctions data as CSV or JSON. Exports are limited to your locally imported copy (up to 10 000 local entries)."
+      title="تنزيلات OFAC"
+      description="قم بتنزيل النسخة المحلية من القوائم بصيغة CSV أو JSON مع توضيح مستوى التغطية العربية لكل قائمة."
       actions={
-        <ActionButton label="Refresh" onClick={() => void load()} disabled={loading} />
+        <ActionButton label="تحديث" onClick={() => void load()} disabled={loading} />
       }
     >
-      {/* Disclaimer */}
       <DashboardCard>
-        <p className="rounded-lg border border-amber-800/50 bg-amber-950/40 px-4 py-3 text-sm text-amber-300">
-          ⚠ <strong>Arabic normalisation disclaimer:</strong> Arabic values included in exports
-          are machine-transliterated/normalized. They are provided for reference only and are{" "}
-          <strong>NOT certified legal translations</strong>. Do not use these values as the
-          authoritative Arabic representation for any legal or compliance purpose.
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-7 text-amber-950">
+          القيم العربية داخل التنزيلات هي قيم معيارية آلية للاسترشاد فقط، وليست ترجمة قانونية معتمدة.
         </p>
       </DashboardCard>
 
       {loading ? (
         <StateBox
           tone="loading"
-          title="Loading OFAC imported lists"
-          detail="Fetching list metadata and Arabic coverage statistics."
+          title="جار تحميل القوائم المستوردة"
+          detail="يتم الآن جلب بيانات القوائم ومستوى التغطية العربية لكل قائمة."
         />
       ) : null}
       {error ? (
-        <StateBox tone="error" title="Failed to load OFAC lists" detail={error} />
+        <StateBox tone="error" title="تعذر تحميل قوائم OFAC" detail={error} />
       ) : null}
 
       {!loading && !error && lists.length === 0 ? (
         <StateBox
           tone="empty"
-          title="No imported lists found"
-          detail="Use Sync & Import to import OFAC lists before downloading."
+          title="لا توجد قوائم مستوردة"
+          detail="استخدم صفحة المزامنة والاستيراد قبل محاولة التنزيل."
         />
       ) : null}
 
@@ -159,47 +155,45 @@ export default function DashboardOfacDownloadsPage() {
             return (
               <DashboardCard key={list.id} className="min-w-0">
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-teal-300">
-                      OFAC List
-                    </p>
-                    <h3 className="mt-1 text-lg font-semibold text-white">{list.listName}</h3>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-emerald-800">قائمة OFAC</p>
+                    <h3 className="mt-1 text-lg font-semibold text-slate-950">{list.listName}</h3>
                   </div>
-                  <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-100">
-                    {list.recordCount.toLocaleString()} preview rows
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {list.recordCount.toLocaleString()} صف
                   </span>
                 </div>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <Metric label="Local list size" value={String(list.recordCount)} />
-                  <Metric label="Last Imported" value={dateText(list.lastImportedAt)} />
+                  <Metric label="حجم القائمة المحلية" value={String(list.recordCount)} />
+                  <Metric label="آخر استيراد" value={dateText(list.lastImportedAt)} />
                   {ts ? (
                     <>
                       <Metric
-                        label="Entity Arabic Coverage"
+                        label="تغطية الكيانات بالعربية"
                         value={`${ts.entityArabicCoveragePercent}%`}
                       />
                       <Metric
-                        label="Name Arabic Coverage"
+                        label="تغطية الأسماء بالعربية"
                         value={`${ts.nameArabicCoveragePercent}%`}
                       />
                     </>
                   ) : (
-                    <Metric label="Arabic Coverage" value="—" />
+                    <Metric label="التغطية العربية" value="—" />
                   )}
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   <ActionButton
                     label={
-                      downloading === "csv" ? "Preparing CSV…" : "↓ Download CSV"
+                      downloading === "csv" ? "جار تجهيز CSV" : "تنزيل CSV"
                     }
                     disabled={downloading !== null}
                     onClick={() => void handleDownload(list.listName, "csv")}
                   />
                   <ActionButton
                     label={
-                      downloading === "json" ? "Preparing JSON…" : "↓ Download JSON"
+                      downloading === "json" ? "جار تجهيز JSON" : "تنزيل JSON"
                     }
                     disabled={downloading !== null}
                     onClick={() => void handleDownload(list.listName, "json")}
@@ -207,7 +201,7 @@ export default function DashboardOfacDownloadsPage() {
                 </div>
 
                 {downloadError && (
-                  <p className="mt-2 text-xs text-red-400">Error: {downloadError}</p>
+                  <p className="mt-2 text-xs text-rose-700">خطأ: {downloadError}</p>
                 )}
               </DashboardCard>
             );
@@ -216,10 +210,8 @@ export default function DashboardOfacDownloadsPage() {
       ) : null}
 
       <DashboardCard>
-        <p className="text-xs text-slate-300">
-          Downloads are generated from your local database copy. The OFAC SDN and Consolidated
-          Lists are updated from the official source during scheduled sync runs. Data is current
-          as of the last successful import.
+        <p className="text-sm leading-7 text-slate-600">
+          يتم إنشاء هذه التنزيلات من النسخة المحلية داخل قاعدة البيانات، وتبقى صالحة حتى آخر استيراد ناجح من المصدر.
         </p>
       </DashboardCard>
     </DashboardShell>

@@ -176,23 +176,22 @@ export default function DashboardOfacLocalListsPage() {
 
   return (
     <DashboardShell
-      title="OFAC Local Lists"
-      description="Preview locally imported OFAC lists (SDN and Consolidated) with bilingual display, export, and translation coverage."
+      title="القوائم المحلية لـ OFAC"
+      description="استعرض القوائم المحلية، ابحث داخلها، وبدّل بين الإنجليزية والعربية بطريقة أخف وأكثر وضوحاً."
       actions={
         <ActionButton
-          label="Refresh"
+          label="تحديث"
           onClick={() => void load(selectedList, skip)}
           disabled={loading}
         />
       }
     >
-      {/* Controls */}
       <DashboardCard>
         <div className="grid gap-4 md:grid-cols-4">
-          <label className="text-sm text-slate-300 md:col-span-1">
-            <span className="text-xs uppercase tracking-[0.2em] text-slate-500">List</span>
+          <label className="text-sm text-slate-700 md:col-span-1">
+            <span className="text-xs tracking-[0.08em] text-slate-500">القائمة</span>
             <select
-              className="mt-2 block w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              className="mt-2 block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
               value={selectedList}
               onChange={(e) => {
                 setSelectedList(e.target.value);
@@ -221,87 +220,84 @@ export default function DashboardOfacLocalListsPage() {
             </select>
           </label>
 
-          <label className="text-sm text-slate-300 md:col-span-1">
-            <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Language</span>
+          <label className="text-sm text-slate-700 md:col-span-1">
+            <span className="text-xs tracking-[0.08em] text-slate-500">اللغة</span>
             <select
-              className="mt-2 block w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              className="mt-2 block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
               value={lang}
               onChange={(e) => setLang(e.target.value as Lang)}
             >
-              <option value="en">Preview local list (English)</option>
-              <option value="ar">Arabic-normalized preview</option>
-              <option value="bilingual">Bilingual preview</option>
+              <option value="en">عرض إنجليزي</option>
+              <option value="ar">عرض عربي معياري</option>
+              <option value="bilingual">عرض ثنائي اللغة</option>
             </select>
           </label>
 
-          <label className="text-sm text-slate-300 md:col-span-2">
-            <span className="text-xs uppercase tracking-[0.2em] text-slate-500">
-              Search / Filter
+          <label className="text-sm text-slate-700 md:col-span-2">
+            <span className="text-xs tracking-[0.08em] text-slate-500">
+              البحث والتصفية
             </span>
             <input
-              className="mt-2 block w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-300"
+              className="mt-2 block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Entity ID, name, Arabic, type, program, country"
+              placeholder="المعرف، الاسم، العربية، النوع، البرنامج، الدولة"
             />
           </label>
         </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <Metric label="Selected List" value={selectedList} />
-          <Metric label="Local list size" value={String(state.preview?.total ?? 0)} />
-          <Metric label="Page" value={String(Math.floor(skip / PAGE_SIZE) + 1)} />
+          <Metric label="القائمة المختارة" value={selectedList} />
+          <Metric label="حجم القائمة المحلية" value={String(state.preview?.total ?? 0)} />
+          <Metric label="الصفحة" value={String(Math.floor(skip / PAGE_SIZE) + 1)} />
         </div>
       </DashboardCard>
 
-      {/* Arabic Coverage */}
       {ts && (
         <DashboardCard>
-          <p className="text-[11px] uppercase tracking-[0.2em] text-amber-400">
-            Arabic Coverage — {selectedList}
+          <p className="text-sm font-medium text-amber-800">
+            التغطية العربية - {selectedList}
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
             <Metric
-              label="Entity Arabic Coverage"
+              label="تغطية الكيانات بالعربية"
               value={`${ts.entityArabicCoveragePercent}%`}
             />
-            <Metric label="Name Arabic Coverage" value={`${ts.nameArabicCoveragePercent}%`} />
+            <Metric label="تغطية الأسماء بالعربية" value={`${ts.nameArabicCoveragePercent}%`} />
             <Metric
-              label="Entities w/ Arabic"
+              label="كيانات تحتوي على عربية"
               value={`${ts.entitiesWithArabicNormalized} / ${ts.totalEntities}`}
             />
           </div>
-          <p className="mt-3 rounded-lg border border-amber-900/40 bg-amber-950/30 px-3 py-2 text-xs text-amber-300">
-            ⚠ {ts.disclaimer}
+          <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-6 text-amber-950">
+            {ts.disclaimer}
           </p>
         </DashboardCard>
       )}
 
-      {/* Download Bar */}
       <DashboardCard>
-        <p className="text-[11px] uppercase tracking-[0.2em] text-teal-300">Download local list</p>
-        <p className="mt-1 text-xs text-slate-300">
-          Download the full local copy of <strong>{selectedList}</strong> (up to 10 000 local entries).
+        <p className="text-sm font-medium text-emerald-800">تنزيل القائمة المحلية</p>
+        <p className="mt-1 text-sm leading-7 text-slate-600">
+          قم بتنزيل النسخة المحلية من <strong>{selectedList}</strong> بما يصل إلى 10,000 سجل محلي.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <ActionButton
-            label={downloading ? "Preparing…" : "↓ Download CSV"}
+            label={downloading ? "جار التجهيز" : "تنزيل CSV"}
             onClick={() => void handleDownload("csv")}
             disabled={downloading || loading}
           />
           <ActionButton
-            label={downloading ? "Preparing…" : "↓ Download JSON"}
+            label={downloading ? "جار التجهيز" : "تنزيل JSON"}
             onClick={() => void handleDownload("json")}
             disabled={downloading || loading}
           />
         </div>
         {downloadError && (
-          <p className="mt-2 text-xs text-red-400">Download error: {downloadError}</p>
+          <p className="mt-2 text-xs text-rose-700">خطأ في التنزيل: {downloadError}</p>
         )}
         {showArabic && (
-          <p className="mt-2 text-xs text-amber-400">
-            ⚠ Downloaded files include Arabic-normalized values — NOT certified legal
-            translations.
+          <p className="mt-2 text-xs text-amber-800">
+            القيم العربية داخل الملف المصدّر قيم معيارية آلية وليست ترجمة قانونية معتمدة.
           </p>
         )}
       </DashboardCard>
@@ -309,12 +305,12 @@ export default function DashboardOfacLocalListsPage() {
       {loading ? (
         <StateBox
           tone="loading"
-          title="Loading local list preview"
-          detail="Retrieving local preview rows from API."
+          title="جار تحميل معاينة القائمة المحلية"
+          detail="يتم الآن جلب صفوف المعاينة من الواجهة البرمجية."
         />
       ) : null}
       {error ? (
-        <StateBox tone="error" title="Failed to load local list preview" detail={error} />
+        <StateBox tone="error" title="تعذر تحميل معاينة القائمة" detail={error} />
       ) : null}
 
       {!loading && !error ? (
@@ -322,46 +318,46 @@ export default function DashboardOfacLocalListsPage() {
           {filteredEntities.length === 0 ? (
             <StateBox
               tone="empty"
-              title="No preview rows for current selection"
-              detail="Try another list or clear filters to view entities."
+              title="لا توجد صفوف للمعاينة"
+              detail="جرّب قائمة أخرى أو امسح عوامل التصفية لعرض النتائج."
             />
           ) : (
-            <table className="min-w-[900px] text-left text-sm">
-              <thead className="border-b border-slate-800 text-xs uppercase tracking-[0.16em] text-slate-400">
+            <table className="min-w-[900px] text-right text-sm">
+              <thead className="border-b border-slate-200 text-xs tracking-[0.08em] text-slate-500">
                 <tr>
-                  <th className="px-3 py-3">Entity ID</th>
-                  {showEnglish && <th className="px-3 py-3">Primary Name (EN)</th>}
+                  <th className="px-3 py-3">المعرف</th>
+                  {showEnglish && <th className="px-3 py-3">الاسم بالإنجليزية</th>}
                   {showArabic && (
-                    <th className="px-3 py-3 text-amber-300/80" dir="rtl">
-                      الاسم (عربي مُعيَّر)
+                    <th className="px-3 py-3 text-amber-800" dir="rtl">
+                      الاسم العربي المعياري
                     </th>
                   )}
-                  <th className="px-3 py-3">Type</th>
-                  <th className="px-3 py-3">List</th>
-                  <th className="px-3 py-3">Programs</th>
-                  <th className="px-3 py-3">Countries</th>
-                  <th className="px-3 py-3">Aliases</th>
-                  <th className="px-3 py-3">Imported</th>
+                  <th className="px-3 py-3">النوع</th>
+                  <th className="px-3 py-3">القائمة</th>
+                  <th className="px-3 py-3">البرامج</th>
+                  <th className="px-3 py-3">الدول</th>
+                  <th className="px-3 py-3">الأسماء البديلة</th>
+                  <th className="px-3 py-3">تاريخ الاستيراد</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredEntities.map((entity) => (
-                  <tr key={entity.id} className="border-b border-slate-900/80 text-slate-200">
-                    <td className="px-3 py-3 font-mono text-xs text-slate-200">
+                  <tr key={entity.id} className="border-b border-slate-100 text-slate-700">
+                    <td className="px-3 py-3 font-mono text-xs text-slate-700">
                       <span className="block max-w-[170px] truncate" title={entity.externalEntityId}>
                         {entity.externalEntityId}
                       </span>
                     </td>
                     {showEnglish && (
-                      <td className="px-3 py-3 whitespace-normal break-words text-slate-50">
+                      <td className="px-3 py-3 whitespace-normal break-words text-slate-900">
                         {entity.primaryName}
                       </td>
                     )}
                     {showArabic && (
                       <td
-                        className="px-3 py-3 whitespace-normal break-words text-amber-100"
+                        className="px-3 py-3 whitespace-normal break-words text-amber-900"
                         dir="rtl"
-                        title="Arabic-normalized (machine transliterated — not a certified legal translation)"
+                        title="قيمة عربية معيارية آلية وليست ترجمة قانونية معتمدة"
                       >
                         {arabicDisplay(entity)}
                       </td>
@@ -372,7 +368,7 @@ export default function DashboardOfacLocalListsPage() {
                       <div className="flex max-w-[220px] flex-wrap gap-1">
                         {compactList(entity.programs).length > 0 ? (
                           compactList(entity.programs).map((program) => (
-                            <span key={`${entity.id}-program-${program}`} className="rounded-full border border-slate-700 bg-slate-900/80 px-2 py-0.5 text-[10px] text-slate-100">
+                            <span key={`${entity.id}-program-${program}`} className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] text-slate-700">
                               {program}
                             </span>
                           ))
@@ -391,23 +387,23 @@ export default function DashboardOfacLocalListsPage() {
           )}
 
           {showArabic && (
-            <p className="mt-2 text-[10px] text-amber-400/60">
-              ⚠ Arabic column: machine-transliterated values — NOT certified legal translations.
+            <p className="mt-2 text-[10px] text-amber-800">
+              العمود العربي يحتوي على قيم معيارية آلية وليست ترجمة قانونية معتمدة.
             </p>
           )}
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-4">
-            <p className="text-xs text-slate-300">
-              Showing {filteredEntities.length} preview rows on this page (take={PAGE_SIZE}).
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+            <p className="text-xs text-slate-600">
+              يتم عرض {filteredEntities.length} صفاً في هذه الصفحة من أصل حجم الصفحة {PAGE_SIZE}.
             </p>
             <div className="flex gap-2">
               <ActionButton
-                label="Previous"
+                label="السابق"
                 disabled={!canPrev || loading}
                 onClick={() => setSkip((prev) => Math.max(0, prev - PAGE_SIZE))}
               />
               <ActionButton
-                label="Next"
+                label="التالي"
                 disabled={!canNext || loading}
                 onClick={() => setSkip((prev) => prev + PAGE_SIZE)}
               />
@@ -417,10 +413,8 @@ export default function DashboardOfacLocalListsPage() {
       ) : null}
 
       <DashboardCard>
-        <p className="text-xs text-slate-300">
-          List metadata:{" "}
-          {state.lists.find((l) => l.listName === selectedList)?.recordCount ?? 0} local entries, last
-          imported{" "}
+        <p className="text-sm leading-7 text-slate-600">
+          بيانات القائمة الحالية: {state.lists.find((l) => l.listName === selectedList)?.recordCount ?? 0} سجل محلي، وآخر استيراد بتاريخ{" "}
           {dateText(
             state.lists.find((l) => l.listName === selectedList)?.lastImportedAt ?? null,
           )}

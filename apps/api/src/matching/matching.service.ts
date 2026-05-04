@@ -98,6 +98,8 @@ const CANONICAL_TOKEN_MAP: Record<string, string> = {
   'alyh': 'ali',
   'ahmad': 'ahmad',
   'ahmed': 'ahmad',
+  'ahmet': 'ahmad',
+  'achmad': 'ahmad',
   'ahmadd': 'ahmad',
   'ahmd': 'ahmad',
   'hasan': 'hassan',
@@ -130,7 +132,7 @@ const LATIN_CONNECTOR_TOKENS = new Set(['al', 'bin', 'bint', 'ibn']);
 
 @Injectable()
 export class MatchingService {
-  normalizeName(input: string): string {
+  normalizeName(input: unknown): string {
     return this.tokenizeComparableText(input).join(' ');
   }
 
@@ -164,7 +166,7 @@ export class MatchingService {
       .trim();
   }
 
-  toLatinSearchKey(input: string): string {
+  toLatinSearchKey(input: unknown): string {
     return this.buildConsonantKey(this.normalizeName(input));
   }
 
@@ -334,7 +336,11 @@ export class MatchingService {
     return this.tokenizeComparableText(value);
   }
 
-  private tokenizeComparableText(value: string): string[] {
+  private tokenizeComparableText(value: unknown): string[] {
+    if (typeof value !== 'string') {
+      return [];
+    }
+
     if (!value.trim()) {
       return [];
     }

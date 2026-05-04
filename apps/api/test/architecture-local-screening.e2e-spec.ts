@@ -36,6 +36,10 @@ type Store = {
     primaryName: string;
     normalizedName: string;
     aliases: string[];
+    normalizedAliases?: string[];
+    arabicNormalizedAliases?: string[];
+    arabicNormalizedName?: string | null;
+    latinTransliteratedName?: string | null;
     dateOfBirth: string | null;
     nationality: string | null;
     country: string | null;
@@ -229,8 +233,8 @@ function createInMemoryPrisma() {
         return store.records
           .filter((row) => versionIds.includes(row.versionId))
           .map((row) => {
-            const source = store.dataSources.find((entry) => entry.id === row.dataSourceId)!;
-            const version = store.versions.find((entry) => entry.id === row.versionId)!;
+            const source = store.dataSources.find((entry) => entry.id === row.dataSourceId);
+            const version = store.versions.find((entry) => entry.id === row.versionId);
             return {
               ...row,
               dataSource: source,
@@ -289,10 +293,10 @@ function createInMemoryPrisma() {
 }
 
 describe('Architecture local screening enforcement (e2e)', () => {
-  const originalFetch = global.fetch;
+  const originalFetch = globalThis.fetch;
 
   afterEach(() => {
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
     jest.restoreAllMocks();
   });
 
@@ -301,7 +305,7 @@ describe('Architecture local screening enforcement (e2e)', () => {
     const auditLogsService = { log: jest.fn(async () => ({ id: 'a1' })) };
     const service = new DataSourcesService(prisma as never, auditLogsService as never);
 
-    global.fetch = jest.fn(async (url: any) => {
+    globalThis.fetch = jest.fn(async (url: any) => {
       if (String(url).includes('sdn.csv')) {
         const sdnCsv = 'uid,name,type,nationality,a,b,c,d,e,f,g,alias\n1,Mohammed Ali,Individual,LB,,,,,,,,Ali Mohammed';
         return new Response(sdnCsv, { status: 200, headers: { 'content-type': 'text/csv' } });
@@ -319,7 +323,7 @@ describe('Architecture local screening enforcement (e2e)', () => {
     const auditLogsService = { log: jest.fn(async () => ({ id: 'a1' })) };
     const service = new DataSourcesService(prisma as never, auditLogsService as never);
 
-    global.fetch = jest.fn(async (url: any) => {
+    globalThis.fetch = jest.fn(async (url: any) => {
       if (String(url).toLowerCase().includes('consolidated.xml')) {
         const xml = '<sdnList><sdnEntry><uid>10</uid><lastName>TEST ENTITY</lastName><sdnType>Entity</sdnType><programList><program>NS-CMIC</program></programList><idList><id><idNumber>DOC-10</idNumber></id></idList></sdnEntry></sdnList>';
         return new Response(xml, { status: 200, headers: { 'content-type': 'application/xml' } });
@@ -337,7 +341,7 @@ describe('Architecture local screening enforcement (e2e)', () => {
     const auditLogsService = { log: jest.fn(async () => ({ id: 'a1' })) };
     const service = new DataSourcesService(prisma as never, auditLogsService as never);
 
-    global.fetch = jest.fn(async (url: any) => {
+    globalThis.fetch = jest.fn(async (url: any) => {
       if (String(url).includes('scsanctions.un.org')) {
         const xml = '<CONSOLIDATED_LIST><INDIVIDUAL><FIRST_NAME>Mohammed</FIRST_NAME><SECOND_NAME>Ali</SECOND_NAME><NATIONALITY>LB</NATIONALITY><NUMBER>123456</NUMBER></INDIVIDUAL></CONSOLIDATED_LIST>';
         return new Response(xml, { status: 200, headers: { 'content-type': 'application/xml' } });
@@ -405,7 +409,7 @@ describe('Architecture local screening enforcement (e2e)', () => {
       documentNumber: '123456',
     });
 
-    expect([...response.searchedSources].sort()).toEqual([
+    expect([...response.searchedSources].sort((left, right) => left.localeCompare(right))).toEqual([
       'OFAC_CONSOLIDATED',
       'OFAC_SDN',
       'UNSEC_CONSOLIDATED',
@@ -503,6 +507,320 @@ describe('Architecture local screening enforcement (e2e)', () => {
     const screeningServicePath = resolve(process.cwd(), 'src', 'screening', 'screening.service.ts');
     const content = readFileSync(screeningServicePath, 'utf-8');
     expect(content).not.toMatch(/syncOfficialSources\s*\(/);
+  });
+
+  it('single-token Ahmad suppresses entity alias-only matches without primary-name support', async () => {
+    const { prisma, store } = createInMemoryPrisma();
+    seedScreeningStore(store, ['OFAC_SDN']);
+
+    store.records.push(
+      {
+        id: 'rec_ahmed_primary',
+        dataSourceId: 'seed_ds_0',
+        versionId: 'seed_ver_0',
+        entityType: 'PERSON',
+        primaryName: 'DIRIYE, Ahmed',
+        normalizedName: 'diriye ahmad',
+        aliases: [],
+        normalizedAliases: [],
+        arabicNormalizedAliases: [],
+        arabicNormalizedName: null,
+        latinTransliteratedName: null,
+        dateOfBirth: null,
+        nationality: null,
+        country: null,
+        documentNumbers: [],
+        rawPayload: { sourceCode: 'OFAC_SDN' },
+      },
+      {
+        id: 'rec_alias_match',
+        dataSourceId: 'seed_ds_0',
+        versionId: 'seed_ver_0',
+        entityType: 'ENTITY',
+        primaryName: 'Some Entity',
+        normalizedName: 'some entity',
+        aliases: ['Ahmad.'],
+        normalizedAliases: ['ahmad'],
+        arabicNormalizedAliases: [],
+        arabicNormalizedName: null,
+        latinTransliteratedName: null,
+        dateOfBirth: null,
+        nationality: null,
+        country: null,
+        documentNumbers: [],
+        rawPayload: { sourceCode: 'OFAC_SDN' },
+      },
+      {
+        id: 'rec_irrelevant_company',
+        dataSourceId: 'seed_ds_0',
+        versionId: 'seed_ver_0',
+        entityType: 'ENTITY',
+        primaryName: 'ENTERPRISE COMERCIO DE MOVEIS E INTERMEDIACAO DE NEGOCIOS EIRELI',
+        normalizedName: 'enterprise comercio de moveis e intermediacao de negocios eireli',
+        aliases: ['Global Furniture Holdings'],
+        normalizedAliases: ['global furniture holdings'],
+        arabicNormalizedAliases: [],
+        arabicNormalizedName: null,
+        latinTransliteratedName: null,
+        dateOfBirth: null,
+        nationality: null,
+        country: null,
+        documentNumbers: [],
+        rawPayload: { sourceCode: 'OFAC_SDN' },
+      },
+    );
+
+    const service = createDecisionAwareScreeningService(prisma);
+    const response = await service.screen('ten_1', 'usr_1', {
+      fullName: 'Ahmad',
+      sources: ['OFAC_SDN'],
+    });
+
+    expect(response.matches.map((match) => match.matchedName)).toContain('DIRIYE, Ahmed');
+    expect(response.matches.map((match) => match.matchedName)).not.toContain('Some Entity');
+    expect(response.matches.map((match) => match.matchedName)).not.toContain(
+      'ENTERPRISE COMERCIO DE MOVEIS E INTERMEDIACAO DE NEGOCIOS EIRELI',
+    );
+    expect(response.matches.every((match) => Boolean((match as any).matchedField && (match as any).matchEvidence))).toBe(true);
+    expect(response.matches.every((match) => Boolean((match as any).matchedToken))).toBe(true);
+    expect(response.matches.every((match) => typeof (match as any).sourceVersion === 'string')).toBe(true);
+    expect(response.matches.every((match) => typeof (match as any).simplifiedArabicReason === 'string')).toBe(true);
+  });
+
+  it('Arabic Ahmad query still returns explainable Ahmad-family matches only', async () => {
+    const { prisma, store } = createInMemoryPrisma();
+    seedScreeningStore(store, ['OFAC_SDN']);
+
+    store.records.push(
+      {
+        id: 'rec_ahmad_arabic',
+        dataSourceId: 'seed_ds_0',
+        versionId: 'seed_ver_0',
+        entityType: 'PERSON',
+        primaryName: 'أحمد ديرية',
+        normalizedName: 'ahmad diriya',
+        aliases: ['Ahmed Diriye'],
+        normalizedAliases: ['ahmad diriye'],
+        arabicNormalizedAliases: ['احمد ديريه'],
+        arabicNormalizedName: 'احمد ديريه',
+        latinTransliteratedName: 'ahmad diriya',
+        dateOfBirth: null,
+        nationality: null,
+        country: null,
+        documentNumbers: [],
+        rawPayload: { sourceCode: 'OFAC_SDN' },
+      },
+      {
+        id: 'rec_irrelevant_company_2',
+        dataSourceId: 'seed_ds_0',
+        versionId: 'seed_ver_0',
+        entityType: 'ENTITY',
+        primaryName: 'AFKAR SYSTEM YAZD COMPANY',
+        normalizedName: 'afkar system yazd company',
+        aliases: ['Industrial Systems'],
+        normalizedAliases: ['industrial systems'],
+        arabicNormalizedAliases: [],
+        arabicNormalizedName: null,
+        latinTransliteratedName: null,
+        dateOfBirth: null,
+        nationality: null,
+        country: null,
+        documentNumbers: [],
+        rawPayload: { sourceCode: 'OFAC_SDN' },
+      },
+    );
+
+    const service = createDecisionAwareScreeningService(prisma);
+    const response = await service.screen('ten_1', 'usr_1', {
+      fullName: 'أحمد',
+      sources: ['OFAC_SDN'],
+    });
+
+    expect(response.matches.map((match) => match.matchedName)).toContain('أحمد ديرية');
+    expect(response.matches.map((match) => match.matchedName)).not.toContain('AFKAR SYSTEM YAZD COMPANY');
+    expect(response.matches.every((match) => Boolean((match as any).matchedToken))).toBe(true);
+    expect(response.matches.every((match) => Boolean((match as any).simplifiedArabicReason))).toBe(true);
+  });
+
+  it('single-token Hassan only returns explainable Hassan-family candidates and exposes alias evidence', async () => {
+    const { prisma, store } = createInMemoryPrisma();
+    seedScreeningStore(store, ['OFAC_SDN']);
+
+    store.records.push(
+      {
+        id: 'rec_hassan_primary',
+        dataSourceId: 'seed_ds_0',
+        versionId: 'seed_ver_0',
+        entityType: 'PERSON',
+        primaryName: 'HASSAN DARWISH',
+        normalizedName: 'hassan darwish',
+        aliases: [],
+        normalizedAliases: [],
+        arabicNormalizedAliases: [],
+        arabicNormalizedName: null,
+        latinTransliteratedName: null,
+        dateOfBirth: null,
+        nationality: null,
+        country: null,
+        documentNumbers: [],
+        rawPayload: { sourceCode: 'OFAC_SDN' },
+      },
+      {
+        id: 'rec_hassan_alias',
+        dataSourceId: 'seed_ds_0',
+        versionId: 'seed_ver_0',
+        entityType: 'PERSON',
+        primaryName: 'Ali Kareem',
+        normalizedName: 'ali kareem',
+        aliases: ['Hasan Kareem'],
+        normalizedAliases: ['hassan kareem'],
+        arabicNormalizedAliases: [],
+        arabicNormalizedName: null,
+        latinTransliteratedName: null,
+        dateOfBirth: null,
+        nationality: null,
+        country: null,
+        documentNumbers: [],
+        rawPayload: { sourceCode: 'OFAC_SDN' },
+      },
+      {
+        id: 'rec_irrelevant_sias',
+        dataSourceId: 'seed_ds_0',
+        versionId: 'seed_ver_0',
+        entityType: 'ENTITY',
+        primaryName: 'SIAS INVESTMENT PVT LTD',
+        normalizedName: 'sias investment pvt ltd',
+        aliases: ['Global Capital'],
+        normalizedAliases: ['global capital'],
+        arabicNormalizedAliases: [],
+        arabicNormalizedName: null,
+        latinTransliteratedName: null,
+        dateOfBirth: null,
+        nationality: null,
+        country: null,
+        documentNumbers: [],
+        rawPayload: { sourceCode: 'OFAC_SDN' },
+      },
+    );
+
+    const service = createDecisionAwareScreeningService(prisma);
+    const response = await service.screen('ten_1', 'usr_1', {
+      fullName: 'Hassan',
+      sources: ['OFAC_SDN'],
+    });
+
+    expect(response.matches.map((match) => match.matchedName)).toContain('HASSAN DARWISH');
+    expect(response.matches.map((match) => match.matchedName)).toContain('Ali Kareem');
+    expect(response.matches.map((match) => match.matchedName)).not.toContain('SIAS INVESTMENT PVT LTD');
+
+    const aliasMatch = response.matches.find((match) => match.matchedName === 'Ali Kareem') as any;
+    expect(aliasMatch.matchedField).toBe('alias');
+    expect(aliasMatch.matchedAlias).toBe('Hasan Kareem');
+    expect(aliasMatch.matchedAliasScore).toBeGreaterThan(0);
+    expect(aliasMatch.matchedToken).toBe('hassan');
+  });
+
+  it('multi-token Mohammad Ali excludes unrelated companies without visible evidence', async () => {
+    const { prisma, store } = createInMemoryPrisma();
+    seedScreeningStore(store, ['OFAC_SDN']);
+
+    store.records.push({
+      id: 'rec_irrelevant_code_partnership',
+      dataSourceId: 'seed_ds_0',
+      versionId: 'seed_ver_0',
+      entityType: 'ENTITY',
+      primaryName: 'CODE A PARTNERSHIP',
+      normalizedName: 'code a partnership',
+      aliases: ['Strategic Ventures'],
+      normalizedAliases: ['strategic ventures'],
+      arabicNormalizedAliases: [],
+      arabicNormalizedName: null,
+      latinTransliteratedName: null,
+      dateOfBirth: null,
+      nationality: null,
+      country: null,
+      documentNumbers: [],
+      rawPayload: { sourceCode: 'OFAC_SDN' },
+    });
+
+    const service = createDecisionAwareScreeningService(prisma);
+    const response = await service.screen('ten_1', 'usr_1', {
+      fullName: 'Mohammad Ali',
+      sources: ['OFAC_SDN'],
+    });
+
+    expect(response.matches.map((match) => match.matchedName)).toContain('Mohammed Ali');
+    expect(response.matches.map((match) => match.matchedName)).not.toContain('CODE A PARTNERSHIP');
+    expect(
+      response.matches.every((match: any) =>
+        Number(match.nameScore ?? 0) > 0 || Boolean(match.matchedAlias) || Number(match.tokenOverlap ?? 0) > 0,
+      ),
+    ).toBe(true);
+  });
+
+  it('identifier boosts only apply after the candidate passes the identity evidence gate', async () => {
+    const { prisma, store } = createInMemoryPrisma();
+    seedScreeningStore(store, ['OFAC_SDN']);
+
+    store.records.push(
+      {
+        id: 'rec_ahmad_identified',
+        dataSourceId: 'seed_ds_0',
+        versionId: 'seed_ver_0',
+        entityType: 'PERSON',
+        primaryName: 'DIRIYE, Ahmed',
+        normalizedName: 'diriye ahmad',
+        aliases: [],
+        normalizedAliases: [],
+        arabicNormalizedAliases: [],
+        arabicNormalizedName: null,
+        latinTransliteratedName: null,
+        dateOfBirth: '1980-01-01',
+        nationality: 'SO',
+        country: 'SO',
+        documentNumbers: ['DOC-77'],
+        rawPayload: { sourceCode: 'OFAC_SDN' },
+      },
+      {
+        id: 'rec_doc_only_company',
+        dataSourceId: 'seed_ds_0',
+        versionId: 'seed_ver_0',
+        entityType: 'ENTITY',
+        primaryName: 'DHAWI PVT LTD',
+        normalizedName: 'dhawi pvt ltd',
+        aliases: ['Industrial Trading'],
+        normalizedAliases: ['industrial trading'],
+        arabicNormalizedAliases: [],
+        arabicNormalizedName: null,
+        latinTransliteratedName: null,
+        dateOfBirth: '1980-01-01',
+        nationality: 'SO',
+        country: 'SO',
+        documentNumbers: ['DOC-77'],
+        rawPayload: { sourceCode: 'OFAC_SDN' },
+      },
+    );
+
+    const service = createDecisionAwareScreeningService(prisma);
+    const baseResponse = await service.screen('ten_1', 'usr_1', {
+      fullName: 'Ahmad',
+      sources: ['OFAC_SDN'],
+    });
+    const enrichedResponse = await service.screen('ten_1', 'usr_1', {
+      fullName: 'Ahmad',
+      dateOfBirth: '1980-01-01',
+      nationality: 'SO',
+      documentNumber: 'DOC-77',
+      sources: ['OFAC_SDN'],
+    });
+
+    const basePersonMatch = baseResponse.matches.find((match) => match.matchedName === 'DIRIYE, Ahmed') as any;
+    const enrichedPersonMatch = enrichedResponse.matches.find((match) => match.matchedName === 'DIRIYE, Ahmed') as any;
+
+    expect(basePersonMatch).toBeTruthy();
+    expect(enrichedPersonMatch).toBeTruthy();
+    expect(enrichedPersonMatch.score).toBeGreaterThan(basePersonMatch.score);
+    expect(enrichedResponse.matches.map((match) => match.matchedName)).not.toContain('DHAWI PVT LTD');
   });
 });
 

@@ -73,6 +73,14 @@ export type DecisionFactor = {
 export type ScreeningMatch = {
   source: string;
   matchedName: string;
+  matchedField?: string | null;
+  matchedAlias?: string | null;
+  matchedAliasScore?: number;
+  matchedToken?: string | null;
+  tokenOverlap?: number;
+  matchEvidence?: string | null;
+  simpleReasonArabic?: string | null;
+  simplifiedArabicReason?: string | null;
   score: number;
   riskLevel: string;
   classification: string;
@@ -785,6 +793,54 @@ export class ApiRequestError extends Error {
   }
 }
 
+function getApiErrorMessage(data: unknown) {
+  if (typeof data === 'object' && data !== null) {
+    const errorRecord = data as { error?: unknown; message?: unknown };
+
+    if (typeof errorRecord.error === 'object' && errorRecord.error !== null && 'message' in errorRecord.error) {
+      const nestedMessage = (errorRecord.error as { message?: unknown }).message;
+      if (typeof nestedMessage === 'string' && nestedMessage.trim().length > 0) {
+        return nestedMessage;
+      }
+    }
+
+    if (typeof errorRecord.message === 'string') {
+      return errorRecord.message;
+    }
+  }
+
+  return 'Request failed';
+}
+
+function optionalText(value?: string) {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function buildNormalizedScreeningPayload<T extends ScreenRequest | OfacScreeningSearchRequest>(
+  payload: T,
+) {
+  const query = [payload.query, payload.fullName, payload.subject, payload.name]
+    .find((value) => typeof value === 'string' && value.trim().length > 0)
+    ?.trim();
+
+  return {
+    ...payload,
+    query,
+    screeningType: payload.screeningType ?? 'ofac',
+    source: payload.source ?? 'dashboard',
+    liveVerify: payload.liveVerify ?? false,
+    clientReference: optionalText(payload.clientReference),
+    dateOfBirth: optionalText(payload.dateOfBirth),
+    nationality: optionalText(payload.nationality),
+    sources: payload.sources && payload.sources.length > 0 ? payload.sources : ['OFAC'],
+  };
+}
+
 async function parseJsonSafe(response: Response) {
   const text = await response.text();
   if (!text) {
@@ -824,12 +880,7 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
   }
 
   if (!response.ok) {
-    const message =
-      typeof data.error === 'object' && data.error && 'message' in data.error
-        ? String((data.error as { message: string }).message)
-        : typeof data.message === 'string'
-          ? data.message
-          : 'Request failed';
+    const message = getApiErrorMessage(data);
     throw new ApiRequestError(message, { status: response.status, kind: 'http' });
   }
 
@@ -927,18 +978,11 @@ export async function login(email: string, password: string) {
 }
 
 export async function runScreening(payload: ScreenRequest) {
-  const query = [payload.query, payload.fullName, payload.subject, payload.name]
-    .find((value) => typeof value === 'string' && value.trim().length > 0)
-    ?.trim();
-
   const normalizedPayload = {
-    ...payload,
-    query,
-    fullName: payload.fullName?.trim() || query,
-    screeningType: payload.screeningType ?? 'ofac',
-    source: payload.source ?? 'dashboard',
-    liveVerify: payload.liveVerify ?? false,
-    sources: payload.sources && payload.sources.length > 0 ? payload.sources : ['OFAC'],
+    ...buildNormalizedScreeningPayload(payload),
+    fullName: optionalText(payload.fullName) ?? optionalText(payload.query) ?? optionalText(payload.subject) ?? optionalText(payload.name),
+    documentNumber: optionalText(payload.documentNumber),
+    transactionType: optionalText(payload.transactionType),
   };
 
   return apiRequest<ScreeningResponse>('/screen', {
@@ -951,20 +995,9 @@ export async function runScreening(payload: ScreenRequest) {
 }
 
 export async function runDashboardScreeningSearch(payload: OfacScreeningSearchRequest) {
-  const query = [payload.query, payload.fullName, payload.subject, payload.name]
-    .find((value) => typeof value === 'string' && value.trim().length > 0)
-    ?.trim();
-
   return apiRequest<OfacScreeningSearchResponse>('/screening/search', {
     method: 'POST',
-    body: JSON.stringify({
-      ...payload,
-      query,
-      screeningType: payload.screeningType ?? 'ofac',
-      source: payload.source ?? 'dashboard',
-      liveVerify: payload.liveVerify ?? false,
-      sources: payload.sources && payload.sources.length > 0 ? payload.sources : ['OFAC'],
-    }),
+    body: JSON.stringify(buildNormalizedScreeningPayload(payload)),
     headers: {
       Authorization: `Bearer ${getAuthToken()}`,
     },

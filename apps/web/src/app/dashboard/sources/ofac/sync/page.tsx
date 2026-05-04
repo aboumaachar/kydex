@@ -38,7 +38,7 @@ export default function DashboardOfacSyncPage() {
   }, [load]);
 
   const runLegacyImport = async () => {
-    const approved = globalThis.window.confirm("Import from legacy will update local source-library metadata and may take time. Continue?");
+    const approved = globalThis.window.confirm("سيؤدي الاستيراد من النظام السابق إلى تحديث بيانات المصدر المحلية وقد يستغرق بعض الوقت. هل تريد المتابعة؟");
     if (!approved) {
       return;
     }
@@ -50,10 +50,10 @@ export default function DashboardOfacSyncPage() {
     try {
       const result = await importSourceFromLegacy("OFAC");
       const status = typeof result.status === "string" ? result.status : "completed";
-      setNotice(`Import request completed with status: ${status}`);
+      setNotice(`اكتمل طلب الاستيراد بالحالة: ${status}`);
       await load();
     } catch (importError) {
-      setError(importError instanceof Error ? importError.message : "Import from legacy failed");
+      setError(importError instanceof Error ? importError.message : "فشل الاستيراد من النظام السابق");
     } finally {
       setRunningImport(false);
     }
@@ -61,79 +61,79 @@ export default function DashboardOfacSyncPage() {
 
   return (
     <DashboardShell
-      title="OFAC Sync & Import"
-      description="Review OFAC import status and sync run history. Import from legacy is manual and never auto-runs on page load."
+      title="مزامنة واستيراد OFAC"
+      description="راجع حالة الاستيراد وآخر عمليات المزامنة. تشغيل الاستيراد من النظام السابق يتم يدوياً فقط."
       actions={
         <>
-          <ActionButton label={runningImport ? "Importing" : "Import From Legacy"} onClick={() => void runLegacyImport()} disabled={runningImport || loading} variant="danger" />
-          <ActionButton label="Refresh" onClick={() => void load()} disabled={loading || runningImport} />
+          <ActionButton label={runningImport ? "جار الاستيراد" : "استيراد من النظام السابق"} onClick={() => void runLegacyImport()} disabled={runningImport || loading} variant="danger" />
+          <ActionButton label="تحديث" onClick={() => void load()} disabled={loading || runningImport} />
         </>
       }
     >
       <DashboardCard>
-        <p className="text-[11px] uppercase tracking-[0.2em] text-amber-300">Warning</p>
-        <p className="mt-2 text-sm text-amber-100">Import from legacy can modify local source-library state. Use only when resyncing local OFAC copy is required.</p>
+        <p className="text-sm font-medium text-amber-800">تنبيه</p>
+        <p className="mt-2 text-sm leading-7 text-amber-950">الاستيراد من النظام السابق قد يغيّر حالة النسخة المحلية. استخدمه فقط عند الحاجة إلى إعادة المزامنة.</p>
       </DashboardCard>
 
-      {loading ? <StateBox tone="loading" title="Loading import and sync status" detail="Retrieving OFAC import counters and run logs." /> : null}
-      {error ? <StateBox tone="error" title="Sync page failed" detail={error} /> : null}
-      {notice ? <StateBox tone="empty" title="Action complete" detail={notice} /> : null}
+      {loading ? <StateBox tone="loading" title="جار تحميل حالة الاستيراد والمزامنة" detail="يتم الآن جلب العدادات وآخر العمليات." /> : null}
+      {error ? <StateBox tone="error" title="تعذر تحميل صفحة المزامنة" detail={error} /> : null}
+      {notice ? <StateBox tone="empty" title="اكتملت العملية" detail={notice} /> : null}
 
       {!loading && !error ? (
         <>
           <DashboardCard>
-            <h2 className="text-xl font-semibold text-white">Import Status</h2>
+            <h2 className="text-xl font-semibold text-slate-950">حالة الاستيراد</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Imported Lists</div>
-                <div className="mt-2 text-lg font-semibold text-white">{state.importStatus?.importedListCount ?? 0}</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-right">
+                <div className="text-[10px] tracking-[0.08em] text-slate-500">القوائم المستوردة</div>
+                <div className="mt-2 text-lg font-semibold text-slate-900">{state.importStatus?.importedListCount ?? 0}</div>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">SourceEntity</div>
-                <div className="mt-2 text-lg font-semibold text-white">{state.importStatus?.sourceEntityCount ?? 0}</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-right">
+                <div className="text-[10px] tracking-[0.08em] text-slate-500">الكيانات</div>
+                <div className="mt-2 text-lg font-semibold text-slate-900">{state.importStatus?.sourceEntityCount ?? 0}</div>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">SourceName</div>
-                <div className="mt-2 text-lg font-semibold text-white">{state.importStatus?.sourceNameCount ?? 0}</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-right">
+                <div className="text-[10px] tracking-[0.08em] text-slate-500">الأسماء</div>
+                <div className="mt-2 text-lg font-semibold text-slate-900">{state.importStatus?.sourceNameCount ?? 0}</div>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">SourceNameVariant</div>
-                <div className="mt-2 text-lg font-semibold text-white">{state.importStatus?.sourceNameVariantCount ?? 0}</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-right">
+                <div className="text-[10px] tracking-[0.08em] text-slate-500">الأسماء البديلة</div>
+                <div className="mt-2 text-lg font-semibold text-slate-900">{state.importStatus?.sourceNameVariantCount ?? 0}</div>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Local Copy Available</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-right">
+                <div className="text-[10px] tracking-[0.08em] text-slate-500">النسخة المحلية</div>
                 <div className="mt-2"><StatusPill value={state.importStatus?.localCopyAvailable} /></div>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Last Successful Sync</div>
-                <div className="mt-2 text-sm font-semibold text-white">{dateText(state.importStatus?.lastSuccessfulSyncAt ?? null)}</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-right">
+                <div className="text-[10px] tracking-[0.08em] text-slate-500">آخر مزامنة ناجحة</div>
+                <div className="mt-2 text-sm font-semibold text-slate-900">{dateText(state.importStatus?.lastSuccessfulSyncAt ?? null)}</div>
               </div>
             </div>
           </DashboardCard>
 
           <DashboardCard className="overflow-x-auto">
-            <h2 className="text-xl font-semibold text-white">Sync Runs</h2>
+            <h2 className="text-xl font-semibold text-slate-950">عمليات المزامنة</h2>
             {state.syncRuns.length === 0 ? (
               <div className="mt-4">
-                <StateBox tone="empty" title="No sync runs" detail="No OFAC sync run rows are currently available." />
+                <StateBox tone="empty" title="لا توجد عمليات مزامنة" detail="لا توجد صفوف متاحة حالياً لعمليات مزامنة OFAC." />
               </div>
             ) : (
-              <table className="mt-4 min-w-full text-left text-sm">
-                <thead className="border-b border-slate-800 text-xs uppercase tracking-[0.16em] text-slate-400">
+              <table className="mt-4 min-w-full text-right text-sm">
+                <thead className="border-b border-slate-200 text-xs tracking-[0.08em] text-slate-500">
                   <tr>
-                    <th className="px-3 py-3">Started</th>
-                    <th className="px-3 py-3">Finished</th>
-                    <th className="px-3 py-3">Status</th>
-                    <th className="px-3 py-3">Type</th>
-                    <th className="px-3 py-3">Imported</th>
-                    <th className="px-3 py-3">Failed</th>
-                    <th className="px-3 py-3">File</th>
-                    <th className="px-3 py-3">Error</th>
+                    <th className="px-3 py-3">بدأت</th>
+                    <th className="px-3 py-3">انتهت</th>
+                    <th className="px-3 py-3">الحالة</th>
+                    <th className="px-3 py-3">النوع</th>
+                    <th className="px-3 py-3">تم الاستيراد</th>
+                    <th className="px-3 py-3">فشل</th>
+                    <th className="px-3 py-3">الملف</th>
+                    <th className="px-3 py-3">الخطأ</th>
                   </tr>
                 </thead>
                 <tbody>
                   {state.syncRuns.map((run) => (
-                    <tr key={run.id} className="border-b border-slate-900/80 text-slate-200">
+                    <tr key={run.id} className="border-b border-slate-100 text-slate-700">
                       <td className="px-3 py-3 text-xs">{dateText(run.startedAt)}</td>
                       <td className="px-3 py-3 text-xs">{dateText(run.finishedAt ?? null)}</td>
                       <td className="px-3 py-3"><StatusPill value={run.status} /></td>
@@ -141,7 +141,7 @@ export default function DashboardOfacSyncPage() {
                       <td className="px-3 py-3">{run.recordsImported}</td>
                       <td className="px-3 py-3">{run.recordsFailed}</td>
                       <td className="px-3 py-3 text-xs">{run.sourceFileName || "-"}</td>
-                      <td className="px-3 py-3 text-xs text-rose-200">{run.error || "-"}</td>
+                      <td className="px-3 py-3 text-xs text-rose-700">{run.error || "-"}</td>
                     </tr>
                   ))}
                 </tbody>

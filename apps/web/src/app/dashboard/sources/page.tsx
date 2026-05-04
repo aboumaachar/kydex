@@ -40,70 +40,70 @@ export default function DashboardSourcesPage() {
 
   return (
     <DashboardShell
-      title="Source Library"
-      description="Monitor official source health, local copy availability, and fallback readiness for KYDEX screening."
-      actions={<ActionButton label="Refresh" onClick={() => void load()} disabled={loading} />}
+      title="المصادر"
+      description="راجع حالة المصادر، توفر النسخة المحلية، واستعداد النظام للاستمرار في الفحص عند الحاجة."
+      actions={<ActionButton label="تحديث" onClick={() => void load()} disabled={loading} />}
     >
-      {loading ? <StateBox tone="loading" title="Loading source registry" detail="Retrieving source cards and OFAC import status." /> : null}
-      {error ? <StateBox tone="error" title="Failed to load sources" detail={error} /> : null}
+      {loading ? <StateBox tone="loading" title="جار تحميل حالة المصادر" detail="يتم الآن قراءة حالة المصدر وبيانات الاستيراد." /> : null}
+      {error ? <StateBox tone="error" title="تعذر تحميل المصادر" detail={error} /> : null}
 
       {!loading && !error ? (
         <div className="grid gap-5 xl:grid-cols-2">
           <DashboardCard>
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-teal-300">Primary Source</p>
-                <h2 className="mt-2 text-2xl font-semibold text-white">OFAC Sanctions List Service</h2>
-                <p className="mt-2 text-sm text-slate-400">Operational card for local copy, fallback posture, and synchronization activity.</p>
+              <div className="text-right">
+                <p className="text-sm font-medium text-emerald-800">المصدر الأساسي</p>
+                <h2 className="mt-2 text-2xl font-semibold text-slate-950">خدمة قوائم OFAC</h2>
+                <p className="mt-2 text-sm leading-7 text-slate-600">تعرض هذه البطاقة حالة النسخة المحلية وآخر مزامنة واستعداد الوضع الاحتياطي.</p>
               </div>
               <StatusPill value={state.ofacStatus?.status} />
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Metric label="Local Copy" value={String(Boolean(state.ofacStatus?.localCopyAvailable))} />
-              <Metric label="Fallback Enabled" value={String(Boolean(state.ofacStatus?.fallbackEnabled))} />
-              <Metric label="Last Sync" value={dateText(state.ofacImport?.lastSuccessfulSyncAt ?? state.ofacStatus?.lastSuccessfulSyncAt ?? null)} />
-              <Metric label="Last Health" value={dateText(state.ofacStatus?.lastHealthCheckAt ?? null)} />
-              <Metric label="SourceEntity" value={String(state.ofacImport?.sourceEntityCount ?? 0)} />
-              <Metric label="SourceNameVariant" value={String(state.ofacImport?.sourceNameVariantCount ?? 0)} />
+              <Metric label="النسخة المحلية" value={String(Boolean(state.ofacStatus?.localCopyAvailable))} />
+              <Metric label="الوضع الاحتياطي" value={String(Boolean(state.ofacStatus?.fallbackEnabled))} />
+              <Metric label="آخر مزامنة" value={dateText(state.ofacImport?.lastSuccessfulSyncAt ?? state.ofacStatus?.lastSuccessfulSyncAt ?? null)} />
+              <Metric label="آخر فحص صحة" value={dateText(state.ofacStatus?.lastHealthCheckAt ?? null)} />
+              <Metric label="عدد الكيانات" value={String(state.ofacImport?.sourceEntityCount ?? 0)} />
+              <Metric label="عدد الأسماء البديلة" value={String(state.ofacImport?.sourceNameVariantCount ?? 0)} />
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <Link href="/dashboard/sources/ofac" className="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200 transition-colors hover:border-slate-600 hover:text-white">
-                OFAC Details
+              <Link href="/dashboard/sources/ofac" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+                تفاصيل OFAC
               </Link>
-              <Link href="/dashboard/sources/ofac/local-lists" className="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200 transition-colors hover:border-slate-600 hover:text-white">
-                Local Lists
+              <Link href="/dashboard/sources/ofac/local-lists" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+                القوائم المحلية
               </Link>
-              <Link href="/dashboard/sources/ofac/sync" className="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200 transition-colors hover:border-slate-600 hover:text-white">
-                Sync & Import
+              <Link href="/dashboard/sources/ofac/sync" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+                المزامنة والاستيراد
               </Link>
-              <Link href="/dashboard/sources/ofac/logs" className="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200 transition-colors hover:border-slate-600 hover:text-white">
-                Source Logs
+              <Link href="/dashboard/sources/ofac/logs" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+                سجلات المصدر
               </Link>
-              <Link href="/dashboard/sources/ofac/downloads" className="rounded-full border border-teal-800 bg-teal-950/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-teal-200 transition-colors hover:border-teal-600 hover:text-white">
-                Downloads ↓
+              <Link href="/dashboard/sources/ofac/downloads" className="rounded-full border border-emerald-800 bg-emerald-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700">
+                التنزيلات
               </Link>
             </div>
           </DashboardCard>
 
           <DashboardCard>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-teal-300">Source Registry</p>
-            <h2 className="mt-2 text-2xl font-semibold text-white">Available Sources</h2>
-            <p className="mt-2 text-sm text-slate-400">Current KYDEX source registry from /api/v1/sources.</p>
+            <p className="text-sm font-medium text-emerald-800">سجل المصادر</p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-950">المصادر المتاحة</h2>
+            <p className="mt-2 text-sm leading-7 text-slate-600">يعرض هذا القسم قائمة المصادر الحالية كما تصل من واجهة المصدر في النظام.</p>
 
             {state.sources.length === 0 ? (
               <div className="mt-5">
-                <StateBox tone="empty" title="No sources found" detail="No source rows are currently registered." />
+                <StateBox tone="empty" title="لا توجد مصادر حالياً" detail="لا توجد صفوف مصادر مسجلة في الوقت الحالي." />
               </div>
             ) : (
               <div className="mt-5 space-y-3">
                 {state.sources.map((source) => (
-                  <div key={source.id} className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
+                  <div key={source.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-right">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-white">{source.code} - {source.name}</p>
-                        <p className="mt-1 text-xs text-slate-400">Last attempted sync: {dateText(source.lastAttemptedSyncAt ?? null)}</p>
+                        <p className="text-sm font-semibold text-slate-950">{source.code} - {source.name}</p>
+                        <p className="mt-1 text-xs text-slate-500">آخر محاولة مزامنة: {dateText(source.lastAttemptedSyncAt ?? null)}</p>
                       </div>
                       <StatusPill value={source.status} />
                     </div>

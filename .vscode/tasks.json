@@ -62,18 +62,6 @@
 		{
 			"label": "Launch KYDEX Web Stable 3000",
 			"type": "shell",
-			"command": "powershell",
-			"args": [
-				"-NoProfile",
-				"-Command",
-				"$env:NODE_OPTIONS='--max-old-space-size=4096'; npm run dev -w @kydex/web -- -p 3000"
-			],
-			"isBackground": true,
-			"group": "build"
-		},
-		{
-			"label": "Launch KYDEX Web Stable 3000",
-			"type": "shell",
 			"command": "cmd",
 			"args": [
 				"/c",

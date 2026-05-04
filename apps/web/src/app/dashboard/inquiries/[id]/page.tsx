@@ -6,6 +6,14 @@ import { useCallback, useEffect, useState } from "react";
 import { getInquiryById, type InquiryDetail } from "../../../../lib/api";
 import { ActionButton, DashboardCard, DashboardShell, Metric, StateBox, StatusPill, dateText, jsonText } from "../../_components/dashboard-shell";
 
+function formatSourceStatus(sourceStatus: unknown) {
+  if (!sourceStatus || typeof sourceStatus !== "object" || Array.isArray(sourceStatus)) {
+    return [] as Array<[string, string]>;
+  }
+
+  return Object.entries(sourceStatus as Record<string, unknown>).map(([key, value]) => [key, jsonText(value)]);
+}
+
 export default function DashboardInquiryDetailPage() {
   const params = useParams<{ id: string }>();
   const inquiryId = typeof params?.id === "string" ? params.id : "";
@@ -39,90 +47,110 @@ export default function DashboardInquiryDetailPage() {
     void load();
   }, [load]);
 
+  const transaction = inquiry?.transaction ?? null;
+  const sourceStatusRows = formatSourceStatus(inquiry?.transaction?.sourceStatus);
+
   return (
     <DashboardShell
-      title="Inquiry Detail"
-      description="Detailed inquiry payload and linked screening transaction metadata for analyst review."
+      title="تفاصيل الطلب"
+      description="راجع بيانات الطلب وملخص عملية الفحص المرتبطة به مع إبقاء التفاصيل التقنية مخفية حتى الحاجة إليها."
       actions={
         <>
-          <Link href="/dashboard/inquiries" className="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200 transition-colors hover:border-slate-600 hover:text-white">
-            Back to Inquiries
+          <Link href="/dashboard/inquiries" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+            العودة إلى الطلبات
           </Link>
-          <ActionButton label="Refresh" onClick={() => void load()} disabled={loading} />
+          <ActionButton label="تحديث" onClick={() => void load()} disabled={loading} />
         </>
       }
     >
-      {loading ? <StateBox tone="loading" title="Loading inquiry detail" detail="Fetching inquiry and transaction payloads." /> : null}
-      {error ? <StateBox tone="error" title="Failed to load inquiry detail" detail={error} /> : null}
+      {loading ? <StateBox tone="loading" title="جار تحميل تفاصيل الطلب" detail="يتم الآن جلب بيانات الطلب وعملية الفحص المرتبطة به." /> : null}
+      {error ? <StateBox tone="error" title="تعذر تحميل تفاصيل الطلب" detail={error} /> : null}
 
       {!loading && !error && inquiry ? (
         <>
           <DashboardCard>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-teal-300">Inquiry</p>
-                <p className="mt-2 font-mono text-xs text-slate-300">{inquiry.id}</p>
+              <div className="text-right">
+                <p className="text-sm font-medium text-emerald-800">الطلب</p>
+                <p className="mt-2 font-mono text-xs text-slate-500">{inquiry.id}</p>
               </div>
               <StatusPill value={inquiry.status} />
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <Metric label="Created" value={dateText(inquiry.createdAt)} />
-              <Metric label="Client Type" value={inquiry.clientType || "-"} />
-              <Metric label="Notary Slug" value={inquiry.notarySlug || "-"} />
-              <Metric label="WordPress Site" value={inquiry.wordpressSite || "-"} />
+              <Metric label="تاريخ الإنشاء" value={dateText(inquiry.createdAt)} />
+              <Metric label="نوع العميل" value={inquiry.clientType || "-"} />
+              <Metric label="معرف الكاتب بالعدل" value={inquiry.notarySlug || "-"} />
+              <Metric label="موقع ووردبريس" value={inquiry.wordpressSite || "-"} />
             </div>
           </DashboardCard>
 
           <DashboardCard>
-            <h2 className="text-xl font-semibold text-white">Transaction</h2>
-            <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-100">
-              This payload is for decision support and traceability. Final legal or compliance outcomes must be confirmed by an authorized reviewer.
+            <h2 className="text-xl font-semibold text-slate-950">ملخص عملية الفحص</h2>
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-950">
+              هذه البيانات مخصصة لدعم القرار وحفظ الأثر. القرار النهائي يحتاج إلى مراجعة بشرية مخولة.
             </div>
-            {!inquiry.transaction ? (
-              <div className="mt-4">
-                <StateBox tone="empty" title="No linked transaction" detail="This inquiry does not have a linked screening transaction row." />
-              </div>
-            ) : (
+            {transaction ? (
               <>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                  <Metric label="Query" value={inquiry.transaction.query} />
-                  <Metric label="Normalized Query" value={inquiry.transaction.normalizedQuery || "-"} />
-                  <Metric label="Source Mode" value={inquiry.transaction.sourceMode || "-"} />
-                  <Metric label="Used Fallback" value={String(Boolean(inquiry.transaction.usedFallback))} />
-                  <Metric label="Status" value={inquiry.transaction.status} />
-                  <Metric label="Highest Score" value={String(inquiry.transaction.highestScore)} />
-                  <Metric label="Match Count" value={String(inquiry.transaction.matchCount)} />
-                  <Metric label="Response Time" value={inquiry.transaction.responseTimeMs !== null && inquiry.transaction.responseTimeMs !== undefined ? `${inquiry.transaction.responseTimeMs} ms` : "-"} />
+                  <Metric label="الاسم محل البحث" value={transaction.query} />
+                  <Metric label="الصيغة المعيارية" value={transaction.normalizedQuery || "-"} />
+                  <Metric label="نمط المصدر" value={transaction.sourceMode || "-"} />
+                  <Metric label="استخدام الوضع الاحتياطي" value={String(Boolean(transaction.usedFallback))} />
+                  <Metric label="الحالة" value={transaction.status} />
+                  <Metric label="أعلى درجة" value={String(transaction.highestScore)} />
+                  <Metric label="عدد النتائج" value={String(transaction.matchCount)} />
+                  <Metric label="زمن الاستجابة" value={transaction.responseTimeMs !== null && transaction.responseTimeMs !== undefined ? `${transaction.responseTimeMs} ms` : "-"} />
                 </div>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  <Metric label="Client" value={inquiry.transaction.apiClient || "-"} />
-                  <Metric label="IP" value={inquiry.transaction.ipAddress || "-"} />
-                  <Metric label="Created" value={dateText(inquiry.transaction.createdAt)} />
+                  <Metric label="العميل" value={transaction.apiClient || "-"} />
+                  <Metric label="عنوان IP" value={transaction.ipAddress || "-"} />
+                  <Metric label="وقت الإنشاء" value={dateText(transaction.createdAt)} />
                 </div>
 
-                <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Warning</p>
-                  <p className="mt-2 text-sm text-slate-300">{inquiry.transaction.warning || "-"}</p>
+                <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-right">
+                  <p className="text-xs text-slate-500">تنبيه</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-700">{transaction.warning || "-"}</p>
                 </div>
 
-                <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Source Status JSON</p>
-                  <pre className="mt-2 max-h-64 overflow-auto rounded-lg bg-slate-950 p-3 text-xs text-slate-300">{jsonText(inquiry.transaction.sourceStatus)}</pre>
-                </div>
+                {sourceStatusRows.length > 0 ? (
+                  <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-right">
+                    <p className="text-xs text-slate-500">حالة المصادر</p>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      {sourceStatusRows.map(([key, value]) => (
+                        <div key={key} className="rounded-lg border border-slate-200 bg-white p-3">
+                          <div className="text-xs text-slate-500">{key}</div>
+                          <div className="mt-1 text-sm text-slate-800">{value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </>
+            ) : (
+              <div className="mt-4">
+                <StateBox tone="empty" title="لا توجد عملية فحص مرتبطة" detail="هذا الطلب لا يحتوي على صف فحص مرتبط به." />
+              </div>
             )}
           </DashboardCard>
 
           <div className="grid gap-5 xl:grid-cols-2">
             <DashboardCard>
-              <h2 className="text-xl font-semibold text-white">Original Payload</h2>
-              <pre className="mt-4 max-h-96 overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-slate-300">{jsonText(inquiry.originalPayload)}</pre>
+              <h2 className="text-xl font-semibold text-slate-950">الطلب الأصلي</h2>
+              <p className="mt-2 text-sm leading-7 text-slate-600">تم إخفاء الحمولة التقنية بشكل افتراضي لتقليل الضوضاء البصرية.</p>
+              <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <summary className="cursor-pointer text-sm font-semibold text-slate-800">إظهار التفاصيل التقنية</summary>
+                <pre className="mt-3 max-h-96 overflow-auto rounded-lg bg-white p-4 text-xs text-slate-700">{jsonText(inquiry.originalPayload)}</pre>
+              </details>
             </DashboardCard>
 
             <DashboardCard>
-              <h2 className="text-xl font-semibold text-white">Response Payload</h2>
-              <pre className="mt-4 max-h-96 overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-slate-300">{jsonText(inquiry.responsePayload)}</pre>
+              <h2 className="text-xl font-semibold text-slate-950">استجابة النظام</h2>
+              <p className="mt-2 text-sm leading-7 text-slate-600">يمكن فتح تفاصيل الاستجابة عند الحاجة إلى مراجعة تقنية أو تدقيقية أعمق.</p>
+              <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <summary className="cursor-pointer text-sm font-semibold text-slate-800">إظهار التفاصيل التقنية</summary>
+                <pre className="mt-3 max-h-96 overflow-auto rounded-lg bg-white p-4 text-xs text-slate-700">{jsonText(inquiry.responsePayload)}</pre>
+              </details>
             </DashboardCard>
           </div>
         </>

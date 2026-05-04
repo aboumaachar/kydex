@@ -37,60 +37,60 @@ export default function DashboardOfacLogsPage() {
 
   return (
     <DashboardShell
-      title="OFAC Source Logs"
-      description="Connection and synchronization log surface for OFAC source operations."
-      actions={<ActionButton label="Refresh" onClick={() => void load()} disabled={loading} />}
+      title="سجلات OFAC"
+      description="راجع آخر حالة اتصال وآخر عمليات المزامنة بدون عرض تقني زائد عن الحاجة."
+      actions={<ActionButton label="تحديث" onClick={() => void load()} disabled={loading} />}
     >
-      {loading ? <StateBox tone="loading" title="Loading OFAC logs" detail="Reading latest source status and sync run history." /> : null}
-      {error ? <StateBox tone="error" title="Could not load source logs" detail={error} /> : null}
+      {loading ? <StateBox tone="loading" title="جار تحميل السجلات" detail="يتم الآن قراءة حالة المصدر وآخر عمليات المزامنة." /> : null}
+      {error ? <StateBox tone="error" title="تعذر تحميل السجلات" detail={error} /> : null}
 
       {!loading && !error ? (
         <>
           <DashboardCard>
-            <h2 className="text-xl font-semibold text-white">Latest Connection Snapshot</h2>
+            <h2 className="text-xl font-semibold text-slate-950">آخر لقطة اتصال</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Status</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-right">
+                <div className="text-[10px] tracking-[0.08em] text-slate-500">الحالة</div>
                 <div className="mt-2"><StatusPill value={state.status?.status} /></div>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Last Health Check</div>
-                <div className="mt-2 text-sm font-semibold text-white">{dateText(state.status?.lastHealthCheckAt ?? null)}</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-right">
+                <div className="text-[10px] tracking-[0.08em] text-slate-500">آخر فحص صحة</div>
+                <div className="mt-2 text-sm font-semibold text-slate-900">{dateText(state.status?.lastHealthCheckAt ?? null)}</div>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Latency</div>
-                <div className="mt-2 text-sm font-semibold text-white">{state.status?.lastLatencyMs !== null && state.status?.lastLatencyMs !== undefined ? `${state.status.lastLatencyMs} ms` : "-"}</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-right">
+                <div className="text-[10px] tracking-[0.08em] text-slate-500">زمن الاستجابة</div>
+                <div className="mt-2 text-sm font-semibold text-slate-900">{state.status?.lastLatencyMs !== null && state.status?.lastLatencyMs !== undefined ? `${state.status.lastLatencyMs} ms` : "-"}</div>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Last Error</div>
-                <div className="mt-2 text-xs text-rose-200">{state.status?.lastError || "-"}</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-right">
+                <div className="text-[10px] tracking-[0.08em] text-slate-500">آخر خطأ</div>
+                <div className="mt-2 text-xs text-rose-700">{state.status?.lastError || "-"}</div>
               </div>
             </div>
           </DashboardCard>
 
           <DashboardCard className="overflow-x-auto">
-            <h2 className="text-xl font-semibold text-white">Sync Run Logs</h2>
+            <h2 className="text-xl font-semibold text-slate-950">عمليات المزامنة</h2>
             {state.syncRuns.length === 0 ? (
               <div className="mt-4">
-                <StateBox tone="empty" title="No sync logs available" detail="No OFAC sync run rows were returned." />
+                <StateBox tone="empty" title="لا توجد سجلات مزامنة" detail="لم يتم إرجاع أي صفوف مزامنة حالياً." />
               </div>
             ) : (
-              <table className="mt-4 min-w-full text-left text-sm">
-                <thead className="border-b border-slate-800 text-xs uppercase tracking-[0.16em] text-slate-400">
+              <table className="mt-4 min-w-full text-right text-sm">
+                <thead className="border-b border-slate-200 text-xs tracking-[0.08em] text-slate-500">
                   <tr>
-                    <th className="px-3 py-3">Started</th>
-                    <th className="px-3 py-3">Status</th>
-                    <th className="px-3 py-3">Type</th>
-                    <th className="px-3 py-3">Imported</th>
-                    <th className="px-3 py-3">Updated</th>
-                    <th className="px-3 py-3">Failed</th>
-                    <th className="px-3 py-3">Finished</th>
-                    <th className="px-3 py-3">Error</th>
+                    <th className="px-3 py-3">بدأت</th>
+                    <th className="px-3 py-3">الحالة</th>
+                    <th className="px-3 py-3">النوع</th>
+                    <th className="px-3 py-3">تم الاستيراد</th>
+                    <th className="px-3 py-3">تم التحديث</th>
+                    <th className="px-3 py-3">فشل</th>
+                    <th className="px-3 py-3">انتهت</th>
+                    <th className="px-3 py-3">الخطأ</th>
                   </tr>
                 </thead>
                 <tbody>
                   {state.syncRuns.map((run) => (
-                    <tr key={run.id} className="border-b border-slate-900/80 text-slate-200">
+                    <tr key={run.id} className="border-b border-slate-100 text-slate-700">
                       <td className="px-3 py-3 text-xs">{dateText(run.startedAt)}</td>
                       <td className="px-3 py-3"><StatusPill value={run.status} /></td>
                       <td className="px-3 py-3">{run.syncType}</td>
@@ -98,7 +98,7 @@ export default function DashboardOfacLogsPage() {
                       <td className="px-3 py-3">{run.recordsUpdated}</td>
                       <td className="px-3 py-3">{run.recordsFailed}</td>
                       <td className="px-3 py-3 text-xs">{dateText(run.finishedAt ?? null)}</td>
-                      <td className="px-3 py-3 text-xs text-rose-200">{run.error || "-"}</td>
+                      <td className="px-3 py-3 text-xs text-rose-700">{run.error || "-"}</td>
                     </tr>
                   ))}
                 </tbody>
