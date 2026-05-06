@@ -1,0 +1,68 @@
+{
+  "exactMatchRows": [
+    {
+      "query": "عبد الكريم شيخ علي",
+      "count": 1,
+      "hasLebanon": true,
+      "auditId": "cmotus1t52pc2yps9hgwbq9vx"
+    },
+    {
+      "query": "عواد الدرويش",
+      "count": 1,
+      "hasLebanon": true,
+      "auditId": "cmotus2ic2pchyps9m9ci7qao"
+    },
+    {
+      "query": "ابراهيم الرايد",
+      "count": 1,
+      "hasLebanon": true,
+      "auditId": "cmotus3122pcwyps904i18f4e"
+    },
+    {
+      "query": "عصبة الانصار",
+      "count": 1,
+      "hasLebanon": true,
+      "auditId": "cmotus3mw2pdbyps9j9hiflxz"
+    },
+    {
+      "query": "مصطفى دباغ",
+      "count": 1,
+      "hasLebanon": true,
+      "auditId": "cmotus45k2pdqyps9y8e87o9t"
+    },
+    {
+      "query": "حسن آمون",
+      "count": 1,
+      "hasLebanon": true,
+      "auditId": "cmotus4p62pe5yps9jkfjwkuu"
+    },
+    {
+      "query": "احمد مرعب",
+      "count": 2,
+      "hasLebanon": true,
+      "auditId": "cmotus5992pekyps9gebf28rg"
+    },
+    {
+      "query": "علي مرعب",
+      "count": 2,
+      "hasLebanon": true,
+      "auditId": "cmotus5qu2pf0yps9ihjlifga"
+    },
+    {
+      "query": "اسكندر البراقي",
+      "count": 1,
+      "hasLebanon": true,
+      "auditId": "cmotus6bs2pfgyps9107y5ixk"
+    },
+    {
+      "query": "خالد زيدان شاكر",
+      "count": 1,
+      "hasLebanon": true,
+      "auditId": "cmotus6uc2pfvyps9bovrygxx"
+    }
+  ],
+  "exactLebanonCount": 10,
+  "noiseCount": 0,
+  "noiseHasLebanon": false,
+  "noiseAuditId": "cmotus7g72pgayps9c2tgvtn0"
+}

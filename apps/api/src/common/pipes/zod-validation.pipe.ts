@@ -24,7 +24,7 @@ export class ZodValidationPipe implements PipeTransform {
         status: 'validation_failed',
         message: 'مصدر الفحص غير صالح أو عبارة البحث مفقودة.',
         acceptedFields: [...ACCEPTED_QUERY_FIELDS],
-        acceptedSources: ['ALL', 'OFAC'],
+        acceptedSources: ['ALL', 'OFAC', 'LEBANON_NATIONAL_LIST'],
         errors: flattened,
       });
     }
@@ -33,7 +33,7 @@ export class ZodValidationPipe implements PipeTransform {
       status: 'validation_failed',
       message: 'مصدر الفحص غير صالح أو عبارة البحث مفقودة.',
       acceptedFields: [...ACCEPTED_QUERY_FIELDS],
-      acceptedSources: ['ALL', 'OFAC'],
+      acceptedSources: ['ALL', 'OFAC', 'LEBANON_NATIONAL_LIST'],
       errors: flattened,
     });
   }

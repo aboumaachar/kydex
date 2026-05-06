@@ -9,10 +9,18 @@ type SourcesState = {
   sources: SourceRegistryItem[];
   ofacStatus: SourceRegistryItem | null;
   ofacImport: SourceImportStatus | null;
+  lebanonStatus: SourceRegistryItem | null;
+  lebanonImport: SourceImportStatus | null;
 };
 
 export default function DashboardSourcesPage() {
-  const [state, setState] = useState<SourcesState>({ sources: [], ofacStatus: null, ofacImport: null });
+  const [state, setState] = useState<SourcesState>({
+    sources: [],
+    ofacStatus: null,
+    ofacImport: null,
+    lebanonStatus: null,
+    lebanonImport: null,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -21,12 +29,14 @@ export default function DashboardSourcesPage() {
     setError("");
 
     try {
-      const [sources, ofacStatus, ofacImport] = await Promise.all([
+      const [sources, ofacStatus, ofacImport, lebanonStatus, lebanonImport] = await Promise.all([
         getSourcesRegistry(),
         getSourceStatus("OFAC"),
         getSourceImportStatus("OFAC"),
+        getSourceStatus("LEBANON_NATIONAL_LIST"),
+        getSourceImportStatus("LEBANON_NATIONAL_LIST"),
       ]);
-      setState({ sources, ofacStatus, ofacImport });
+      setState({ sources, ofacStatus, ofacImport, lebanonStatus, lebanonImport });
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Failed to load source registry");
     } finally {
@@ -49,6 +59,41 @@ export default function DashboardSourcesPage() {
 
       {!loading && !error ? (
         <div className="grid gap-5 xl:grid-cols-2">
+          <DashboardCard>
+            <div className="flex items-start justify-between gap-4">
+              <div className="text-right">
+                <p className="text-sm font-medium text-emerald-800">المصدر الوطني</p>
+                <h2 className="mt-2 text-2xl font-semibold text-slate-950">اللائحة الوطنية</h2>
+                <p className="mt-2 text-sm leading-7 text-slate-600">يعرض هذا القسم حالة الاستيراد والمزامنة للائحة اللبنانية الوطنية من المصدر الرسمي.</p>
+              </div>
+              <StatusPill value={state.lebanonStatus?.status} />
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <Metric label="النسخة المحلية" value={String(Boolean(state.lebanonStatus?.localCopyAvailable))} />
+              <Metric label="الوضع الاحتياطي" value={String(Boolean(state.lebanonStatus?.fallbackEnabled))} />
+              <Metric label="آخر مزامنة" value={dateText(state.lebanonImport?.lastSuccessfulSyncAt ?? state.lebanonStatus?.lastSuccessfulSyncAt ?? null)} />
+              <Metric label="آخر فحص صحة" value={dateText(state.lebanonStatus?.lastHealthCheckAt ?? null)} />
+              <Metric label="عدد الكيانات" value={String(state.lebanonImport?.sourceEntityCount ?? 0)} />
+              <Metric label="عدد الأسماء البديلة" value={String(state.lebanonImport?.sourceNameVariantCount ?? 0)} />
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Link href="/dashboard/sources/lebanon-national-list" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+                تفاصيل اللائحة الوطنية
+              </Link>
+              <Link href="/dashboard/sources/lebanon-national-list/local-lists" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+                القوائم المحلية
+              </Link>
+              <Link href="/dashboard/sources/lebanon-national-list/sync" className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950">
+                المزامنة والاستيراد
+              </Link>
+              <Link href="/dashboard/sources/lebanon-national-list/downloads" className="rounded-full border border-emerald-800 bg-emerald-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700">
+                التنزيلات
+              </Link>
+            </div>
+          </DashboardCard>
+
           <DashboardCard>
             <div className="flex items-start justify-between gap-4">
               <div className="text-right">

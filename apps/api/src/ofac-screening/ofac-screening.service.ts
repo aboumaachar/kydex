@@ -20,6 +20,20 @@ type NormalizedScreeningInput = {
   liveVerify: boolean;
 };
 
+type UnifiedMatch = {
+  source: string;
+  entityId: string;
+  primaryName: string;
+  primaryNameAr: string | null;
+  primaryNameEn: string | null;
+  matchedName: string;
+  listName: string | null;
+  programs: string[];
+  score: number;
+  riskLevel: string;
+  matchReason: string;
+};
+
 @Injectable()
 export class OfacScreeningService {
   constructor(
@@ -141,6 +155,7 @@ export class OfacScreeningService {
       : normalizeName(normalizedInput.query);
 
     const source = await this.prisma.kydexDataSource.findUnique({ where: { code: 'OFAC' } });
+    const lebanonSource = await this.prisma.kydexDataSource.findUnique({ where: { code: 'LEBANON_NATIONAL_LIST' } });
     const sourceEntityCount = source
       ? await this.prisma.sourceEntity.count({ where: { sourceId: source.id } })
       : 0;
@@ -187,43 +202,71 @@ export class OfacScreeningService {
       warning = 'Screening completed using local KYDEX copy. Original source unavailable at search time.';
     }
 
-    // Search across all bilingual variants
-    const candidateSets = await Promise.all(
-      queryVariants.map((variant) => {
-        const variantNorm = normalizeName(variant);
-        const variantTokens = tokenizeName(variant).slice(0, 6);
-        return this.findCandidates(variantTokens, variantNorm);
-      }),
-    );
+    const requestedSources = normalizedInput.sources.map((value) => value.toUpperCase());
+    const includeOfac = requestedSources.includes('OFAC');
+    const includeLebanon = requestedSources.includes('LEBANON_NATIONAL_LIST');
 
-    // Deduplicate candidates by OfacName.id
-    const seen = new Set<string>();
-    const candidates = candidateSets.flat().filter((name) => {
-      if (seen.has(name.id)) return false;
-      seen.add(name.id);
-      return true;
-    });
+    const ofacMatches: UnifiedMatch[] = [];
+    if (includeOfac) {
+      const candidateSets = await Promise.all(
+        queryVariants.map((variant) => {
+          const variantNorm = normalizeName(variant);
+          const variantTokens = tokenizeName(variant).slice(0, 6);
+          return this.findCandidates(variantTokens, variantNorm);
+        }),
+      );
 
-    const scored = candidates
-      .map((name) => {
+      const seen = new Set<string>();
+      const candidates = candidateSets.flat().filter((name) => {
+        if (seen.has(name.id)) return false;
+        seen.add(name.id);
+        return true;
+      });
+
+      for (const name of candidates) {
         const score = calculateNameMatchScore(normalizedInput.query, name.fullName);
-        return {
-          name,
+        if (score.score < 60) continue;
+        ofacMatches.push({
+          source: 'OFAC',
+          entityId: name.entity.ofacEntityId,
+          primaryName: name.entity.primaryName ?? name.fullName,
+          primaryNameAr: null,
+          primaryNameEn: name.entity.primaryName ?? name.fullName,
+          matchedName: name.fullName,
+          listName: name.entity.listName,
+          programs: name.entity.programs,
           score: score.score,
           riskLevel: score.riskLevel,
           matchReason: score.matchReason,
-        };
+        });
+      }
+    }
+
+    const lebanonMatches: UnifiedMatch[] = includeLebanon
+      ? await this.findLebanonLocalMatches(normalizedInput.query, queryVariants)
+      : [];
+
+    const sourcePriority = (sourceCode: string) => (sourceCode === 'LEBANON_NATIONAL_LIST' ? 2 : sourceCode === 'OFAC' ? 1 : 0);
+    const mergedMatches = [...ofacMatches, ...lebanonMatches]
+      .sort((left, right) => {
+        const diff = right.score - left.score;
+        if (Math.abs(diff) <= 5) {
+          const priorityDiff = sourcePriority(right.source) - sourcePriority(left.source);
+          if (priorityDiff !== 0) return priorityDiff;
+        }
+        return diff;
       })
-      .filter((match) => match.score >= 60)
-      .sort((left, right) => right.score - left.score)
       .slice(0, 25);
 
-    const highestScore = scored[0]?.score ?? 0;
+    const highestScore = mergedMatches[0]?.score ?? 0;
     const status = riskFromScore(highestScore);
     const sourceStatus = {
       ofac: sourceHealth,
+      lebanonNationalList: lebanonSource?.status ?? SourceStatus.unknown,
       lastSuccessfulSyncAt: source?.lastSuccessfulSyncAt ?? null,
+      lebanonLastSuccessfulSyncAt: lebanonSource?.lastSuccessfulSyncAt ?? null,
       localCopyAvailable,
+      lebanonLocalCopyAvailable: Boolean(lebanonSource?.localCopyAvailable),
       checkedAt: sourceCheckedAt,
       httpStatus: sourceHttpStatus,
       latencyMs: sourceLatencyMs,
@@ -270,24 +313,27 @@ export class OfacScreeningService {
       },
     });
 
-    const savedMatches = await Promise.all(
-      scored.map((match) =>
+    await Promise.all(
+      mergedMatches.map((match) =>
         this.prisma.ofacScreeningMatch.create({
           data: {
             searchId: search.id,
-            ofacEntityId: match.name.entity.ofacEntityId,
-            ofacEntityDbId: match.name.entity.id,
-            matchedNameId: match.name.id,
-            primaryName: match.name.entity.primaryName,
-            matchedName: match.name.fullName,
-            listName: match.name.entity.listName,
-            programs: match.name.entity.programs,
+            ofacEntityId: match.entityId,
+            ofacEntityDbId: null,
+            matchedNameId: null,
+            primaryName: match.primaryName,
+            matchedName: match.matchedName,
+            listName: match.listName,
+            programs: match.programs,
             score: match.score,
             riskLevel: match.riskLevel,
             matchReason: match.matchReason,
             rawMatch: {
-              candidateName: match.name.fullName,
-              entityId: match.name.entity.ofacEntityId,
+              source: match.source,
+              candidateName: match.matchedName,
+              entityId: match.entityId,
+              primaryNameAr: match.primaryNameAr,
+              primaryNameEn: match.primaryNameEn,
             },
           },
         }),
@@ -315,10 +361,15 @@ export class OfacScreeningService {
         clientReference: dto.clientReference ?? null,
         status: 'completed',
         highestScore,
-        matchCount: savedMatches.length,
+        matchCount: mergedMatches.length,
         responseTimeMs,
       },
     });
+
+    const sourceDisplayNameAr: Record<string, string> = {
+      OFAC: 'أوفاك',
+      LEBANON_NATIONAL_LIST: 'اللائحة الوطنية اللبنانية',
+    };
 
     return {
       status,
@@ -332,10 +383,13 @@ export class OfacScreeningService {
       liveSourceChecked,
       sourceStatus,
       warning,
-      matches: savedMatches.map((match) => ({
-        source: 'OFAC',
-        entityId: match.ofacEntityId,
+      matches: mergedMatches.map((match) => ({
+        source: match.source,
+        sourceDisplayNameAr: sourceDisplayNameAr[match.source] ?? match.source,
+        entityId: match.entityId,
         primaryName: match.primaryName,
+        primaryNameAr: match.primaryNameAr,
+        primaryNameEn: match.primaryNameEn,
         matchedName: match.matchedName,
         listName: match.listName,
         programs: match.programs,
@@ -358,7 +412,7 @@ export class OfacScreeningService {
         status: 'validation_failed',
         message: 'مصدر الفحص غير صالح أو عبارة البحث مفقودة.',
         acceptedFields: ['query', 'fullName', 'subject', 'name'],
-        acceptedSources: ['ALL', 'OFAC'],
+        acceptedSources: ['ALL', 'OFAC', 'LEBANON_NATIONAL_LIST'],
       });
     }
 
@@ -370,7 +424,7 @@ export class OfacScreeningService {
     const normalizedSources = sources.map((s) => s.toUpperCase());
     const finalSources =
       normalizedSources.length === 0 || normalizedSources.includes('ALL') || normalizedSources.includes('*')
-        ? ['OFAC']
+        ? ['LEBANON_NATIONAL_LIST', 'OFAC']
         : normalizedSources;
 
     return {
@@ -411,5 +465,93 @@ export class OfacScreeningService {
       },
       take: 500,
     });
+  }
+
+  private async findLebanonLocalMatches(query: string, queryVariants: string[]): Promise<UnifiedMatch[]> {
+    const dataSource = await this.prisma.dataSource.findUnique({
+      where: { code: 'LEBANON_NATIONAL_LIST' },
+      include: {
+        versions: {
+          where: { status: 'ACTIVE' },
+          orderBy: { importedAt: 'desc' },
+          take: 1,
+        },
+      },
+    });
+    const activeVersionId = dataSource?.versions?.[0]?.id;
+    if (!dataSource || !activeVersionId) {
+      return [];
+    }
+
+    const variantTokens = Array.from(
+      new Set(
+        queryVariants
+          .flatMap((variant) => tokenizeName(variant))
+          .filter((token) => token.length >= 2),
+      ),
+    ).slice(0, 8);
+
+    const normalizedQuery = normalizeName(query);
+    const candidates = await this.prisma.watchlistRecord.findMany({
+      where: {
+        dataSourceId: dataSource.id,
+        versionId: activeVersionId,
+        OR: [
+          { normalizedName: { contains: normalizedQuery, mode: 'insensitive' } },
+          ...variantTokens.map((token) => ({ normalizedName: { contains: token, mode: 'insensitive' as const } })),
+          ...variantTokens.map((token) => ({ arabicNormalizedName: { contains: token, mode: 'insensitive' as const } })),
+        ],
+      },
+      take: 400,
+    });
+
+    const result: UnifiedMatch[] = [];
+    for (const record of candidates) {
+      const payload = (record.rawPayload as Record<string, unknown> | null) ?? {};
+      const primaryNameAr = typeof payload.primaryNameAr === 'string' ? payload.primaryNameAr : null;
+      const primaryNameEn = typeof payload.primaryNameEn === 'string' ? payload.primaryNameEn : null;
+
+      const names = Array.from(
+        new Set([
+          record.primaryName,
+          ...(record.aliases ?? []),
+          ...(record.arabicNormalizedName ? [record.arabicNormalizedName] : []),
+          ...(record.latinTransliteratedName ? [record.latinTransliteratedName] : []),
+          ...(primaryNameAr ? [primaryNameAr] : []),
+          ...(primaryNameEn ? [primaryNameEn] : []),
+        ].filter(Boolean)),
+      );
+
+      let best: { score: number; riskLevel: string; matchReason: string; matchedName: string } | null = null;
+      for (const candidateName of names) {
+        const score = calculateNameMatchScore(query, candidateName);
+        if (!best || score.score > best.score) {
+          best = {
+            score: score.score,
+            riskLevel: score.riskLevel,
+            matchReason: score.matchReason,
+            matchedName: candidateName,
+          };
+        }
+      }
+
+      if (!best || best.score < 60) continue;
+
+      result.push({
+        source: 'LEBANON_NATIONAL_LIST',
+        entityId: record.externalReference ?? record.id,
+        primaryName: record.primaryName,
+        primaryNameAr,
+        primaryNameEn,
+        matchedName: best.matchedName,
+        listName: typeof payload.listName === 'string' ? payload.listName : 'Lebanon National List',
+        programs: Array.isArray(payload.programs) ? payload.programs.filter((value): value is string => typeof value === 'string') : [],
+        score: best.score,
+        riskLevel: best.riskLevel,
+        matchReason: best.matchReason,
+      });
+    }
+
+    return result;
   }
 }

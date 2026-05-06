@@ -1,0 +1,21 @@
+{
+  "id": "cmotln2ir0004yps9jpk9absw",
+  "code": "LEBANON_NATIONAL_LIST",
+  "name": "Lebanon National List | اللائحة الوطنية",
+  "baseUrl": "https://isf.gov.lb/wp-content/uploads/2024/12/file.xls",
+  "status": "fallback_available",
+  "fallbackEnabled": true,
+  "localCopyAvailable": true,
+  "lastSuccessfulSyncAt": "2026-05-06T05:10:55.886Z",
+  "lastAttemptedSyncAt": "2026-05-06T05:10:53.615Z",
+  "lastHealthCheckAt": null,
+  "lastError": null,
+  "lastLatencyMs": null,
+  "createdAt": "2026-05-06T05:10:53.572Z",
+  "updatedAt": "2026-05-06T05:10:55.888Z",
+  "bilingualFeeds": {
+    "ar": null,
+    "en": null,
+    "merged": null
+  }
+}

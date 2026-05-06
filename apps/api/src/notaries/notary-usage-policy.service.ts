@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { MembershipStatus, NotaryApiKey, NotaryProfile } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { rateLimitsDisabled } from './rate-limits-disabled';
 
 type EndpointType = 'manual' | 'image';
 
@@ -53,6 +54,11 @@ export class NotaryUsagePolicyService {
     this.assertMembership(input.profile, now);
 
     const billing = await this.ensureBillingWindow(input.profile, now);
+
+    if (rateLimitsDisabled()) {
+      return;
+    }
+
     const limits = this.resolvePlanLimits(input.profile.planName);
 
     const [manualMonth, imageMonth, apiKeyDaily, siteDaily, ipDaily, endpointDaily] = await Promise.all([

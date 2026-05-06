@@ -8,6 +8,43 @@ Example:
 
 `POST /api/v1/notaries/sandranassif/screening/search`
 
+## KYDEX-Side Provisioning (Required)
+
+Before any external client can connect, KYDEX must issue an active notary API key.
+
+1. Login to KYDEX admin as `SUPER_ADMIN`, `COUNCIL_ADMIN`, or `COMPLIANCE_OFFICER`.
+2. Create (or verify) the notary key:
+
+```http
+POST /api/v1/admin/notary-keys
+Authorization: Bearer <admin-jwt>
+Content-Type: application/json
+
+{
+  "notarySlug": "sandranassif",
+  "displayName": "Sandra Nassif Kallab",
+  "label": "Sandra office portal"
+}
+```
+
+3. Save the returned `rawKey` securely on the Sandra server only.
+4. Do not expose `rawKey` in frontend JavaScript or public HTML.
+5. For key rotation, call:
+
+```http
+POST /api/v1/admin/notary-keys/:id/rotate
+Authorization: Bearer <admin-jwt>
+```
+
+6. Update Sandra server config immediately after rotation.
+
+Minimum KYDEX profile requirements for successful requests:
+
+- `isScreeningEnabled = true`
+- `featureManualScreening = true`
+- membership in an active state (`ACTIVE`, valid billing/trial)
+- key status `ACTIVE` and `isActive = true`
+
 ## Required Headers
 
 - `Content-Type: application/json`
@@ -18,6 +55,11 @@ Example:
 
 - `x-kydex-client-name: <your-app-name>`
 - `x-kydex-wordpress-site: <site-url>` (only if your integration is WordPress)
+
+Recommended for Sandra:
+
+- `x-kydex-client: external-api-client`
+- `x-kydex-client-name: sandra-office-portal`
 
 ## Request Body
 

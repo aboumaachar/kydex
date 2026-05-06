@@ -991,6 +991,11 @@ export class ScreeningService {
         continue;
       }
 
+      if (source === 'LEBANON' || source === 'LEBANON_NATIONAL' || source === 'LEBANON_NATIONAL_LIST') {
+        expanded.push('LEBANON_NATIONAL_LIST');
+        continue;
+      }
+
       expanded.push(source);
     }
 

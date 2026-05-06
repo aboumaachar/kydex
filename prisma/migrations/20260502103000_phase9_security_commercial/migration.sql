@@ -17,24 +17,33 @@ ALTER TABLE "NotaryProfile"
   ADD COLUMN "suspendedAt" TIMESTAMP(3),
   ADD COLUMN "cancelledAt" TIMESTAMP(3);
 
--- Convert membership status string -> enum
-ALTER TABLE "NotaryProfile" ALTER COLUMN "membershipStatus" DROP DEFAULT;
-
-ALTER TABLE "NotaryProfile"
-  ALTER COLUMN "membershipStatus" TYPE "MembershipStatus"
-  USING (
-    CASE UPPER("membershipStatus")
-      WHEN 'TRIAL' THEN 'TRIAL'
-      WHEN 'ACTIVE' THEN 'ACTIVE'
-      WHEN 'PAST_DUE' THEN 'PAST_DUE'
-      WHEN 'SUSPENDED' THEN 'SUSPENDED'
-      WHEN 'CANCELLED' THEN 'CANCELLED'
-      WHEN 'EXPIRED' THEN 'EXPIRED'
-      ELSE 'ACTIVE'
-    END
-  )::"MembershipStatus";
-
-ALTER TABLE "NotaryProfile" ALTER COLUMN "membershipStatus" SET DEFAULT 'ACTIVE'::"MembershipStatus";
+-- Convert membership status string -> enum (or add column fresh if not exists)
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name='NotaryProfile' AND column_name='membershipStatus'
+  ) THEN
+    -- Column already exists as TEXT, convert to ENUM
+    ALTER TABLE "NotaryProfile" ALTER COLUMN "membershipStatus" DROP DEFAULT;
+    ALTER TABLE "NotaryProfile"
+      ALTER COLUMN "membershipStatus" TYPE "MembershipStatus"
+      USING (
+        CASE UPPER("membershipStatus")
+          WHEN 'TRIAL' THEN 'TRIAL'
+          WHEN 'ACTIVE' THEN 'ACTIVE'
+          WHEN 'PAST_DUE' THEN 'PAST_DUE'
+          WHEN 'SUSPENDED' THEN 'SUSPENDED'
+          WHEN 'CANCELLED' THEN 'CANCELLED'
+          WHEN 'EXPIRED' THEN 'EXPIRED'
+          ELSE 'ACTIVE'
+        END
+      )::"MembershipStatus";
+    ALTER TABLE "NotaryProfile" ALTER COLUMN "membershipStatus" SET DEFAULT 'ACTIVE'::"MembershipStatus";
+  ELSE
+    -- Fresh database: add column directly as ENUM
+    ALTER TABLE "NotaryProfile" ADD COLUMN "membershipStatus" "MembershipStatus" NOT NULL DEFAULT 'ACTIVE'::"MembershipStatus";
+  END IF;
+END $$;
 
 -- AlterTable
 ALTER TABLE "NotaryApiKey"

@@ -121,6 +121,47 @@ export function containsLatin(input: string): boolean {
   return /[a-zA-Z]/.test(input);
 }
 
+// ─── Keyboard-layout correction (EN <-> AR) ────────────────────────────────
+
+const EN_TO_AR_KEYBOARD: Record<string, string> = {
+  q: 'ض', w: 'ص', e: 'ث', r: 'ق', t: 'ف', y: 'غ', u: 'ع', i: 'ه', o: 'خ', p: 'ح',
+  '[': 'ج', ']': 'د',
+  a: 'ش', s: 'س', d: 'ي', f: 'ب', g: 'ل', h: 'ا', j: 'ت', k: 'ن', l: 'م', ';': 'ك', "'": 'ط',
+  z: 'ئ', x: 'ء', c: 'ؤ', v: 'ر', b: 'لا', n: 'ى', m: 'ة', ',': 'و', '.': 'ز', '/': 'ظ',
+};
+
+const AR_TO_EN_KEYBOARD: Record<string, string> = {
+  'ض': 'q', 'ص': 'w', 'ث': 'e', 'ق': 'r', 'ف': 't', 'غ': 'y', 'ع': 'u', 'ه': 'i', 'خ': 'o', 'ح': 'p',
+  'ج': '[', 'د': ']',
+  'ش': 'a', 'س': 's', 'ي': 'd', 'ب': 'f', 'ل': 'g', 'ا': 'h', 'ت': 'j', 'ن': 'k', 'م': 'l', 'ك': ';', 'ط': "'",
+  'ئ': 'z', 'ء': 'x', 'ؤ': 'c', 'ر': 'v', 'لا': 'b', 'ى': 'n', 'ة': 'm', 'و': ',', 'ز': '.', 'ظ': '/',
+};
+
+export function correctKeyboardLayout(input: string): string {
+  const value = input.trim();
+  if (!value) return '';
+
+  const hasArabic = containsArabic(value);
+  const hasLatin = containsLatin(value);
+
+  if (hasArabic && !hasLatin) {
+    return value
+      .split('')
+      .map((ch) => AR_TO_EN_KEYBOARD[ch] ?? ch)
+      .join('');
+  }
+
+  if (hasLatin && !hasArabic) {
+    return value
+      .toLowerCase()
+      .split('')
+      .map((ch) => EN_TO_AR_KEYBOARD[ch] ?? ch)
+      .join('');
+  }
+
+  return '';
+}
+
 // ─── Common Arabic name variants ────────────────────────────────────────────
 
 const MOHAMMAD_VARIANTS = ['mohammad', 'mohammed', 'mohamed', 'muhammad', 'mehmet'];
@@ -174,6 +215,19 @@ export function generateQueryVariants(input: string): string[] {
     }
   }
 
+  const keyboardCorrected = correctKeyboardLayout(trimmed);
+  if (keyboardCorrected && keyboardCorrected !== trimmed) {
+    variants.add(keyboardCorrected);
+    if (containsArabic(keyboardCorrected)) {
+      variants.add(normalizeArabic(keyboardCorrected));
+      variants.add(arabicToLatin(keyboardCorrected));
+    }
+    if (containsLatin(keyboardCorrected)) {
+      variants.add(normalizeLatin(keyboardCorrected));
+      variants.add(latinToArabic(keyboardCorrected));
+    }
+  }
+
   return Array.from(variants).filter(Boolean);
 }
 
@@ -218,6 +272,10 @@ export class NameNormalizationService {
 
   generateVariants(input: string): string[] {
     return generateQueryVariants(input);
+  }
+
+  correctKeyboardLayout(input: string): string {
+    return correctKeyboardLayout(input);
   }
 
   tokenize(input: string): string[] {

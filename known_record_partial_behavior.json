@@ -1,0 +1,182 @@
+[
+  {
+    "variantType": "first",
+    "query": "عبد",
+    "count": 10,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "family",
+    "query": "علي",
+    "count": 10,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "first",
+    "query": "عواد",
+    "count": 4,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "family",
+    "query": "الدرويش",
+    "count": 1,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "first",
+    "query": "ابراهيم",
+    "count": 9,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "family",
+    "query": "الرايد",
+    "count": 3,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "first",
+    "query": "عصبة",
+    "count": 1,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "family",
+    "query": "الانصار",
+    "count": 3,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "first",
+    "query": "مصطفى",
+    "count": 5,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "family",
+    "query": "دباغ",
+    "count": 1,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "first",
+    "query": "حسن",
+    "count": 10,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "family",
+    "query": "آمون",
+    "count": 1,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "first",
+    "query": "احمد",
+    "count": 10,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "family",
+    "query": "مرعب",
+    "count": 2,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "first",
+    "query": "علي",
+    "count": 10,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "family",
+    "query": "مرعب",
+    "count": 2,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "first",
+    "query": "اسكندر",
+    "count": 1,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "family",
+    "query": "البراقي",
+    "count": 3,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "first",
+    "query": "خالد",
+    "count": 10,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  },
+  {
+    "variantType": "family",
+    "query": "شاكر",
+    "count": 2,
+    "topSource": "LEBANON_NATIONAL_LIST",
+    "confidence": 0.741,
+    "decision": "POSSIBLE_MATCH",
+    "reason": "يوجد تشابه مرتفع في الاسم، لكن غياب تاريخ الميلاد ورقم الوثيقة يبقي النتيجة ضمن مراجعة التطابق المحتمل."
+  }
+]

@@ -44,6 +44,54 @@ async function main() {
     },
   });
 
+  await prisma.kydexDataSource.upsert({
+    where: { code: 'OFAC' },
+    update: {
+      name: 'OFAC Sanctions List Service',
+      baseUrl: 'https://sanctionslistservice.ofac.treas.gov',
+    },
+    create: {
+      code: 'OFAC',
+      name: 'OFAC Sanctions List Service',
+      baseUrl: 'https://sanctionslistservice.ofac.treas.gov',
+      fallbackEnabled: true,
+      localCopyAvailable: false,
+    },
+  });
+
+  await prisma.kydexDataSource.upsert({
+    where: { code: 'LEBANON_NATIONAL_LIST' },
+    update: {
+      name: 'Lebanon National List | اللائحة الوطنية',
+      baseUrl: process.env.LEBANON_NATIONAL_LIST_XLS_URL ?? null,
+      fallbackEnabled: true,
+    },
+    create: {
+      code: 'LEBANON_NATIONAL_LIST',
+      name: 'Lebanon National List | اللائحة الوطنية',
+      baseUrl: process.env.LEBANON_NATIONAL_LIST_XLS_URL ?? null,
+      fallbackEnabled: true,
+      localCopyAvailable: false,
+    },
+  });
+
+  await prisma.dataSource.upsert({
+    where: { code: 'LEBANON_NATIONAL_LIST' },
+    update: {
+      name: 'اللائحة الوطنية',
+      type: 'LOCAL',
+      country: 'LB',
+      status: 'ACTIVE',
+    },
+    create: {
+      code: 'LEBANON_NATIONAL_LIST',
+      name: 'اللائحة الوطنية',
+      type: 'LOCAL',
+      country: 'LB',
+      status: 'ACTIVE',
+    },
+  });
+
   const version = await prisma.dataSourceVersion.create({
     data: {
       dataSourceId: source.id,

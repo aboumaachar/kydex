@@ -776,7 +776,7 @@ export type ScreeningLogsResponse = {
   items: ScreeningLogRow[];
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? (process.env.NODE_ENV === 'production' ? '/api/v1' : 'http://localhost:4000/api/v1');
 const TOKEN_KEY = 'kydex_access_token';
 const TOKEN_EXP_KEY = 'kydex_access_token_exp';
 const USER_KEY = 'kydex_user';
@@ -1409,6 +1409,15 @@ export async function getSourceImportStatus(sourceCode: string) {
 
 export async function importSourceFromLegacy(sourceCode: string) {
   return apiRequest<Record<string, unknown>>(`/sources/${sourceCode}/import-from-legacy`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${getAuthToken()}`,
+    },
+  });
+}
+
+export async function syncLebanonNationalList() {
+  return apiRequest<Record<string, unknown>>('/sources/lebanon-national-list/sync', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${getAuthToken()}`,

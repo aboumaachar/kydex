@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { MembershipStatus } from '@prisma/client';
 import { createHash, randomBytes } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { rateLimitsDisabled } from './rate-limits-disabled';
 
 type EndpointUsageSummary = {
   dayManual: number;
@@ -28,6 +29,15 @@ function startOfUtcMonth(date: Date): Date {
 
 function endOfUtcMonth(date: Date): Date {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1, 0, 0, 0, 0));
+}
+
+function rateLimitStatus() {
+  const disabled = rateLimitsDisabled();
+
+  return {
+    disabled,
+    message: disabled ? 'Rate limits disabled by environment.' : null,
+  };
 }
 
 @Injectable()
@@ -369,6 +379,7 @@ export class NotaryAdminService {
       totalNotaries: notaries.length,
       totals,
       items: notaries,
+      rateLimits: rateLimitStatus(),
     };
   }
 
@@ -445,6 +456,7 @@ export class NotaryAdminService {
     return {
       generatedAt: now.toISOString(),
       apiHealth: dbHealth.ok ? 'ok' : 'degraded',
+      rateLimits: rateLimitStatus(),
       database: dbHealth,
       ofac: {
         status: ofacStatus?.status ?? 'unknown',

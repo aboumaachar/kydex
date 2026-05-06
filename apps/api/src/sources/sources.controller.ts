@@ -41,6 +41,11 @@ export class SourcesController {
     return this.sourcesService.importFromLegacy(source);
   }
 
+  @Post('lebanon-national-list/sync')
+  syncLebanonNationalList() {
+    return this.sourcesService.syncLebanonNationalList();
+  }
+
   @Get('ofac/sanctions-lists')
   ofacLists() {
     return this.sourcesService.getOfacSanctionsLists();

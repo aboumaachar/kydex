@@ -1,0 +1,191 @@
+{
+  "generatedAt": "2026-05-06T12:43:02",
+  "status": {
+    "id": "cmotln2ir0004yps9jpk9absw",
+    "code": "LEBANON_NATIONAL_LIST",
+    "name": "Lebanon National List | اللائحة الوطنية",
+    "baseUrl": "https://isf.gov.lb/wp-content/uploads/2024/12/file.xls",
+    "status": "fallback_available",
+    "fallbackEnabled": true,
+    "localCopyAvailable": true,
+    "lastSuccessfulSyncAt": "2026-05-06T05:10:55.886Z",
+    "lastAttemptedSyncAt": "2026-05-06T05:10:53.615Z",
+    "lastHealthCheckAt": null,
+    "lastError": null,
+    "lastLatencyMs": null,
+    "createdAt": "2026-05-06T05:10:53.572Z",
+    "updatedAt": "2026-05-06T05:10:55.888Z"
+  },
+  "importStatus": {
+    "sourceCode": "LEBANON_NATIONAL_LIST",
+    "importedListCount": 1,
+    "sourceEntityCount": 288,
+    "sourceNameCount": 288,
+    "sourceNameVariantCount": 1474,
+    "localCopyAvailable": true,
+    "lastSuccessfulSyncAt": "2026-05-06T05:10:55.886Z"
+  },
+  "listName": "Lebanon National List",
+  "sampleKnownNames": [
+    "عبد الكريم شيخ علي",
+    "عواد الدرويش",
+    "ابراهيم الرايد",
+    "عصبة الانصار",
+    "مصطفى دباغ",
+    "حسن آمون"
+  ],
+  "screenRows": [
+    {
+      "query": "عبد الكريم شيخ علي",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "queryId": "cmotvcqw100058iyb0lx4hp4q"
+    },
+    {
+      "query": "عواد الدرويش",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "queryId": "cmotvcrip000k8iyb6hvipkfo"
+    },
+    {
+      "query": "ابراهيم الرايد",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "queryId": "cmotvcs15000z8iyb8j4xfdb6"
+    },
+    {
+      "query": "عصبة الانصار",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "queryId": "cmotvcsiv001e8iybi7ljtkiy"
+    },
+    {
+      "query": "مصطفى دباغ",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "queryId": "cmotvct4x001t8iybkvq7j882"
+    },
+    {
+      "query": "حسن آمون",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "queryId": "cmotvctof00288iyb7bxxo67g"
+    }
+  ],
+  "directRows": [
+    {
+      "query": "عبد الكريم شيخ علي",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcucg002z8iybocrqe6cd"
+    },
+    {
+      "query": "عواد الدرويش",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcuxn003f8iybg2ti34uw"
+    },
+    {
+      "query": "ابراهيم الرايد",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcvji003v8iyb7nx8tdd6"
+    },
+    {
+      "query": "عصبة الانصار",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcw4h004b8iybnqefxdux"
+    },
+    {
+      "query": "مصطفى دباغ",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcwnv004r8iybzrw8k9ak"
+    },
+    {
+      "query": "حسن آمون",
+      "count": 1,
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcx6g00578iybmtzcand8"
+    }
+  ],
+  "sandraLocalRows": [
+    {
+      "query": "عبد الكريم شيخ علي",
+      "count": 1,
+      "usedSources": "LEBANON_NATIONAL_LIST",
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcxwn005n8iybr7r0gmgz"
+    },
+    {
+      "query": "عواد الدرويش",
+      "count": 1,
+      "usedSources": "LEBANON_NATIONAL_LIST",
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcy9000638iybaq5e16ku"
+    },
+    {
+      "query": "ابراهيم الرايد",
+      "count": 1,
+      "usedSources": "LEBANON_NATIONAL_LIST",
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcyk9006j8iybdd6kr041"
+    },
+    {
+      "query": "عصبة الانصار",
+      "count": 1,
+      "usedSources": "LEBANON_NATIONAL_LIST",
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcyvq006z8iybj26xh51s"
+    },
+    {
+      "query": "مصطفى دباغ",
+      "count": 1,
+      "usedSources": "LEBANON_NATIONAL_LIST",
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvcz7a007f8iybkv2iu30i"
+    },
+    {
+      "query": "حسن آمون",
+      "count": 1,
+      "usedSources": "LEBANON_NATIONAL_LIST",
+      "topSource": "LEBANON_NATIONAL_LIST",
+      "topSourceAr": "اللائحة الوطنية",
+      "auditId": "cmotvczic007v8iyb9pv3oq0g"
+    }
+  ],
+  "scopeCheck": [
+    {
+      "scope": "all",
+      "usedSources": "LEBANON_NATIONAL_LIST,OFAC",
+      "resultCount": 0,
+      "auditId": "cmotvd0le00838iybtjguqkb3"
+    },
+    {
+      "scope": "local",
+      "usedSources": "LEBANON_NATIONAL_LIST",
+      "resultCount": 1,
+      "auditId": "cmotvd0wm008k8iybzdk6nzh9"
+    },
+    {
+      "scope": "ofac",
+      "usedSources": "OFAC",
+      "resultCount": 0,
+      "auditId": "cmotvd1lu008s8iybza33piqu"
+    }
+  ],
+  "noiseDirectCount": 0,
+  "noiseSandraCount": 0
+}

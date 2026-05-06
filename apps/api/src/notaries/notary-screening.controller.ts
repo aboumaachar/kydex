@@ -15,6 +15,8 @@ import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { PrismaService } from '../prisma/prisma.service';
+import { ScreenDto } from '../screening/dto/screen.dto';
+import { ScreeningService } from '../screening/screening.service';
 import { OfacScreeningSearchDto } from '../ofac-screening/dto/ofac-screening-search.dto';
 import { OfacScreeningService } from '../ofac-screening/ofac-screening.service';
 import { NotaryApiKeyGuard } from './notary-api-key.guard';
@@ -42,6 +44,7 @@ export class NotaryScreeningController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly screening: OfacScreeningService,
+    private readonly localScreeningService: ScreeningService,
     private readonly ocr: NotaryOcrService,
     private readonly usagePolicy: NotaryUsagePolicyService,
   ) {}
@@ -106,24 +109,39 @@ export class NotaryScreeningController {
     const apiClientName = (req.headers['x-kydex-client-name'] as string | undefined) ?? null;
     const sourceDefault = apiClient === 'external-api-client' ? 'external_api_client' : 'notary_webpage';
 
-    const result = await this.screening.search(
-      {
-        ...body,
-        notarySlug: slug,
-        source: body.source ?? sourceDefault,
-        screeningType: 'ofac',
-      },
-      {
-        apiKeyId: req.kydexNotaryApiKey?.id,
-        wordpressSite: req.kydexWordPressSite ?? null,
-        wpUserId: body.wpUserId ?? null,
-        ipAddress: (req.headers['x-forwarded-for'] as string) ?? req.socket?.remoteAddress ?? null,
-        userAgent: req.headers['user-agent'] ?? null,
-        apiClient: apiClientName ? `${apiClient ?? 'unknown'}:${apiClientName}` : apiClient,
-        requesterType: 'notary',
-        endpointType: 'manual',
-      },
-    );
+    const ipAddress = (req.headers['x-forwarded-for'] as string) ?? req.socket?.remoteAddress ?? null;
+    const userAgent = req.headers['user-agent'] ?? null;
+    const normalizedSources = Array.isArray(body.sources)
+      ? body.sources.map((value) => String(value).trim().toUpperCase()).filter(Boolean)
+      : [];
+    const isLebanonOnly = normalizedSources.length === 1 && normalizedSources[0] === 'LEBANON_NATIONAL_LIST';
+
+    const result = isLebanonOnly
+      ? await this.searchWithLocalEngine({
+          slug,
+          body,
+          sourceDefault,
+          ipAddress,
+          userAgent,
+        })
+      : await this.screening.search(
+          {
+            ...body,
+            notarySlug: slug,
+            source: body.source ?? sourceDefault,
+            screeningType: 'ofac',
+          },
+          {
+            apiKeyId: req.kydexNotaryApiKey?.id,
+            wordpressSite: req.kydexWordPressSite ?? null,
+            wpUserId: body.wpUserId ?? null,
+            ipAddress,
+            userAgent,
+            apiClient: apiClientName ? `${apiClient ?? 'unknown'}:${apiClientName}` : apiClient,
+            requesterType: 'notary',
+            endpointType: 'manual',
+          },
+        );
 
     await this.prisma.notaryScreeningUsage.create({
       data: {
@@ -136,6 +154,128 @@ export class NotaryScreeningController {
     await this.usagePolicy.incrementUsage(slug, 'manual');
 
     return result;
+  }
+
+  private async searchWithLocalEngine(input: {
+    slug: string;
+    body: OfacScreeningSearchDto;
+    sourceDefault: string;
+    ipAddress: string | null;
+    userAgent: string | null;
+  }) {
+    const tenantId = await this.resolveNotaryTenantId();
+    const resolvedQuery = [input.body.query, input.body.fullName, input.body.subject, input.body.name]
+      .find((value) => typeof value === 'string' && value.trim().length > 0)
+      ?.trim();
+
+    if (!resolvedQuery) {
+      throw new BadRequestException('query/fullName/subject/name is required.');
+    }
+
+    const screenDto: ScreenDto = {
+      query: resolvedQuery,
+      fullName: resolvedQuery,
+      dateOfBirth: input.body.dateOfBirth,
+      nationality: input.body.nationality,
+      screeningType: 'ofac',
+      source: input.body.source ?? input.sourceDefault,
+      liveVerify: input.body.liveVerify,
+      sources: ['LEBANON_NATIONAL_LIST'],
+      clientReference: input.body.clientReference,
+    };
+
+    const screenResult = await this.localScreeningService.screen(
+      tenantId,
+      undefined,
+      screenDto,
+      input.ipAddress ?? undefined,
+      input.userAgent ?? undefined,
+    );
+
+    const audit = await this.prisma.ofacScreeningSearch.create({
+      data: {
+        notarySlug: input.slug,
+        query: resolvedQuery,
+        normalizedQuery: resolvedQuery,
+        source: input.sourceDefault,
+        screeningType: 'ofac',
+        clientReference: input.body.clientReference,
+        wordpressSite: input.body.wordpressSite ?? null,
+        wpUserId: input.body.wpUserId ?? null,
+        resultStatus: String(screenResult.matchDecision ?? 'possible_match').toLowerCase(),
+        highestScore: Math.round((screenResult.highestScore ?? 0) * 100),
+        sourceMode: 'local_only',
+        usedFallback: false,
+        queryVariants: [resolvedQuery],
+        ipAddress: input.ipAddress,
+        userAgent: input.userAgent,
+      },
+    });
+
+    const sourceDisplayNameAr: Record<string, string> = {
+      OFAC: 'أوفاك',
+      LEBANON_NATIONAL_LIST: 'اللائحة الوطنية',
+    };
+
+    const singleTokenWarning = resolvedQuery.trim().split(/\s+/).filter(Boolean).length === 1
+      ? 'بحث باسم مفرد يتطلب مراجعة إضافية.'
+      : null;
+
+    return {
+      status: String(screenResult.matchDecision ?? '').toLowerCase(),
+      query: resolvedQuery,
+      normalizedQuery: resolvedQuery,
+      highestScore: Math.round((screenResult.highestScore ?? 0) * 100),
+      auditId: audit.id,
+      queryVariants: [resolvedQuery],
+      sourceMode: 'local_only',
+      usedFallback: false,
+      liveSourceChecked: false,
+      sourceStatus: {
+        lebanonNationalList: 'connected',
+        localCopyAvailable: true,
+      },
+      warning: singleTokenWarning,
+      matches: (screenResult.matches ?? []).map((match) => ({
+        source: match.source,
+        sourceDisplayNameAr: sourceDisplayNameAr[String(match.source)] ?? String(match.source),
+        entityId: '',
+        primaryName: match.matchedName,
+        primaryNameAr: match.matchedName,
+        primaryNameEn: match.matchedName,
+        matchedName: match.matchedName,
+        matchedNameAr: match.matchedName,
+        matchedNameEn: match.matchedName,
+        matchedAlias: match.matchedAlias,
+        matchedField: match.matchedField,
+        matchedToken: match.matchedToken,
+        listName: String(match.source),
+        programs: [],
+        score: Math.round(Number(match.score ?? 0) * 100),
+        riskLevel: match.riskLevel,
+        classification: match.classification,
+        matchReason: match.reason,
+        matchEvidence: match.matchEvidence,
+        simplifiedArabicReason: match.simplifiedArabicReason,
+        sourceVersion: match.sourceVersion,
+      })),
+      disclaimer:
+        'KYDEX screening results are decision-support outputs and require professional review before any legal or compliance decision.',
+    };
+  }
+
+  private async resolveNotaryTenantId() {
+    const configuredTenantId = process.env.NOTARY_SCREENING_TENANT_ID?.trim();
+    if (configuredTenantId) {
+      return configuredTenantId;
+    }
+
+    const tenant = await this.prisma.tenant.findFirst({ orderBy: { createdAt: 'asc' } });
+    if (!tenant) {
+      throw new BadRequestException('No tenant available for notary screening context.');
+    }
+
+    return tenant.id;
   }
 
   @Post('image')

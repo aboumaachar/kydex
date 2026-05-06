@@ -14,7 +14,7 @@ import {
   runScreening,
 } from '../../../lib/api';
 
-const ACTIVE_SCREENING_SOURCES = ['OFAC'] as const;
+const ACTIVE_SCREENING_SOURCES = ['LEBANON_NATIONAL_LIST', 'OFAC'] as const;
 
 type ScreeningMode = 'SELECTED' | 'ALL';
 type ScreeningSort = 'confidence' | 'risk' | 'source';
@@ -134,7 +134,11 @@ function getMatchedAlias(match: Partial<MatchRecord>) {
 }
 
 function getSourceLabel(match: Partial<MatchRecord>) {
-  return firstNonEmptyText(match.source, match.sourceCode) ?? 'غير متوفر';
+  const raw = firstNonEmptyText(match.source, match.sourceCode) ?? '';
+  const normalized = raw.trim().toUpperCase();
+  if (normalized === 'LEBANON_NATIONAL_LIST') return 'اللائحة الوطنية';
+  if (normalized === 'OFAC' || normalized === 'OFAC_SDN') return 'OFAC';
+  return raw || 'غير متوفر';
 }
 
 function getListLabel(match: Partial<MatchRecord>) {
@@ -581,7 +585,7 @@ export default function NewScreeningPage() {
     () =>
       sourceSummaries.map((source) => ({
         value: source.code,
-        label: source.name,
+        label: source.code === 'LEBANON_NATIONAL_LIST' ? 'اللائحة الوطنية' : source.name,
         status: source.status,
         health: source.syncStatus?.syncHealth ?? 'UNKNOWN',
         lastSyncAt: source.syncStatus?.lastSuccessfulSyncAt ?? source.currentActiveVersion?.importedAt ?? '',
