@@ -171,8 +171,6 @@ if [ ! -x "$PRISMA_BIN" ]; then
   echo "Prisma CLI not found in apps/api/node_modules/.bin or node_modules/.bin" >&2
   exit 1
 fi
-# Resolve any previously failed migration
-"$PRISMA_BIN" migrate resolve --rolled-back 20260502103000_phase9_security_commercial --schema=prisma/schema.prisma 2>&1 | grep -v "^$" || true
 "$PRISMA_BIN" migrate deploy --schema=prisma/schema.prisma 2>&1
 
 echo "=== Verifying Prisma database connection ==="
