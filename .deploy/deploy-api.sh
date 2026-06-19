@@ -1,9 +1,98 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-RELEASE_DIR="/home/kydex/apps/kydex-notary/current"
-API_DIST_TAR="/tmp/kydex-api-dist.tgz"
-ENV_FILE="$RELEASE_DIR/.env"
+RELEASE_DIR="${RELEASE_DIR:-/home/kydex/apps/kydex-notary/current}"
+API_DIST_TAR="${API_DIST_TAR:-/tmp/kydex-api-dist.tgz}"
+ENV_SOURCE="${ENV_SOURCE:-$RELEASE_DIR/.env.production}"
+ENV_FILE="${ENV_FILE:-$RELEASE_DIR/.env}"
+RUNTIME_DB_HOST="${RUNTIME_DB_HOST:-127.0.0.1}"
+RUNTIME_DB_PORT="${RUNTIME_DB_PORT:-5432}"
+PM2_APP_NAME="${PM2_APP_NAME:-kydex-api}"
+
+require_var() {
+  local var_name="$1"
+  if [ -z "${!var_name:-}" ]; then
+    echo "Missing required environment variable: $var_name" >&2
+    exit 1
+  fi
+}
+
+load_env_source() {
+  if [ -f "$ENV_SOURCE" ]; then
+    echo "=== Loading environment from $ENV_SOURCE ==="
+    set -a
+    # shellcheck disable=SC1090
+    . "$ENV_SOURCE"
+    set +a
+  else
+    echo "WARNING: $ENV_SOURCE not found; relying on exported environment variables" >&2
+  fi
+}
+
+build_runtime_database_url() {
+  local runtime_url="${DATABASE_URL:-}"
+  if [ -z "$runtime_url" ]; then
+    runtime_url="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${RUNTIME_DB_HOST}:${RUNTIME_DB_PORT}/${POSTGRES_DB}?schema=public"
+  fi
+  runtime_url="${runtime_url/@postgres:/@${RUNTIME_DB_HOST}:}"
+  echo "$runtime_url"
+}
+
+get_runtime_api_port() {
+  if [ -f "$ENV_FILE" ]; then
+    local configured_port
+    configured_port=$(grep '^API_PORT=' "$ENV_FILE" | tail -1 | cut -d'=' -f2- || true)
+    if [ -n "$configured_port" ]; then
+      echo "$configured_port"
+      return
+    fi
+  fi
+  echo "4000"
+}
+
+write_runtime_env() {
+  if [ -f "$ENV_SOURCE" ]; then
+    grep -v '^DATABASE_URL=' "$ENV_SOURCE" > "$ENV_FILE"
+  else
+    cat > "$ENV_FILE" <<ENVEOF
+NODE_ENV=production
+API_PORT=${API_PORT:-4000}
+POSTGRES_USER=${POSTGRES_USER}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+POSTGRES_DB=${POSTGRES_DB}
+REDIS_HOST=${REDIS_HOST:-127.0.0.1}
+REDIS_PORT=${REDIS_PORT:-6379}
+JWT_SECRET=${JWT_SECRET}
+ACCESS_TOKEN_TTL=${ACCESS_TOKEN_TTL:-15m}
+REFRESH_TOKEN_TTL=${REFRESH_TOKEN_TTL:-7d}
+MINIO_ENDPOINT=${MINIO_ENDPOINT:-127.0.0.1}
+MINIO_PORT=${MINIO_PORT:-9000}
+MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+MINIO_BUCKET=${MINIO_BUCKET:-kydex-files}
+MINIO_USE_SSL=${MINIO_USE_SSL:-false}
+BACKUP_ENCRYPTION_KEY=${BACKUP_ENCRYPTION_KEY}
+ENVEOF
+  fi
+
+  printf '\nDATABASE_URL=%s\n' "$DATABASE_URL_RUNTIME" >> "$ENV_FILE"
+}
+
+load_env_source
+
+POSTGRES_USER="${POSTGRES_USER:-}"
+POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
+POSTGRES_DB="${POSTGRES_DB:-}"
+
+require_var POSTGRES_USER
+require_var POSTGRES_PASSWORD
+require_var POSTGRES_DB
+require_var JWT_SECRET
+require_var MINIO_ACCESS_KEY
+require_var MINIO_SECRET_KEY
+require_var BACKUP_ENCRYPTION_KEY
+
+DATABASE_URL_RUNTIME="$(build_runtime_database_url)"
 
 echo "=== Extracting API dist ==="
 cd "$RELEASE_DIR"
@@ -11,9 +100,9 @@ tar -xzf "$API_DIST_TAR"
 echo "Extracted to $RELEASE_DIR/apps/api/dist"
 
 echo "=== Checking postgres user and database ==="
-PG_USER="kydex"
-PG_PASS="Kydex_Prod_2026!"
-PG_DB="kydex"
+PG_USER="$POSTGRES_USER"
+PG_PASS="$POSTGRES_PASSWORD"
+PG_DB="$POSTGRES_DB"
 
 # Try to connect via Unix socket as postgres (peer auth as root, or trust)
 PG_CMD="psql -U postgres -h /var/run/postgresql"
@@ -56,36 +145,7 @@ run_psql -c "ALTER USER $PG_USER WITH PASSWORD '$PG_PASS';" 2>&1 | grep -v '^$' 
 echo "Postgres setup attempted"
 
 echo "=== Creating .env file ==="
-cat > "$ENV_FILE" << 'ENVEOF'
-NODE_ENV=production
-API_PORT=4051
-DATABASE_URL=postgresql://kydex:Kydex_Prod_2026!@127.0.0.1:5432/kydex?schema=public
-REDIS_HOST=127.0.0.1
-REDIS_PORT=6379
-JWT_SECRET=kydex_jwt_prod_secret_2026_changeme
-ACCESS_TOKEN_TTL=15m
-REFRESH_TOKEN_TTL=7d
-JWT_ACCESS_EXPIRES_IN=15m
-JWT_REFRESH_EXPIRES_IN=7d
-BCRYPT_ROUNDS=12
-RATE_LIMIT_WINDOW_SECONDS=60
-RATE_LIMIT_MAX_REQUESTS=100
-API_BODY_LIMIT=10mb
-MAX_UPLOAD_BYTES=10485760
-CORS_ORIGIN_WHITELIST=https://kydex.me,https://www.kydex.me
-LOGIN_LOCKOUT_MAX_ATTEMPTS=5
-LOGIN_LOCKOUT_MINUTES=15
-REQUIRE_2FA_FOR_PRIVILEGED=false
-DEFAULT_TENANT_COUNTRY=LB
-MINIO_ENDPOINT=127.0.0.1
-MINIO_PORT=9000
-MINIO_ACCESS_KEY=kydex_minio
-MINIO_SECRET_KEY=kydex_minio_password
-MINIO_BUCKET=kydex-files
-MINIO_USE_SSL=false
-UPLOAD_DEBUG_LOGS=false
-BACKUP_ENCRYPTION_KEY=kydex_backup_key_2026_changeme
-ENVEOF
+write_runtime_env
 
 echo "Created $ENV_FILE"
 
@@ -99,30 +159,60 @@ npm rebuild argon2 2>&1 | tail -5 || echo "argon2 rebuild warning (may be ok)"
 
 echo "=== Running Prisma migrations ==="
 cd "$RELEASE_DIR"
-export $(cat "$ENV_FILE" | grep -v '^#' | grep '=' | xargs)
+set -a
+# shellcheck disable=SC1090
+. "$ENV_FILE"
+set +a
 PRISMA_BIN="apps/api/node_modules/.bin/prisma"
-# Resolve any previously failed migration
-"$PRISMA_BIN" migrate resolve --rolled-back 20260502103000_phase9_security_commercial --schema=prisma/schema.prisma 2>&1 | grep -v "^$" || true
+if [ ! -x "$PRISMA_BIN" ] && [ -x "node_modules/.bin/prisma" ]; then
+  PRISMA_BIN="node_modules/.bin/prisma"
+fi
+if [ ! -x "$PRISMA_BIN" ]; then
+  echo "Prisma CLI not found in apps/api/node_modules/.bin or node_modules/.bin" >&2
+  exit 1
+fi
 "$PRISMA_BIN" migrate deploy --schema=prisma/schema.prisma 2>&1
 
-echo "=== Starting kydex-api with PM2 ==="
-pm2 delete kydex-api 2>/dev/null || true
+echo "=== Verifying Prisma database connection ==="
+cd "$RELEASE_DIR/apps/api"
+node <<'NODE'
+const { PrismaClient } = require('@prisma/client');
+
+async function main() {
+  const prisma = new PrismaClient();
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    console.log('Prisma database connection verified');
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+main().catch((error) => {
+  console.error(error && error.stack ? error.stack : String(error));
+  process.exit(1);
+});
+NODE
+
+echo "=== Starting $PM2_APP_NAME with PM2 ==="
+pm2 delete "$PM2_APP_NAME" 2>/dev/null || true
 pm2 start apps/api/dist/main.js \
-  --name kydex-api \
+  --name "$PM2_APP_NAME" \
   --cwd "$RELEASE_DIR" \
-  
+  --update-env
 pm2 save
 echo ""
-echo "=== PM2 kydex-api status ==="
-pm2 describe kydex-api 2>&1 | head -30
+echo "=== PM2 $PM2_APP_NAME status ==="
+pm2 describe "$PM2_APP_NAME" 2>&1 | head -30
 
 echo ""
-echo "=== Waiting 3s then checking port 4051 ==="
+API_PORT_RUNTIME="$(get_runtime_api_port)"
+echo "=== Waiting 3s then checking port $API_PORT_RUNTIME ==="
 sleep 3
-ss -ltnp | grep 4051 || echo "WARNING: nothing on 4051 yet"
+ss -ltnp | grep ":$API_PORT_RUNTIME" || echo "WARNING: nothing on $API_PORT_RUNTIME yet"
 
 echo ""
 echo "=== Checking PM2 error log ==="
-tail -20 ~/.pm2/logs/kydex-api-error.log 2>/dev/null || echo "no error log yet"
+tail -20 "$HOME/.pm2/logs/${PM2_APP_NAME}-error.log" 2>/dev/null || echo "no error log yet"
 
 echo "DONE"

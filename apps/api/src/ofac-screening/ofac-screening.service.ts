@@ -27,11 +27,18 @@ type UnifiedMatch = {
   primaryNameAr: string | null;
   primaryNameEn: string | null;
   matchedName: string;
+  matchedAlias?: string | null;
   listName: string | null;
   programs: string[];
   score: number;
   riskLevel: string;
   matchReason: string;
+  watchlistRecordId?: string | null;
+  sourceRecordId?: string | null;
+  ofacNameId?: string | null;
+  ofacEntityId?: string | null;
+  ofacUid?: string | null;
+  sourceVersionLabel?: string | null;
 };
 
 @Injectable()
@@ -233,11 +240,18 @@ export class OfacScreeningService {
           primaryNameAr: null,
           primaryNameEn: name.entity.primaryName ?? name.fullName,
           matchedName: name.fullName,
+          matchedAlias: name.isPrimary ? null : name.fullName,
           listName: name.entity.listName,
           programs: name.entity.programs,
           score: score.score,
           riskLevel: score.riskLevel,
           matchReason: score.matchReason,
+          watchlistRecordId: null,
+          sourceRecordId: `OFAC_NAME:${name.id}`,
+          ofacNameId: name.id,
+          ofacEntityId: name.entity.id,
+          ofacUid: name.entity.ofacEntityId,
+          sourceVersionLabel: 'OFAC_LOCAL',
         });
       }
     }
@@ -318,9 +332,9 @@ export class OfacScreeningService {
         this.prisma.ofacScreeningMatch.create({
           data: {
             searchId: search.id,
-            ofacEntityId: match.entityId,
-            ofacEntityDbId: null,
-            matchedNameId: null,
+            ofacEntityId: match.ofacUid ?? match.entityId,
+            ofacEntityDbId: match.ofacEntityId ?? null,
+            matchedNameId: match.ofacNameId ?? null,
             primaryName: match.primaryName,
             matchedName: match.matchedName,
             listName: match.listName,
@@ -332,6 +346,13 @@ export class OfacScreeningService {
               source: match.source,
               candidateName: match.matchedName,
               entityId: match.entityId,
+              watchlistRecordId: match.watchlistRecordId ?? null,
+              sourceRecordId: match.sourceRecordId ?? null,
+              ofacNameId: match.ofacNameId ?? null,
+              ofacEntityId: match.ofacEntityId ?? null,
+              ofacUid: match.ofacUid ?? null,
+              sourceVersionLabel: match.sourceVersionLabel ?? null,
+              matchedAlias: match.matchedAlias ?? null,
               primaryNameAr: match.primaryNameAr,
               primaryNameEn: match.primaryNameEn,
             },
@@ -391,11 +412,18 @@ export class OfacScreeningService {
         primaryNameAr: match.primaryNameAr,
         primaryNameEn: match.primaryNameEn,
         matchedName: match.matchedName,
+        matchedAlias: match.matchedAlias ?? null,
         listName: match.listName,
         programs: match.programs,
         score: match.score,
         riskLevel: match.riskLevel,
         matchReason: match.matchReason,
+        watchlistRecordId: match.watchlistRecordId ?? null,
+        sourceRecordId: match.sourceRecordId ?? null,
+        ofacNameId: match.ofacNameId ?? null,
+        ofacEntityId: match.ofacEntityId ?? null,
+        ofacUid: match.ofacUid ?? null,
+        sourceVersionLabel: match.sourceVersionLabel ?? null,
       })),
       disclaimer:
         'KYDEX screening results are decision-support outputs and require professional review before any legal or compliance decision.',
@@ -544,11 +572,15 @@ export class OfacScreeningService {
         primaryNameAr,
         primaryNameEn,
         matchedName: best.matchedName,
+        matchedAlias: best.matchedName !== record.primaryName ? best.matchedName : null,
         listName: typeof payload.listName === 'string' ? payload.listName : 'Lebanon National List',
         programs: Array.isArray(payload.programs) ? payload.programs.filter((value): value is string => typeof value === 'string') : [],
         score: best.score,
         riskLevel: best.riskLevel,
         matchReason: best.matchReason,
+        watchlistRecordId: record.id,
+        sourceRecordId: record.externalReference ?? record.id,
+        sourceVersionLabel: activeVersionId,
       });
     }
 
