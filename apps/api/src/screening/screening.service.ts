@@ -1055,8 +1055,8 @@ export class ScreeningService {
         ? `Alias "${candidate.fullName}" matched the query in the OFAC local dataset.`
         : `Primary name "${candidate.fullName}" matched the query in the OFAC local dataset.`;
       const simpleReasonArabic = isAliasMatch
-        ? `╪╕┘ç╪▒ ┘ç╪░╪º ╪º┘ä╪│╪¼┘ä ┘ä╪ú┘å ╪º┘ä╪º╪│┘à ╪º┘ä╪¿╪»┘è┘ä "${candidate.fullName}" ╪╖╪º╪¿┘é ╪╣╪¿╪º╪▒╪⌐ ╪º┘ä╪¿╪¡╪½ ┘ü┘è ┘å╪│╪«╪⌐ OFAC ╪º┘ä┘à╪¡┘ä┘è╪⌐.`
-        : `╪╕┘ç╪▒ ┘ç╪░╪º ╪º┘ä╪│╪¼┘ä ┘ä╪ú┘å ╪º┘ä╪º╪│┘à ╪º┘ä┘à╪»╪▒╪¼ "${candidate.fullName}" ╪╖╪º╪¿┘é ╪╣╪¿╪º╪▒╪⌐ ╪º┘ä╪¿╪¡╪½ ┘ü┘è ┘å╪│╪«╪⌐ OFAC ╪º┘ä┘à╪¡┘ä┘è╪⌐.`;
+        ? `ظهر هذا السجل لأن الاسم البديل "${candidate.fullName}" طابق عبارة البحث في نسخة OFAC المحلية.`
+        : `ظهر هذا السجل لأن الاسم المدرج "${candidate.fullName}" طابق عبارة البحث في نسخة OFAC المحلية.`;
 
       const riskLevel = this.scoringService.classifyRisk(score, false);
       const classification = this.scoringService.classifyMatch(score);
