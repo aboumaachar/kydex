@@ -1,7 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
-import { CasePriority, CaseStatus, MatchDecision, RiskLevel } from '@prisma/client';
+import { CasePriority, CaseStatus, MatchClassification, MatchDecision, RiskLevel } from '@prisma/client';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { MatchingService } from '../matching/matching.service';
+import { calculateNameMatchScore } from '../ofac/utils/match-score';
+import { normalizeName as normalizeOfacName, tokenizeName as tokenizeOfacName } from '../ofac/utils/ofac-normalizer';
 import { PrismaService } from '../prisma/prisma.service';
 import { MatchDecisionService } from '../scoring/match-decision.service';
 import { ScoringService } from '../scoring/scoring.service';
@@ -39,6 +41,48 @@ type CandidateEvidence = {
   normalizedExactMatch: boolean;
   transliterationMatched: boolean;
   nearTokenMatched: boolean;
+};
+
+type ComputedScreeningMatch = {
+  watchlistRecordId: string | null;
+  sourceCode: string;
+  matchedName: string;
+  matchedField: CandidateField | null;
+  matchedAlias: string | null;
+  matchedAliasScore: number;
+  matchedToken: string | null;
+  tokenOverlap: number;
+  matchEvidence: string;
+  simpleReasonArabic: string;
+  simplifiedArabicReason: string;
+  score: number;
+  nameScore: number;
+  aliasScore: number;
+  aliasMatched: boolean;
+  exactAliasMatched: boolean;
+  transliterationMatched: boolean;
+  arabicExactMatch: boolean;
+  arabicNormalizedMatch: boolean;
+  arabicTransliterationMatch: boolean;
+  arabicTokenOverlap: number;
+  arabicFatherNameMatch: boolean;
+  arabicFamilyNameMatch: boolean;
+  nationalityMatched: boolean;
+  nationalityMismatch: boolean;
+  dobMatched: boolean;
+  dobMismatch: boolean;
+  docMatched: boolean;
+  docMismatch: boolean;
+  programOrCategory: string;
+  riskLevel: RiskLevel;
+  classification: MatchClassification;
+  matchReason: string;
+  sourceVersionLabel: string;
+  // OFAC supplemental evidence fields
+  sourceRecordId?: string;
+  ofacNameId?: string;
+  ofacEntityId?: string;
+  ofacUid?: string | null;
 };
 
 @Injectable()
@@ -83,7 +127,7 @@ export class ScreeningService {
     let highestScore = 0;
     let highestRisk: RiskLevel = RiskLevel.LOW;
 
-    const computedMatches = records
+    const baseMatches = records
       .map((record) => {
         const primaryNameCandidates = this.collectCandidateNames(
           record.primaryName,
@@ -317,34 +361,55 @@ export class ScreeningService {
       })
       .filter((match) => match.score >= 0.5 && this.hasVisibleEvidenceForResult(match))
       .sort((a, b) => b.score - a.score)
+      .slice(0, 25);
+
+    const includeOfacSource =
+      screeningSources.searchedSources.includes('OFAC_SDN') ||
+      screeningSources.searchedSources.includes('OFAC_CONSOLIDATED');
+
+    const ofacSupplementalMatches = includeOfacSource
+      ? await this.findOfacSupplementalMatches(screeningName, normalizedName)
+      : [];
+
+    const computedMatches = [...baseMatches, ...ofacSupplementalMatches]
+      .sort((a, b) => b.score - a.score)
       .slice(0, 10);
 
+    const topScore = computedMatches[0]?.score ?? 0;
+    if (topScore > highestScore) {
+      highestScore = topScore;
+      highestRisk = computedMatches[0]?.riskLevel ?? highestRisk;
+    }
+
     const topDecisionCandidate = computedMatches[0]
-      ? {
-          watchlistRecordId: computedMatches[0].watchlistRecordId,
-          sourceCode: computedMatches[0].sourceCode,
-          matchedName: computedMatches[0].matchedName,
-          score: computedMatches[0].score,
-          classification: String(computedMatches[0].classification),
-          nameScore: computedMatches[0].nameScore,
-          aliasScore: computedMatches[0].aliasScore,
-          aliasMatched: computedMatches[0].aliasMatched,
-          exactAliasMatched: computedMatches[0].exactAliasMatched,
-          transliterationMatched: computedMatches[0].transliterationMatched,
-          arabicExactMatch: computedMatches[0].arabicExactMatch,
-          arabicNormalizedMatch: computedMatches[0].arabicNormalizedMatch,
-          arabicTransliterationMatch: computedMatches[0].arabicTransliterationMatch,
-          arabicTokenOverlap: computedMatches[0].arabicTokenOverlap,
-          arabicFatherNameMatch: computedMatches[0].arabicFatherNameMatch,
-          arabicFamilyNameMatch: computedMatches[0].arabicFamilyNameMatch,
-          nationalityMatched: computedMatches[0].nationalityMatched,
-          nationalityMismatch: computedMatches[0].nationalityMismatch,
-          dobMatched: computedMatches[0].dobMatched,
-          dobMismatch: computedMatches[0].dobMismatch,
-          docMatched: computedMatches[0].docMatched,
-          docMismatch: computedMatches[0].docMismatch,
-          programOrCategory: computedMatches[0].programOrCategory,
-        }
+      ? (() => {
+          const top: any = computedMatches[0] as any;
+          return {
+            watchlistRecordId: top.watchlistRecordId ?? top.sourceRecordId ?? '',
+            sourceCode: top.sourceCode,
+            matchedName: top.matchedName,
+            score: top.score,
+            classification: String(top.classification),
+            nameScore: top.nameScore,
+            aliasScore: top.aliasScore,
+            aliasMatched: top.aliasMatched,
+            exactAliasMatched: top.exactAliasMatched,
+            transliterationMatched: top.transliterationMatched,
+            arabicExactMatch: top.arabicExactMatch,
+            arabicNormalizedMatch: top.arabicNormalizedMatch,
+            arabicTransliterationMatch: top.arabicTransliterationMatch,
+            arabicTokenOverlap: top.arabicTokenOverlap,
+            arabicFatherNameMatch: top.arabicFatherNameMatch,
+            arabicFamilyNameMatch: top.arabicFamilyNameMatch,
+            nationalityMatched: top.nationalityMatched,
+            nationalityMismatch: top.nationalityMismatch,
+            dobMatched: top.dobMatched,
+            dobMismatch: top.dobMismatch,
+            docMatched: top.docMatched,
+            docMismatch: top.docMismatch,
+            programOrCategory: top.programOrCategory,
+          };
+        })()
       : undefined;
     const decision = this.matchDecisionService.evaluate({
       fullName: dto.fullName,
@@ -927,6 +992,126 @@ export class ScreeningService {
 
   private isWeakCommonNameQuery(queryTokens: string[]) {
     return queryTokens.length > 0 && queryTokens.length <= 2 && queryTokens.every((token) => WEAK_COMMON_NAME_TOKENS.has(token));
+  }
+
+  private async findOfacSupplementalMatches(
+    screeningName: string,
+    normalizedQuery: string,
+  ): Promise<ComputedScreeningMatch[]> {
+    const normalizedOfacQuery = normalizeOfacName(screeningName);
+    const queryTokens = this.matchingService.getNormalizedTokens(normalizedQuery);
+    const tokenClauses = tokenizeOfacName(screeningName)
+      .filter((token) => token.length >= 2)
+      .slice(0, 6)
+      .map((token) => ({
+        normalizedName: { contains: token, mode: 'insensitive' as const },
+      }));
+
+    const exactClause = normalizedOfacQuery
+      ? [
+          {
+            normalizedName: normalizedOfacQuery,
+          },
+        ]
+      : [];
+
+    const whereClauses = [...exactClause, ...tokenClauses];
+    if (whereClauses.length === 0) {
+      return [];
+    }
+
+    const candidates = await this.prisma.ofacName.findMany({
+      where: {
+        OR: whereClauses,
+      },
+      include: {
+        entity: true,
+      },
+      take: 500,
+    });
+
+    // Deduplicate results by OFAC entity id, keeping the highest-scoring match per entity
+    const byEntity = new Map<string, ComputedScreeningMatch>();
+
+    for (const candidate of candidates) {
+      const scoreResult = calculateNameMatchScore(screeningName, candidate.fullName);
+      if (scoreResult.score < 60) {
+        continue;
+      }
+
+      const score = scoreResult.score / 100;
+      const candidateTokens = this.matchingService.getNormalizedTokens(candidate.fullName);
+      const sharedTokens = [...new Set(queryTokens.filter((token) => candidateTokens.includes(token)))];
+      const tokenOverlap = sharedTokens.length;
+      const matchedToken = sharedTokens[0] ?? null;
+      const isAliasMatch = !candidate.isPrimary;
+      const sourceCode =
+        candidate.entity.listName?.toLowerCase().includes('consolidated')
+          ? 'OFAC_CONSOLIDATED'
+          : 'OFAC_SDN';
+      const programOrCategory = candidate.entity.programs.length > 0 ? candidate.entity.programs.join(', ') : 'OFAC';
+
+      const matchEvidence = isAliasMatch
+        ? `Alias "${candidate.fullName}" matched the query in the OFAC local dataset.`
+        : `Primary name "${candidate.fullName}" matched the query in the OFAC local dataset.`;
+      const simpleReasonArabic = isAliasMatch
+        ? `╪╕┘ç╪▒ ┘ç╪░╪º ╪º┘ä╪│╪¼┘ä ┘ä╪ú┘å ╪º┘ä╪º╪│┘à ╪º┘ä╪¿╪»┘è┘ä "${candidate.fullName}" ╪╖╪º╪¿┘é ╪╣╪¿╪º╪▒╪⌐ ╪º┘ä╪¿╪¡╪½ ┘ü┘è ┘å╪│╪«╪⌐ OFAC ╪º┘ä┘à╪¡┘ä┘è╪⌐.`
+        : `╪╕┘ç╪▒ ┘ç╪░╪º ╪º┘ä╪│╪¼┘ä ┘ä╪ú┘å ╪º┘ä╪º╪│┘à ╪º┘ä┘à╪»╪▒╪¼ "${candidate.fullName}" ╪╖╪º╪¿┘é ╪╣╪¿╪º╪▒╪⌐ ╪º┘ä╪¿╪¡╪½ ┘ü┘è ┘å╪│╪«╪⌐ OFAC ╪º┘ä┘à╪¡┘ä┘è╪⌐.`;
+
+      const riskLevel = this.scoringService.classifyRisk(score, false);
+      const classification = this.scoringService.classifyMatch(score);
+
+      // Build a supplemental match without pretending the OFAC name id is a watchlist record id
+      const match: ComputedScreeningMatch = {
+        watchlistRecordId: null,
+        sourceCode,
+        matchedName: candidate.entity.primaryName ?? candidate.fullName,
+        matchedField: candidate.isPrimary ? 'primaryName' : 'alias',
+        matchedAlias: isAliasMatch ? candidate.fullName : null,
+        matchedAliasScore: isAliasMatch ? score : 0,
+        matchedToken,
+        tokenOverlap,
+        matchEvidence,
+        simpleReasonArabic,
+        simplifiedArabicReason: simpleReasonArabic,
+        score,
+        nameScore: candidate.isPrimary ? score : 0,
+        aliasScore: isAliasMatch ? score : 0,
+        aliasMatched: isAliasMatch,
+        exactAliasMatched: false,
+        transliterationMatched: false,
+        arabicExactMatch: false,
+        arabicNormalizedMatch: false,
+        arabicTransliterationMatch: false,
+        arabicTokenOverlap: 0,
+        arabicFatherNameMatch: false,
+        arabicFamilyNameMatch: false,
+        nationalityMatched: false,
+        nationalityMismatch: false,
+        dobMatched: false,
+        dobMismatch: false,
+        docMatched: false,
+        docMismatch: false,
+        programOrCategory,
+        riskLevel,
+        classification,
+        matchReason: `${matchEvidence} | Name similarity: ${(score * 100).toFixed(1)}% | Source: ${sourceCode} | Version: OFAC_LOCAL`,
+        sourceVersionLabel: 'OFAC_LOCAL',
+        // safe OFAC evidence fields
+        sourceRecordId: `OFAC_NAME:${candidate.id}`,
+        ofacNameId: candidate.id,
+        ofacEntityId: candidate.entity.id,
+        ofacUid: candidate.entity.ofacEntityId ?? null,
+      };
+
+      const entityId = candidate.entity.id;
+      const existing = byEntity.get(entityId);
+      if (!existing || (existing && match.score > existing.score)) {
+        byEntity.set(entityId, match);
+      }
+    }
+
+    return Array.from(byEntity.values());
   }
 
   private async resolveScreeningSources(requestedSources?: string[]) {

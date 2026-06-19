@@ -18,6 +18,11 @@ Deploy KYDEX for Notary Council online production.
 - Staging: .env.staging
 - Production: .env.production (copy from .env.production.example and set secrets)
 
+## Current Host Deployment
+- Public routing stays on Apache/Caddy, with the API exposed internally on `127.0.0.1:4000` and the web app on `127.0.0.1:3000`.
+- Direct host API deployments use `.deploy/deploy-api.sh` after syncing a built `apps/api/dist` and a populated `.env.production` into the release directory.
+- The deploy script provisions the PostgreSQL role and database from `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB`, rewrites the runtime `.env` with a host-local `DATABASE_URL`, runs `prisma migrate deploy`, verifies Prisma database connectivity, and restarts PM2.
+
 ## Deployment Steps
 1. Populate .env.production with real secrets and domain.
    - `DEPLOYMENT_CERT_STRICT_SIGNING=true`
@@ -39,6 +44,12 @@ Deploy KYDEX for Notary Council online production.
    - npm run production:certify
    - Certification is production-valid only when the signing key comes from `DEPLOYMENT_CERT_SIGNING_KEY` in strict mode and the match-validation gate passes.
 8. Confirm HTTPS and domain routing through Caddy.
+
+## Direct Host API Release
+1. Build the API artifact locally: `pnpm -C apps/api build`
+2. Copy `apps/api/dist` and `.env.production` to the host release directory.
+3. Run `.deploy/deploy-api.sh` on the host with `ENV_SOURCE` pointed at the release copy of `.env.production` when it is not already at the default path.
+4. Validate the deployed database connection and runtime health with `npm run preflight` and the API health endpoint after PM2 restarts.
 
 ## Rollback
 1. npm run deploy:prod:down
