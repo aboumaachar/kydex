@@ -7,6 +7,7 @@ ENV_SOURCE="${ENV_SOURCE:-$RELEASE_DIR/.env.production}"
 ENV_FILE="${ENV_FILE:-$RELEASE_DIR/.env}"
 RUNTIME_DB_HOST="${RUNTIME_DB_HOST:-127.0.0.1}"
 RUNTIME_DB_PORT="${RUNTIME_DB_PORT:-5432}"
+PM2_APP_NAME="${PM2_APP_NAME:-kydex-api}"
 
 require_var() {
   local var_name="$1"
@@ -35,6 +36,18 @@ build_runtime_database_url() {
   fi
   runtime_url="${runtime_url/@postgres:/@${RUNTIME_DB_HOST}:}"
   echo "$runtime_url"
+}
+
+get_runtime_api_port() {
+  if [ -f "$ENV_FILE" ]; then
+    local configured_port
+    configured_port=$(grep '^API_PORT=' "$ENV_FILE" | tail -1 | cut -d'=' -f2- || true)
+    if [ -n "$configured_port" ]; then
+      echo "$configured_port"
+      return
+    fi
+  fi
+  echo "4000"
 }
 
 write_runtime_env() {
@@ -151,6 +164,13 @@ set -a
 . "$ENV_FILE"
 set +a
 PRISMA_BIN="apps/api/node_modules/.bin/prisma"
+if [ ! -x "$PRISMA_BIN" ] && [ -x "node_modules/.bin/prisma" ]; then
+  PRISMA_BIN="node_modules/.bin/prisma"
+fi
+if [ ! -x "$PRISMA_BIN" ]; then
+  echo "Prisma CLI not found in apps/api/node_modules/.bin or node_modules/.bin" >&2
+  exit 1
+fi
 # Resolve any previously failed migration
 "$PRISMA_BIN" migrate resolve --rolled-back 20260502103000_phase9_security_commercial --schema=prisma/schema.prisma 2>&1 | grep -v "^$" || true
 "$PRISMA_BIN" migrate deploy --schema=prisma/schema.prisma 2>&1
@@ -176,24 +196,25 @@ main().catch((error) => {
 });
 NODE
 
-echo "=== Starting kydex-api with PM2 ==="
-pm2 delete kydex-api 2>/dev/null || true
+echo "=== Starting $PM2_APP_NAME with PM2 ==="
+pm2 delete "$PM2_APP_NAME" 2>/dev/null || true
 pm2 start apps/api/dist/main.js \
-  --name kydex-api \
+  --name "$PM2_APP_NAME" \
   --cwd "$RELEASE_DIR" \
   --update-env
 pm2 save
 echo ""
-echo "=== PM2 kydex-api status ==="
-pm2 describe kydex-api 2>&1 | head -30
+echo "=== PM2 $PM2_APP_NAME status ==="
+pm2 describe "$PM2_APP_NAME" 2>&1 | head -30
 
 echo ""
-echo "=== Waiting 3s then checking port 4000 ==="
+API_PORT_RUNTIME="$(get_runtime_api_port)"
+echo "=== Waiting 3s then checking port $API_PORT_RUNTIME ==="
 sleep 3
-ss -ltnp | grep 4000 || echo "WARNING: nothing on 4000 yet"
+ss -ltnp | grep ":$API_PORT_RUNTIME" || echo "WARNING: nothing on $API_PORT_RUNTIME yet"
 
 echo ""
 echo "=== Checking PM2 error log ==="
-tail -20 ~/.pm2/logs/kydex-api-error.log 2>/dev/null || echo "no error log yet"
+tail -20 "$HOME/.pm2/logs/${PM2_APP_NAME}-error.log" 2>/dev/null || echo "no error log yet"
 
 echo "DONE"
